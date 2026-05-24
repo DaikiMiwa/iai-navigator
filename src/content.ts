@@ -18,12 +18,21 @@
     element: FormControlTargetElement;
   }
 
+  interface MenuTriggerTarget extends HintTargetBase {
+    kind: "menu-trigger";
+    element: HTMLElement;
+  }
+
   interface SemanticActionTarget extends HintTargetBase {
     kind: "semantic-action";
     element: HTMLElement;
   }
 
-  type HintTarget = LinkTarget | FormControlTarget | SemanticActionTarget;
+  type HintTarget =
+    | LinkTarget
+    | FormControlTarget
+    | MenuTriggerTarget
+    | SemanticActionTarget;
   type FormControlTargetElement =
     | HTMLButtonElement
     | HTMLInputElement
@@ -103,8 +112,24 @@
   const HELP_OVERLAY_ID = "skne-help-overlay";
   const NATIVE_HINT_TARGET_SELECTOR =
     "a[href], button, input, select, textarea";
+  const MENU_TRIGGER_TARGET_SELECTOR = [
+    "[aria-haspopup]",
+    "[aria-expanded]",
+    "[aria-controls]",
+    "nav button",
+    "header button",
+    '[role="navigation"] button',
+    '[role="menubar"] button',
+    'nav [role="button"]',
+    'header [role="button"]',
+    '[role="navigation"] [role="button"]',
+    '[role="menubar"] [role="button"]',
+    '[role="menuitem"]',
+  ].join(", ");
   const SEMANTIC_ACTION_TARGET_SELECTOR =
     '[role="button"], [role="link"], [role="tab"]';
+  const MENU_TRIGGER_FOCUS_RESCAN_DELAY_MS = 80;
+  const MENU_TRIGGER_CLICK_RESCAN_DELAY_MS = 120;
   const TOP_SEQUENCE_WINDOW_MS = 800;
   const URL_COPY_SEQUENCE_WINDOW_MS = 800;
   const URL_COPY_TOAST_MS = 1200;
@@ -124,12 +149,22 @@
     "url",
   ]);
 
+  (
+    globalThis as typeof globalThis & {
+      SafariKeyboardNavigationHintTargets?: SafariKeyboardNavigationHintTargets;
+    }
+  ).SafariKeyboardNavigationHintTargets = {
+    canClickMenuTriggerCandidate,
+    isSafeMenuTriggerCandidate,
+  };
+
   let hintState: HintState | null = null;
   let helpState: HelpState | null = null;
   let lastGPressAt = 0;
   let lastYPressAt = 0;
   let urlCopyToastTimer = 0;
   let movementState: MovementState | null = null;
+  let menuRevealTimer = 0;
 
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("keyup", handleKeyUp, true);
@@ -145,6 +180,13 @@
 
     if (helpState) {
       handleHelpKeyDown(event);
+      return;
+    }
+
+    if (menuRevealTimer && event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      cancelPendingMenuReveal();
       return;
     }
 
@@ -409,6 +451,8 @@
   }
 
   function startHintMode(activationMode: HintActivationMode): void {
+    cancelPendingMenuReveal();
+
     const targets = collectHintTargets(activationMode);
     if (targets.length === 0) {
       return;
@@ -499,11 +543,13 @@
 
   function cancelHintMode(): void {
     if (!hintState) {
+      cancelPendingMenuReveal();
       return;
     }
 
     hintState.overlay.remove();
     hintState = null;
+    cancelPendingMenuReveal();
     window.removeEventListener("scroll", cancelHintMode, true);
     window.removeEventListener("resize", cancelHintMode, true);
   }
@@ -591,12 +637,67 @@
     helpState = null;
   }
 
+  function scheduleMenuRevealStep(callback: () => void, delayMs: number): void {
+    cancelPendingMenuReveal();
+    menuRevealTimer = window.setTimeout(() => {
+      menuRevealTimer = 0;
+      callback();
+    }, delayMs);
+  }
+
+  function cancelPendingMenuReveal(): void {
+    if (!menuRevealTimer) {
+      return;
+    }
+
+    window.clearTimeout(menuRevealTimer);
+    menuRevealTimer = 0;
+  }
+
+  function collectVisibleLinkSignatures(): Set<string> {
+    const signatures = new Set<string>();
+    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+      "a[href]",
+    )) {
+      if (!isVisibleLink(link)) {
+        continue;
+      }
+
+      const rect = visibleRectForElement(link);
+      if (!rect) {
+        continue;
+      }
+
+      signatures.add(
+        [
+          link.href,
+          Math.round(rect.left),
+          Math.round(rect.top),
+          link.textContent?.trim().slice(0, 80) ?? "",
+        ].join("\n"),
+      );
+    }
+
+    return signatures;
+  }
+
+  function hasNewVisibleLinks(beforeVisibleLinks: Set<string>): boolean {
+    for (const signature of collectVisibleLinkSignatures()) {
+      if (!beforeVisibleLinks.has(signature)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   function collectHintTargets(
     activationMode: HintActivationMode,
   ): HintTarget[] {
     const targets: HintTarget[] = [];
     collectLinkTargetsInto(targets, activationMode);
     if (activationMode === "current-tab") {
+      collectMenuTriggerTargetsInto(targets);
       collectFormControlTargetsInto(targets);
       collectSemanticActionTargetsInto(targets);
     }
@@ -656,6 +757,25 @@
     }
   }
 
+  function collectMenuTriggerTargetsInto(targets: HintTarget[]): void {
+    const seen = new Set<HTMLElement>();
+    for (const element of document.querySelectorAll<HTMLElement>(
+      MENU_TRIGGER_TARGET_SELECTOR,
+    )) {
+      if (seen.has(element) || !isVisibleMenuTriggerTarget(element)) {
+        continue;
+      }
+
+      const rect = visibleRectForElement(element);
+      if (!rect) {
+        continue;
+      }
+
+      seen.add(element);
+      targets.push({ kind: "menu-trigger", element, rect });
+    }
+  }
+
   function collectSemanticActionTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<HTMLElement>();
     for (const element of document.querySelectorAll<HTMLElement>(
@@ -693,7 +813,11 @@
   function isVisibleFormControlTarget(
     element: FormControlTargetElement,
   ): boolean {
-    if (element.disabled || !isVisibleElement(element)) {
+    if (
+      element.disabled ||
+      isSafeMenuTriggerElementCandidate(element) ||
+      !isVisibleElement(element)
+    ) {
       return false;
     }
 
@@ -704,8 +828,18 @@
     return true;
   }
 
+  function isVisibleMenuTriggerTarget(element: HTMLElement): boolean {
+    return (
+      isVisibleElement(element) && isSafeMenuTriggerElementCandidate(element)
+    );
+  }
+
   function isVisibleSemanticActionTarget(element: HTMLElement): boolean {
-    if (!isVisibleElement(element) || isNativeHintTarget(element)) {
+    if (
+      !isVisibleElement(element) ||
+      isNativeHintTarget(element) ||
+      isSafeMenuTriggerElementCandidate(element)
+    ) {
       return false;
     }
 
@@ -714,6 +848,96 @@
     }
 
     return true;
+  }
+
+  function isSafeMenuTriggerElementCandidate(element: HTMLElement): boolean {
+    return isSafeMenuTriggerCandidate(menuTriggerCandidateForElement(element));
+  }
+
+  function canClickMenuTriggerElement(element: HTMLElement): boolean {
+    return canClickMenuTriggerCandidate(
+      menuTriggerCandidateForElement(element),
+    );
+  }
+
+  function menuTriggerCandidateForElement(
+    element: HTMLElement,
+  ): SafariKeyboardNavigationMenuTriggerCandidate {
+    return {
+      hasAriaControls: element.hasAttribute("aria-controls"),
+      hasAriaExpanded: element.hasAttribute("aria-expanded"),
+      hasAriaHaspopup:
+        element.hasAttribute("aria-haspopup") &&
+        element.getAttribute("aria-haspopup") !== "false",
+      isAriaDisabled: element.getAttribute("aria-disabled") === "true",
+      isDisabled:
+        element instanceof HTMLButtonElement ||
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLSelectElement ||
+        element instanceof HTMLTextAreaElement
+          ? element.disabled
+          : false,
+      isFormSubmitButton:
+        element instanceof HTMLButtonElement &&
+        element.closest("form") !== null &&
+        element.type === "submit",
+      isInNavigationContext:
+        element.closest(
+          'nav, header, [role="navigation"], [role="menubar"], [role="menu"]',
+        ) !== null,
+      isLink: element.matches("a[href]") || element.closest("a[href]") !== null,
+      isNonButtonFormControl:
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLSelectElement ||
+        element instanceof HTMLTextAreaElement,
+      role: (element.getAttribute("role") ?? "").toLowerCase(),
+      tagName: element.tagName.toLowerCase(),
+    };
+  }
+
+  function isSafeMenuTriggerCandidate(
+    candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): boolean {
+    if (
+      candidate.isAriaDisabled ||
+      candidate.isDisabled ||
+      candidate.isFormSubmitButton ||
+      candidate.isLink ||
+      candidate.isNonButtonFormControl
+    ) {
+      return false;
+    }
+
+    const signals = menuTriggerSignals(candidate);
+    return signals.hasExplicitDisclosure || signals.isNavigationButtonLike;
+  }
+
+  function canClickMenuTriggerCandidate(
+    candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): boolean {
+    if (!isSafeMenuTriggerCandidate(candidate)) {
+      return false;
+    }
+
+    const signals = menuTriggerSignals(candidate);
+    return signals.hasExplicitDisclosure;
+  }
+
+  function menuTriggerSignals(
+    candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): { hasExplicitDisclosure: boolean; isNavigationButtonLike: boolean } {
+    const tagName = candidate.tagName.toLowerCase();
+    const role = candidate.role.toLowerCase();
+    const isButtonLike =
+      tagName === "button" || role === "button" || role === "menuitem";
+
+    return {
+      hasExplicitDisclosure:
+        candidate.hasAriaControls ||
+        candidate.hasAriaExpanded ||
+        candidate.hasAriaHaspopup,
+      isNavigationButtonLike: candidate.isInNavigationContext && isButtonLike,
+    };
   }
 
   function isNativeHintTarget(element: HTMLElement): boolean {
@@ -806,12 +1030,42 @@
       return;
     }
 
+    if (target.kind === "menu-trigger") {
+      activateMenuTriggerTarget(target.element);
+      return;
+    }
+
     if (target.kind === "semantic-action") {
       activateSemanticActionTarget(target.element);
       return;
     }
 
     activateFormControlTarget(target.element);
+  }
+
+  function activateMenuTriggerTarget(element: HTMLElement): void {
+    const beforeVisibleLinks = collectVisibleLinkSignatures();
+
+    cancelHintMode();
+    focusElement(element);
+
+    scheduleMenuRevealStep(() => {
+      if (hasNewVisibleLinks(beforeVisibleLinks)) {
+        startHintMode("current-tab");
+        return;
+      }
+
+      if (canClickMenuTriggerElement(element)) {
+        focusElement(element);
+        element.click();
+        scheduleMenuRevealStep(() => {
+          startHintMode("current-tab");
+        }, MENU_TRIGGER_CLICK_RESCAN_DELAY_MS);
+        return;
+      }
+
+      startHintMode("current-tab");
+    }, MENU_TRIGGER_FOCUS_RESCAN_DELAY_MS);
   }
 
   function activateLinkTarget(

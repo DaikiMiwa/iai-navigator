@@ -20,6 +20,29 @@ interface SafariKeyboardNavigationHelp {
   isHelpCloseCommandEvent(event: KeyboardEvent): boolean;
 }
 
+interface SafariKeyboardNavigationMenuTriggerCandidate {
+  tagName: string;
+  role: string;
+  hasAriaControls: boolean;
+  hasAriaExpanded: boolean;
+  hasAriaHaspopup: boolean;
+  isAriaDisabled: boolean;
+  isDisabled: boolean;
+  isFormSubmitButton: boolean;
+  isInNavigationContext: boolean;
+  isLink: boolean;
+  isNonButtonFormControl: boolean;
+}
+
+interface SafariKeyboardNavigationHintTargets {
+  canClickMenuTriggerCandidate(
+    candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): boolean;
+  isSafeMenuTriggerCandidate(
+    candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): boolean;
+}
+
 interface ScrollSurfaceCandidate {
   id: string;
   kind: "probe" | "window" | "visible";
