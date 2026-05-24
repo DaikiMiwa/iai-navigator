@@ -78,6 +78,25 @@
         border: 1px solid CanvasText;
         padding: 8px;
       }
+
+      .visual-thumbnail-link,
+      .semantic-tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 160px;
+        min-height: 80px;
+        margin: 8px 16px 8px 0;
+        border: 1px solid CanvasText;
+        border-radius: 8px;
+        color: CanvasText;
+        text-decoration: none;
+      }
+
+      .semantic-tab {
+        min-height: 44px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -141,6 +160,18 @@
       </section>
 
       <section>
+        <h2>Semantic Click Targets</h2>
+        <!-- biome-ignore lint/a11y/useAnchorContent: Manual fixture for visible aria-hidden thumbnail links used by sites such as YouTube. -->
+        <a class="visual-thumbnail-link" aria-hidden="true" href="#visual-thumbnail">
+          Visual thumbnail link should receive a hint
+        </a>
+        <div class="semantic-tab" role="tab" tabindex="0" id="manual-semantic-tab">
+          Custom role tab should receive a hint
+        </div>
+        <p>Custom tab click count: <output id="manual-semantic-tab-count">0</output></p>
+      </section>
+
+      <section>
         <h2>Hidden Links Should Not Receive Hints</h2>
         <a class="hidden-area" href="#hidden-display">Hidden display link</a>
         <a class="transparent-link" href="#hidden-opacity">Transparent link</a>
@@ -193,6 +224,11 @@
         <a href="#bottom">Bottom anchor</a>
       </div>
 
+      <section id="visual-thumbnail">
+        <h2>Visual Thumbnail Target</h2>
+        <a href="#top">Back to top</a>
+      </section>
+
       <section id="bottom">
         <h2>Bottom</h2>
         <a href="#top">Back to top</a>
@@ -221,6 +257,11 @@
       document.getElementById("manual-button").addEventListener("click", () => {
         window.__manualButtonCount = (window.__manualButtonCount || 0) + 1;
         document.getElementById("manual-button-count").textContent = window.__manualButtonCount;
+      });
+
+      document.getElementById("manual-semantic-tab").addEventListener("click", () => {
+        window.__manualSemanticTabCount = (window.__manualSemanticTabCount || 0) + 1;
+        document.getElementById("manual-semantic-tab-count").textContent = window.__manualSemanticTabCount;
       });
     </script>
   </body>
