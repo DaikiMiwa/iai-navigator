@@ -21,7 +21,7 @@ A Hint Target backed by a visible, enabled native form control, currently `butto
 _Avoid_: Arbitrary input target, editable action, custom onclick target
 
 **Semantic Action Target**:
-A Hint Target backed by a visible, enabled semantic custom control, currently elements with `role="button"`, `role="link"`, or `role="tab"` that are not wrappers around a native Link Target or Form Control Target. Activating a Semantic Action Target focuses the element and fires its normal click behavior. Hidden, fully offscreen, `aria-hidden`, and `aria-disabled="true"` semantic controls are not Semantic Action Targets.
+A Hint Target backed by a visible, enabled semantic custom control, currently elements with `role="button"`, `role="link"`, or `role="tab"` that are not wrappers around a native Link Target or Form Control Target. A Semantic Action Target may use its visible content rectangle when the semantic element itself has no layout box, such as inline expanders. Activating a Semantic Action Target focuses the element and fires its normal click behavior. Hidden, fully offscreen, `aria-hidden`, and `aria-disabled="true"` semantic controls are not Semantic Action Targets.
 _Avoid_: Arbitrary clickable element, div with onclick, site-specific control
 
 **Hint**:

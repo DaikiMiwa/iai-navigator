@@ -307,7 +307,7 @@
             if (seen.has(element) || !isVisibleFormControlTarget(element)) {
                 continue;
             }
-            const rect = visibleRectForElement(element);
+            const rect = visibleRectForSemanticActionTarget(element);
             if (!rect) {
                 continue;
             }
@@ -368,7 +368,27 @@
             style.opacity !== "0");
     }
     function visibleRectForElement(element) {
-        for (const rect of element.getClientRects()) {
+        return firstVisibleRect(element.getClientRects());
+    }
+    function visibleRectForSemanticActionTarget(element) {
+        const ownRect = visibleRectForElement(element);
+        if (ownRect) {
+            return ownRect;
+        }
+        return visibleContentRectForElement(element);
+    }
+    function visibleContentRectForElement(element) {
+        const range = document.createRange();
+        try {
+            range.selectNodeContents(element);
+            return firstVisibleRect(range.getClientRects());
+        }
+        finally {
+            range.detach();
+        }
+    }
+    function firstVisibleRect(rects) {
+        for (const rect of rects) {
             if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
                 continue;
             }

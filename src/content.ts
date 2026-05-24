@@ -475,7 +475,7 @@
         continue;
       }
 
-      const rect = visibleRectForElement(element);
+      const rect = visibleRectForSemanticActionTarget(element);
       if (!rect) {
         continue;
       }
@@ -564,7 +564,35 @@
   }
 
   function visibleRectForElement(element: Element): HintPosition | null {
-    for (const rect of element.getClientRects()) {
+    return firstVisibleRect(element.getClientRects());
+  }
+
+  function visibleRectForSemanticActionTarget(
+    element: HTMLElement,
+  ): HintPosition | null {
+    const ownRect = visibleRectForElement(element);
+    if (ownRect) {
+      return ownRect;
+    }
+
+    return visibleContentRectForElement(element);
+  }
+
+  function visibleContentRectForElement(
+    element: HTMLElement,
+  ): HintPosition | null {
+    const range = document.createRange();
+
+    try {
+      range.selectNodeContents(element);
+      return firstVisibleRect(range.getClientRects());
+    } finally {
+      range.detach();
+    }
+  }
+
+  function firstVisibleRect(rects: DOMRectList): HintPosition | null {
+    for (const rect of rects) {
       if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
         continue;
       }

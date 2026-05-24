@@ -97,6 +97,13 @@
         min-height: 44px;
         cursor: pointer;
       }
+
+      .semantic-inline-button {
+        display: contents;
+        color: LinkText;
+        cursor: pointer;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
@@ -169,6 +176,13 @@
           Custom role tab should receive a hint
         </div>
         <p>Custom tab click count: <output id="manual-semantic-tab-count">0</output></p>
+        <p>
+          Inline expander copy that uses visible content instead of its own box:
+          <span class="semantic-inline-button" role="button" tabindex="0" id="manual-semantic-inline-button">
+            Read more should receive a hint
+          </span>
+        </p>
+        <p>Inline expander click count: <output id="manual-semantic-inline-button-count">0</output></p>
       </section>
 
       <section>
@@ -262,6 +276,11 @@
       document.getElementById("manual-semantic-tab").addEventListener("click", () => {
         window.__manualSemanticTabCount = (window.__manualSemanticTabCount || 0) + 1;
         document.getElementById("manual-semantic-tab-count").textContent = window.__manualSemanticTabCount;
+      });
+
+      document.getElementById("manual-semantic-inline-button").addEventListener("click", () => {
+        window.__manualSemanticInlineButtonCount = (window.__manualSemanticInlineButtonCount || 0) + 1;
+        document.getElementById("manual-semantic-inline-button-count").textContent = window.__manualSemanticInlineButtonCount;
       });
     </script>
   </body>
