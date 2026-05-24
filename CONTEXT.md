@@ -8,20 +8,28 @@ A Safari extension for keyboard-first page navigation inspired by Vimium, withou
 A small, auditable Safari browser extension that gives users keyboard-first navigation across web pages without broad browser automation. It is inspired by Vimium's interaction style, but is not a Safari port of Vimium and does not promise Vimium command compatibility.
 _Avoid_: Vimium port, Vimium-compatible Safari extension, Hammerspoon automation, full browser automation suite
 
-**Link Target**:
-A page link that is at least partly visible within the current viewport and that the user can choose with the keyboard. In the MVP, each link is at most one Link Target even if it spans multiple visual rectangles, and Link Targets may include `href="#"` and `javascript:` links while excluding fully offscreen links, hidden links, arbitrary buttons, form controls, or destructive page actions.
+**Hint Target**:
+A page element that is at least partly visible within the current viewport and that can receive a Hint. In the MVP, Hint Targets are Link Targets and native Form Control Targets only. Arbitrary non-native clickable elements, hidden elements, fully offscreen elements, disabled controls, and destructive page actions are not Hint Targets.
 _Avoid_: Click target, action target, selectable element
 
+**Link Target**:
+A Hint Target backed by a page link. In the MVP, each link is at most one Link Target even if it spans multiple visual rectangles, and Link Targets may include `href="#"` and `javascript:` links while excluding fully offscreen links, hidden links, arbitrary buttons, form controls, or destructive page actions.
+_Avoid_: Click target, action target, selectable element
+
+**Form Control Target**:
+A Hint Target backed by a visible, enabled native form control, currently `button`, `input`, `select`, and `textarea` elements. Activating a text-entry Form Control Target focuses the control so the user's next keystroke types into it. Activating other Form Control Targets fires their normal click/focus behavior. Hidden, disabled, fully offscreen, and `input type="hidden"` controls are not Form Control Targets.
+_Avoid_: Arbitrary input target, editable action, custom onclick target
+
 **Hint**:
-A short alphabetic key sequence shown next to a Link Target while hint mode is active. Hints use home-row letters, starting with `asdfghjkl`, rather than numbers or the full alphabet, are assigned in top-left to bottom-right visual order, maximize one-letter Hints when possible, and never allow one Hint to be the prefix of another active Hint.
+A short alphabetic key sequence shown next to a Hint Target while hint mode is active. Hints use home-row letters, starting with `asdfghjkl`, rather than numbers or the full alphabet, are assigned in top-left to bottom-right visual order, maximize one-letter Hints when possible, and never allow one Hint to be the prefix of another active Hint.
 _Avoid_: Shortcut number, target id, label
 
 **Hint Mode**:
-A temporary keyboard state started from the page body, where visible Link Targets receive Hints and typed letters narrow or activate a target. As the user types, non-matching Hints are hidden. Hint Mode does not start while the user is typing in text inputs, textareas, or editable page content, and it can be cancelled with Escape.
+A temporary keyboard state started from the page body, where visible Hint Targets receive Hints and typed letters narrow or activate a target. As the user types, non-matching Hints are hidden. Hint Mode does not start while the user is typing in text inputs, textareas, or editable page content, and it can be cancelled with Escape.
 _Avoid_: Selection mode, command mode
 
 **Hint Activation**:
-The act of choosing a Link Target by typing its complete Hint. In the MVP, Hint Activation fires the Link Target's normal click behavior in the current tab; it does not auto-activate on partial matches, open new tabs, or open background tabs.
+The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, focuses a text-entry Form Control Target, or fires normal click/focus behavior for another Form Control Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
 _Avoid_: Click emulation, tab opening
 
 **Page Movement Command**:
@@ -56,7 +64,7 @@ Domain expert: No. The project should stay small and auditable: a focused Safari
 
 Dev: Does pressing `f` let users activate every clickable thing on the page?
 
-Domain expert: No. In the MVP, `f` exposes Link Targets only: visible links in the current viewport, including links whose normal behavior is page-defined.
+Domain expert: No. In the MVP, `f` exposes Hint Targets only: visible Link Targets and native Form Control Targets in the current viewport.
 
 Dev: If a link wraps across two lines, does it receive two Hints?
 
@@ -76,7 +84,11 @@ Domain expert: Press Escape. The MVP does not need editable Hint input with Back
 
 Dev: What happens after the user types a full Hint?
 
-Domain expert: Hint Activation fires the chosen Link Target's normal click behavior in the current tab.
+Domain expert: Hint Activation fires a chosen Link Target's normal click behavior in the current tab, focuses a text-entry Form Control Target, or fires click/focus behavior for another Form Control Target.
+
+Dev: Does `f` target every form control?
+
+Domain expert: It targets visible, enabled native form controls such as text inputs, textareas, checkboxes, radios, buttons, and selects. Disabled, hidden, offscreen, and `input type="hidden"` controls are excluded.
 
 Dev: If only one Hint remains after partial input, does it activate automatically?
 

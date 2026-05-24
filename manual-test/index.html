@@ -38,6 +38,19 @@
         display: none;
       }
 
+      .field-row {
+        display: grid;
+        gap: 6px;
+        margin: 12px 0;
+        max-width: 420px;
+      }
+
+      .offscreen-field {
+        position: absolute;
+        top: -10000px;
+        left: -10000px;
+      }
+
       .transparent-link {
         opacity: 0;
       }
@@ -84,15 +97,46 @@
       </section>
 
       <section>
-        <h2>Inputs Should Keep Text</h2>
-        <label>
-          Text input
-          <input type="text" value="">
+        <h2>Form Controls</h2>
+        <label class="field-row">
+          Text input should receive a hint
+          <input id="manual-text-input" type="text" value="">
         </label>
-        <label>
-          Textarea
-          <textarea rows="3"></textarea>
+        <label class="field-row">
+          Search input should receive a hint
+          <input id="manual-search-input" type="search" value="">
         </label>
+        <label class="field-row">
+          Textarea should receive a hint
+          <textarea id="manual-textarea" rows="3"></textarea>
+        </label>
+        <label class="field-row">
+          Select should receive a hint
+          <select id="manual-select">
+            <option>Alpha</option>
+            <option>Beta</option>
+          </select>
+        </label>
+        <label class="field-row">
+          Checkbox should receive a hint
+          <input id="manual-checkbox" type="checkbox">
+        </label>
+        <label class="field-row">
+          Radio should receive a hint
+          <input id="manual-radio" name="manual-radio-group" type="radio">
+        </label>
+        <button id="manual-button" type="button">Button should receive a hint</button>
+        <p>Button click count: <output id="manual-button-count">0</output></p>
+        <label class="field-row">
+          Readonly input should receive a hint and focus only
+          <input type="text" value="readonly" readonly>
+        </label>
+        <label class="field-row">
+          Disabled input should not receive a hint
+          <input type="text" value="disabled" disabled>
+        </label>
+        <input type="hidden" value="hidden">
+        <input class="offscreen-field" type="text" value="offscreen">
         <div contenteditable="true">Editable content</div>
       </section>
 
@@ -167,6 +211,11 @@
       document.getElementById("hash-link").addEventListener("click", (event) => {
         event.preventDefault();
         event.currentTarget.textContent = "Hash action clicked";
+      });
+
+      document.getElementById("manual-button").addEventListener("click", () => {
+        window.__manualButtonCount = (window.__manualButtonCount || 0) + 1;
+        document.getElementById("manual-button-count").textContent = window.__manualButtonCount;
       });
     </script>
   </body>
