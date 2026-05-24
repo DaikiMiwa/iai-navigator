@@ -67,6 +67,7 @@ Useful checks:
 - Typing in inputs, textareas, and editable content is not intercepted.
 - `j/k` scroll vertically, `h/l` scroll horizontally where possible, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
+- Open `manual-test/nested-scroll.html`, then verify `j/k`, `gg`, and `Shift+G` move the internal scroll container.
 
 ## Load In Safari
 

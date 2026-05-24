@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nested Scroll Container Test</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      main {
+        box-sizing: border-box;
+        display: grid;
+        gap: 16px;
+        height: 100vh;
+        padding: 24px;
+      }
+
+      .scroll-container {
+        border: 1px solid CanvasText;
+        overflow: auto;
+        padding: 24px;
+      }
+
+      .wide-content {
+        width: 1280px;
+      }
+
+      .spacer {
+        min-height: 90vh;
+        border-block: 1px dashed color-mix(in srgb, CanvasText 30%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Nested Scroll Container Test</h1>
+        <p>The window itself does not scroll. Use j/k inside the bordered container.</p>
+      </header>
+
+      <section class="scroll-container">
+        <div class="wide-content">
+          <h2 id="top">Top Of Internal Container</h2>
+          <p><a href="#middle">Middle link</a></p>
+          <p><a href="#bottom">Bottom link</a></p>
+          <label>
+            Input guard
+            <input type="text" placeholder="j/k should type here normally">
+          </label>
+
+          <div class="spacer" id="middle">
+            <h2>Middle</h2>
+            <p>j/k should move this internal container, not the page window.</p>
+            <p><a href="#top">Top link</a></p>
+          </div>
+
+          <div class="spacer" id="bottom">
+            <h2>Bottom</h2>
+            <p>gg should return to the top of this internal container. Shift+G should return here.</p>
+            <p><a href="#top">Top link</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
