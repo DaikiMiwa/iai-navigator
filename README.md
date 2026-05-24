@@ -7,7 +7,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `f` shows compact yellow, black-text hints for visible link targets in the current viewport on normal `http` and `https` pages.
 - Typing a complete hint fires that link's normal click behavior in the current tab.
 - `Esc` cancels hint mode.
-- `h`, `j`, `k`, and `l` scroll in small steps and continue smoothly while held.
+- `h`, `j`, `k`, and `l` scroll in smooth small steps and continue smoothly while held.
 - `u` and `d` smoothly move up and down by half a page.
 - Pressing `g` twice quickly moves to the top of the page.
 - `Shift+G` moves to the bottom of the page.
@@ -67,7 +67,7 @@ Useful checks:
 - `href="#"` and `javascript:` links activate through normal click behavior.
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
-- `j/k` scroll vertically, `h/l` scroll horizontally where possible, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
+- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys continue scrolling smoothly, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 - Press `r` from normal page focus and verify the Reload Command page load count increments.
 - Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
