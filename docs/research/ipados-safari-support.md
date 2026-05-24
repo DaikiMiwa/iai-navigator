@@ -8,6 +8,16 @@ The current Web Extension source package is likely portable to iPadOS Safari, bu
 
 Apple presents Safari extensions as available on iPhone, iPad, and Mac, and says Safari web extensions can be converted into an Xcode project configured with a macOS app and/or an iOS or iPadOS app. Apple also says an existing macOS Safari web extension can be upgraded for iOS and iPadOS by rerunning the command-line converter with `--rebuild-project`.
 
+## Sources
+
+- Apple: [Safari web extensions](https://developer.apple.com/documentation/SafariServices/safari-web-extensions)
+- Apple: [Creating a Safari web extension](https://developer.apple.com/documentation/safariservices/creating-a-safari-web-extension)
+- Apple: [Running your Safari web extension](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
+- Apple: [Packaging a web extension for Safari](https://developer.apple.com/documentation/safariservices/converting-a-web-extension-for-safari)
+- Apple: [Safari Extensions](https://developer.apple.com/safari/extensions/)
+- Apple: [WKWebExtension.Permission.tabs](https://developer.apple.com/documentation/webkit/wkwebextension/permission/tabs)
+- MDN: [tabs API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs)
+
 ## Current Project Fit
 
 The extension logic is mostly page-level content-script behavior:

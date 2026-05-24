@@ -8,6 +8,16 @@
 
 Apple は Safari extensions を iPhone、iPad、Mac で利用できるものとして説明しており、Safari web extensions は macOS app と iOS / iPadOS app の一方または両方を含む Xcode project に変換できるとしています。また、既存の macOS Safari web extension は command-line converter を `--rebuild-project` 付きで再実行することで iOS / iPadOS 対応に更新できるとしています。
 
+## Sources
+
+- Apple: [Safari web extensions](https://developer.apple.com/documentation/SafariServices/safari-web-extensions)
+- Apple: [Creating a Safari web extension](https://developer.apple.com/documentation/safariservices/creating-a-safari-web-extension)
+- Apple: [Running your Safari web extension](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
+- Apple: [Packaging a web extension for Safari](https://developer.apple.com/documentation/safariservices/converting-a-web-extension-for-safari)
+- Apple: [Safari Extensions](https://developer.apple.com/safari/extensions/)
+- Apple: [WKWebExtension.Permission.tabs](https://developer.apple.com/documentation/webkit/wkwebextension/permission/tabs)
+- MDN: [tabs API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs)
+
 ## 現在のプロジェクトとの適合
 
 この拡張のロジックは、大部分が page-level content script の挙動です。
