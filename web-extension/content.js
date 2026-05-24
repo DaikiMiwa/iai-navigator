@@ -15,6 +15,15 @@
     const HALF_PAGE_RATIO = 0.5;
     const VERTICAL_HOLD_SPEED_PX_PER_SECOND = 720;
     const HORIZONTAL_HOLD_SPEED_PX_PER_SECOND = 720;
+    const TEXT_ENTRY_INPUT_TYPES = new Set([
+        "email",
+        "number",
+        "password",
+        "search",
+        "tel",
+        "text",
+        "url",
+    ]);
     let hintState = null;
     let lastGPressAt = 0;
     let movementState = null;
@@ -25,6 +34,13 @@
     function handleKeyDown(event) {
         if (hintState) {
             handleHintKeyDown(event);
+            return;
+        }
+        const blurTarget = editableBlurTargetForEvent(event);
+        if (blurTarget) {
+            event.preventDefault();
+            event.stopPropagation();
+            blurTarget.blur();
             return;
         }
         if (shouldIgnoreKeyboardCommand(event)) {
@@ -122,6 +138,38 @@
             return (tagName === "input" || tagName === "textarea" || tagName === "select");
         });
     }
+    function editableBlurTargetForEvent(event) {
+        if (event.defaultPrevented ||
+            event.repeat ||
+            event.isComposing ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.key !== "Escape") {
+            return null;
+        }
+        if (document.activeElement instanceof HTMLElement &&
+            isTextEditingElement(document.activeElement)) {
+            return document.activeElement;
+        }
+        const path = typeof event.composedPath === "function"
+            ? event.composedPath()
+            : [event.target];
+        for (const target of path) {
+            if (target instanceof HTMLElement && isTextEditingElement(target)) {
+                return target;
+            }
+        }
+        return null;
+    }
+    function isTextEditingElement(element) {
+        if (element.isContentEditable || element instanceof HTMLTextAreaElement) {
+            return true;
+        }
+        return (element instanceof HTMLInputElement &&
+            TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase()));
+    }
     function isSupportedWebPage() {
         return ((location.protocol === "http:" || location.protocol === "https:") &&
             !isPdfDocument());
@@ -140,7 +188,7 @@
             /\.pdf(?:[?#]|$)/i.test(location.href));
     }
     function startHintMode() {
-        const targets = collectLinkTargets();
+        const targets = collectHintTargets();
         if (targets.length === 0) {
             return;
         }
@@ -160,7 +208,7 @@
             label.style.top = `${Math.round(target.rect.top)}px`;
             overlay.appendChild(label);
             return {
-                element: target.element,
+                target,
                 hint,
                 label,
             };
@@ -205,7 +253,7 @@
         }
         const exactMatch = matchingEntries.find((entry) => entry.hint === nextInput);
         if (exactMatch) {
-            activateLinkTarget(exactMatch.element);
+            activateHintTarget(exactMatch.target);
         }
     }
     function cancelHintMode() {
@@ -217,9 +265,20 @@
         window.removeEventListener("scroll", cancelHintMode, true);
         window.removeEventListener("resize", cancelHintMode, true);
     }
-    function collectLinkTargets() {
-        const seen = new Set();
+    function collectHintTargets() {
         const targets = [];
+        collectLinkTargetsInto(targets);
+        collectFormControlTargetsInto(targets);
+        targets.sort((a, b) => {
+            if (a.rect.top !== b.rect.top) {
+                return a.rect.top - b.rect.top;
+            }
+            return a.rect.left - b.rect.left;
+        });
+        return targets;
+    }
+    function collectLinkTargetsInto(targets) {
+        const seen = new Set();
         for (const link of document.querySelectorAll("a[href]")) {
             if (seen.has(link) || !isVisibleLink(link)) {
                 continue;
@@ -229,21 +288,40 @@
                 continue;
             }
             seen.add(link);
-            targets.push({ element: link, rect });
+            targets.push({ kind: "link", element: link, rect });
         }
-        targets.sort((a, b) => {
-            if (a.rect.top !== b.rect.top) {
-                return a.rect.top - b.rect.top;
+    }
+    function collectFormControlTargetsInto(targets) {
+        const seen = new Set();
+        for (const element of document.querySelectorAll("button, input, select, textarea")) {
+            if (seen.has(element) || !isVisibleFormControlTarget(element)) {
+                continue;
             }
-            return a.rect.left - b.rect.left;
-        });
-        return targets;
+            const rect = visibleRectForElement(element);
+            if (!rect) {
+                continue;
+            }
+            seen.add(element);
+            targets.push({ kind: "form-control", element, rect });
+        }
     }
     function isVisibleLink(link) {
-        if (link.hidden || link.getAttribute("aria-hidden") === "true") {
+        return isVisibleElement(link);
+    }
+    function isVisibleFormControlTarget(element) {
+        if (element.disabled || !isVisibleElement(element)) {
             return false;
         }
-        const style = getComputedStyle(link);
+        if (element instanceof HTMLInputElement) {
+            return element.type.toLowerCase() !== "hidden";
+        }
+        return true;
+    }
+    function isVisibleElement(element) {
+        if (element.hidden || element.getAttribute("aria-hidden") === "true") {
+            return false;
+        }
+        const style = getComputedStyle(element);
         return (style.display !== "none" &&
             style.visibility !== "hidden" &&
             style.visibility !== "collapse" &&
@@ -267,6 +345,13 @@
             rect.left < window.innerWidth &&
             rect.top < window.innerHeight);
     }
+    function activateHintTarget(target) {
+        if (target.kind === "link") {
+            activateLinkTarget(target.element);
+            return;
+        }
+        activateFormControlTarget(target.element);
+    }
     function activateLinkTarget(element) {
         const link = element.closest("a[href]") || element;
         const previousTarget = link.getAttribute("target");
@@ -285,6 +370,39 @@
                     link.removeAttribute("target");
                 }
             }, 0);
+        }
+    }
+    function activateFormControlTarget(element) {
+        cancelHintMode();
+        focusElement(element);
+        if (isTextEntryControl(element)) {
+            placeTextEntryCaretAtEnd(element);
+            return;
+        }
+        element.click();
+    }
+    function focusElement(element) {
+        try {
+            element.focus({ preventScroll: true });
+        }
+        catch {
+            element.focus();
+        }
+    }
+    function isTextEntryControl(element) {
+        if (element instanceof HTMLTextAreaElement) {
+            return true;
+        }
+        return (element instanceof HTMLInputElement &&
+            TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase()));
+    }
+    function placeTextEntryCaretAtEnd(element) {
+        const end = element.value.length;
+        try {
+            element.setSelectionRange(end, end);
+        }
+        catch {
+            // Some text-entry-like input types do not expose text selection in Safari.
         }
     }
     function movementForEvent(event) {

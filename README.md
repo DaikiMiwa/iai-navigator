@@ -4,8 +4,9 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows compact yellow, black-text hints for visible link targets in the current viewport on normal `http` and `https` pages.
-- Typing a complete hint fires that link's normal click behavior in the current tab.
+- `f` shows compact yellow, black-text hints for visible link targets and native form controls in the current viewport on normal `http` and `https` pages.
+- Typing a complete link hint fires that link's normal click behavior in the current tab.
+- Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
 - `Esc` cancels hint mode.
 - `h`, `j`, `k`, and `l` scroll in smooth small steps and continue smoothly while held.
 - `u` and `d` smoothly move up and down by half a page.
@@ -13,6 +14,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+G` moves to the bottom of the page.
 - `Shift+H` navigates back and `Shift+L` navigates forward in the current tab history.
 - `r` reloads the current page from normal page focus.
+- `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.
 - PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
 
@@ -62,6 +64,10 @@ Then open `http://localhost:8765/manual-test/` in Safari.
 Useful checks:
 
 - `f` shows hints only for visible links.
+- Visible native form controls receive hints.
+- Completing hints for text inputs and textareas focuses the control with the caret at the end.
+- Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
+- Disabled, hidden, and offscreen controls do not receive hints.
 - Wrapped links receive one hint.
 - Hidden links do not receive hints.
 - `href="#"` and `javascript:` links activate through normal click behavior.
@@ -72,6 +78,7 @@ Useful checks:
 - Press `r` from normal page focus and verify the Reload Command page load count increments.
 - Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
 - Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
+- Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
 

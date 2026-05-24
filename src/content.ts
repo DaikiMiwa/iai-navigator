@@ -4,13 +4,29 @@
     top: number;
   }
 
-  interface LinkTarget {
-    element: HTMLAnchorElement;
+  interface HintTargetBase {
     rect: HintPosition;
   }
 
-  interface HintEntry {
+  interface LinkTarget extends HintTargetBase {
+    kind: "link";
     element: HTMLAnchorElement;
+  }
+
+  interface FormControlTarget extends HintTargetBase {
+    kind: "form-control";
+    element: FormControlTargetElement;
+  }
+
+  type HintTarget = LinkTarget | FormControlTarget;
+  type FormControlTargetElement =
+    | HTMLButtonElement
+    | HTMLInputElement
+    | HTMLSelectElement
+    | HTMLTextAreaElement;
+
+  interface HintEntry {
+    target: HintTarget;
     hint: string;
     label: HTMLSpanElement;
   }
@@ -70,6 +86,15 @@
   const HALF_PAGE_RATIO = 0.5;
   const VERTICAL_HOLD_SPEED_PX_PER_SECOND = 720;
   const HORIZONTAL_HOLD_SPEED_PX_PER_SECOND = 720;
+  const TEXT_ENTRY_INPUT_TYPES = new Set([
+    "email",
+    "number",
+    "password",
+    "search",
+    "tel",
+    "text",
+    "url",
+  ]);
 
   let hintState: HintState | null = null;
   let lastGPressAt = 0;
@@ -83,6 +108,14 @@
   function handleKeyDown(event: KeyboardEvent): void {
     if (hintState) {
       handleHintKeyDown(event);
+      return;
+    }
+
+    const blurTarget = editableBlurTargetForEvent(event);
+    if (blurTarget) {
+      event.preventDefault();
+      event.stopPropagation();
+      blurTarget.blur();
       return;
     }
 
@@ -208,6 +241,53 @@
     });
   }
 
+  function editableBlurTargetForEvent(
+    event: KeyboardEvent,
+  ): HTMLElement | null {
+    if (
+      event.defaultPrevented ||
+      event.repeat ||
+      event.isComposing ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.key !== "Escape"
+    ) {
+      return null;
+    }
+
+    if (
+      document.activeElement instanceof HTMLElement &&
+      isTextEditingElement(document.activeElement)
+    ) {
+      return document.activeElement;
+    }
+
+    const path =
+      typeof event.composedPath === "function"
+        ? event.composedPath()
+        : [event.target];
+    for (const target of path) {
+      if (target instanceof HTMLElement && isTextEditingElement(target)) {
+        return target;
+      }
+    }
+
+    return null;
+  }
+
+  function isTextEditingElement(element: HTMLElement): boolean {
+    if (element.isContentEditable || element instanceof HTMLTextAreaElement) {
+      return true;
+    }
+
+    return (
+      element instanceof HTMLInputElement &&
+      TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase())
+    );
+  }
+
   function isSupportedWebPage(): boolean {
     return (
       (location.protocol === "http:" || location.protocol === "https:") &&
@@ -236,7 +316,7 @@
   }
 
   function startHintMode(): void {
-    const targets = collectLinkTargets();
+    const targets = collectHintTargets();
     if (targets.length === 0) {
       return;
     }
@@ -260,7 +340,7 @@
       overlay.appendChild(label);
 
       return {
-        element: target.element,
+        target,
         hint,
         label,
       };
@@ -319,7 +399,7 @@
       (entry) => entry.hint === nextInput,
     );
     if (exactMatch) {
-      activateLinkTarget(exactMatch.element);
+      activateHintTarget(exactMatch.target);
     }
   }
 
@@ -334,9 +414,23 @@
     window.removeEventListener("resize", cancelHintMode, true);
   }
 
-  function collectLinkTargets(): LinkTarget[] {
+  function collectHintTargets(): HintTarget[] {
+    const targets: HintTarget[] = [];
+    collectLinkTargetsInto(targets);
+    collectFormControlTargetsInto(targets);
+
+    targets.sort((a, b) => {
+      if (a.rect.top !== b.rect.top) {
+        return a.rect.top - b.rect.top;
+      }
+      return a.rect.left - b.rect.left;
+    });
+
+    return targets;
+  }
+
+  function collectLinkTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<HTMLAnchorElement>();
-    const targets: LinkTarget[] = [];
     for (const link of document.querySelectorAll<HTMLAnchorElement>(
       "a[href]",
     )) {
@@ -350,25 +444,53 @@
       }
 
       seen.add(link);
-      targets.push({ element: link, rect });
+      targets.push({ kind: "link", element: link, rect });
     }
+  }
 
-    targets.sort((a, b) => {
-      if (a.rect.top !== b.rect.top) {
-        return a.rect.top - b.rect.top;
+  function collectFormControlTargetsInto(targets: HintTarget[]): void {
+    const seen = new Set<FormControlTargetElement>();
+    for (const element of document.querySelectorAll<FormControlTargetElement>(
+      "button, input, select, textarea",
+    )) {
+      if (seen.has(element) || !isVisibleFormControlTarget(element)) {
+        continue;
       }
-      return a.rect.left - b.rect.left;
-    });
 
-    return targets;
+      const rect = visibleRectForElement(element);
+      if (!rect) {
+        continue;
+      }
+
+      seen.add(element);
+      targets.push({ kind: "form-control", element, rect });
+    }
   }
 
   function isVisibleLink(link: HTMLAnchorElement): boolean {
-    if (link.hidden || link.getAttribute("aria-hidden") === "true") {
+    return isVisibleElement(link);
+  }
+
+  function isVisibleFormControlTarget(
+    element: FormControlTargetElement,
+  ): boolean {
+    if (element.disabled || !isVisibleElement(element)) {
       return false;
     }
 
-    const style = getComputedStyle(link);
+    if (element instanceof HTMLInputElement) {
+      return element.type.toLowerCase() !== "hidden";
+    }
+
+    return true;
+  }
+
+  function isVisibleElement(element: HTMLElement): boolean {
+    if (element.hidden || element.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+
+    const style = getComputedStyle(element);
     return (
       style.display !== "none" &&
       style.visibility !== "hidden" &&
@@ -401,6 +523,15 @@
     );
   }
 
+  function activateHintTarget(target: HintTarget): void {
+    if (target.kind === "link") {
+      activateLinkTarget(target.element);
+      return;
+    }
+
+    activateFormControlTarget(target.element);
+  }
+
   function activateLinkTarget(element: HTMLAnchorElement): void {
     const link = element.closest<HTMLAnchorElement>("a[href]") || element;
     const previousTarget = link.getAttribute("target");
@@ -420,6 +551,50 @@
           link.removeAttribute("target");
         }
       }, 0);
+    }
+  }
+
+  function activateFormControlTarget(element: FormControlTargetElement): void {
+    cancelHintMode();
+    focusElement(element);
+
+    if (isTextEntryControl(element)) {
+      placeTextEntryCaretAtEnd(element);
+      return;
+    }
+
+    element.click();
+  }
+
+  function focusElement(element: HTMLElement): void {
+    try {
+      element.focus({ preventScroll: true });
+    } catch {
+      element.focus();
+    }
+  }
+
+  function isTextEntryControl(
+    element: FormControlTargetElement,
+  ): element is HTMLInputElement | HTMLTextAreaElement {
+    if (element instanceof HTMLTextAreaElement) {
+      return true;
+    }
+
+    return (
+      element instanceof HTMLInputElement &&
+      TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase())
+    );
+  }
+
+  function placeTextEntryCaretAtEnd(
+    element: HTMLInputElement | HTMLTextAreaElement,
+  ): void {
+    const end = element.value.length;
+    try {
+      element.setSelectionRange(end, end);
+    } catch {
+      // Some text-entry-like input types do not expose text selection in Safari.
     }
   }
 
