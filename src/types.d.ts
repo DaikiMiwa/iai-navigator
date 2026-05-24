@@ -26,3 +26,58 @@ interface SafariKeyboardNavigationScroll {
   isScrollableOverflow(overflow: string): boolean;
   maxScroll(scrollSize: number, clientSize: number): number;
 }
+
+type TabSwitchDirection = "previous" | "next";
+
+interface TabSwitchMessage {
+  type: "switch-tab";
+  direction: TabSwitchDirection;
+}
+
+type SafariKeyboardNavigationMessage = TabSwitchMessage;
+
+interface WebExtensionTab {
+  id?: number;
+  index: number;
+}
+
+interface WebExtensionTabQuery {
+  active?: boolean;
+  currentWindow?: boolean;
+}
+
+interface WebExtensionTabUpdate {
+  active?: boolean;
+}
+
+interface WebExtensionRuntime {
+  sendMessage(message: SafariKeyboardNavigationMessage): Promise<unknown>;
+  onMessage?: {
+    addListener(
+      listener: (message: unknown) => Promise<unknown> | unknown | undefined,
+    ): void;
+  };
+}
+
+interface WebExtensionTabs {
+  query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
+  update(
+    tabId: number,
+    updateProperties: WebExtensionTabUpdate,
+  ): Promise<WebExtensionTab>;
+}
+
+interface WebExtensionApi {
+  runtime?: WebExtensionRuntime;
+  tabs?: WebExtensionTabs;
+}
+
+interface SafariKeyboardNavigationTabs {
+  chooseNeighborTabId(
+    tabs: WebExtensionTab[],
+    activeTabId: number,
+    direction: TabSwitchDirection,
+  ): number | null;
+}
+
+declare const browser: WebExtensionApi | undefined;

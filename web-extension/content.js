@@ -52,6 +52,13 @@
             startHintMode();
             return;
         }
+        const tabSwitchDirection = tabSwitchDirectionForEvent(event);
+        if (tabSwitchDirection) {
+            event.preventDefault();
+            event.stopPropagation();
+            switchTab(tabSwitchDirection);
+            return;
+        }
         if (!isMovementSurface()) {
             return;
         }
@@ -459,6 +466,23 @@
                 return null;
         }
     }
+    function tabSwitchDirectionForEvent(event) {
+        if (event.repeat ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            !event.shiftKey) {
+            return null;
+        }
+        switch (event.code) {
+            case "KeyJ":
+                return "previous";
+            case "KeyK":
+                return "next";
+            default:
+                return null;
+        }
+    }
     function scrollHalfPage(direction) {
         const surface = findScrollSurface({
             key: direction > 0 ? "d" : "u",
@@ -474,6 +498,15 @@
             top: distance * direction,
             behavior: "smooth",
         });
+    }
+    function switchTab(direction) {
+        stopMovement();
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        void browser.runtime
+            .sendMessage({ type: "switch-tab", direction })
+            .catch(() => undefined);
     }
     function startMovement(movement) {
         if (movementState && movementState.key === movement.key) {

@@ -3,6 +3,10 @@
   "name": "Safari Keyboard Navigation Extension",
   "version": "0.1.0",
   "description": "A small Safari extension for link hints and keyboard page movement.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs"],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "file:///*"],
