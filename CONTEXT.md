@@ -25,7 +25,7 @@ A short alphabetic key sequence shown next to a Hint Target while hint mode is a
 _Avoid_: Shortcut number, target id, label
 
 **Hint Mode**:
-A temporary keyboard state started from the page body, where visible Hint Targets receive Hints and typed letters narrow or activate a target. As the user types, non-matching Hints are hidden. Hint Mode does not start while the user is typing in text inputs, textareas, or editable page content, and it can be cancelled with Escape.
+A temporary keyboard state started from the page body, where visible Hint Targets receive Hints and typed letters narrow or activate a target. As the user types, non-matching Hints are hidden. Hint Mode does not start while the user is typing in text inputs, textareas, or editable page content, and it can be cancelled with Escape. Pressing Escape while focused in text-editing content blurs that editable target so normal page focus commands can resume.
 _Avoid_: Selection mode, command mode
 
 **Hint Activation**:

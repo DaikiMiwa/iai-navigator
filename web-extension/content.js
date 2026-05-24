@@ -36,6 +36,13 @@
             handleHintKeyDown(event);
             return;
         }
+        const blurTarget = editableBlurTargetForEvent(event);
+        if (blurTarget) {
+            event.preventDefault();
+            event.stopPropagation();
+            blurTarget.blur();
+            return;
+        }
         if (shouldIgnoreKeyboardCommand(event)) {
             return;
         }
@@ -130,6 +137,38 @@
             const tagName = target.tagName.toLowerCase();
             return (tagName === "input" || tagName === "textarea" || tagName === "select");
         });
+    }
+    function editableBlurTargetForEvent(event) {
+        if (event.defaultPrevented ||
+            event.repeat ||
+            event.isComposing ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.key !== "Escape") {
+            return null;
+        }
+        if (document.activeElement instanceof HTMLElement &&
+            isTextEditingElement(document.activeElement)) {
+            return document.activeElement;
+        }
+        const path = typeof event.composedPath === "function"
+            ? event.composedPath()
+            : [event.target];
+        for (const target of path) {
+            if (target instanceof HTMLElement && isTextEditingElement(target)) {
+                return target;
+            }
+        }
+        return null;
+    }
+    function isTextEditingElement(element) {
+        if (element.isContentEditable || element instanceof HTMLTextAreaElement) {
+            return true;
+        }
+        return (element instanceof HTMLInputElement &&
+            TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase()));
     }
     function isSupportedWebPage() {
         return ((location.protocol === "http:" || location.protocol === "https:") &&
