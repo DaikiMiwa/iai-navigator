@@ -4,7 +4,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
+- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, native form controls, and semantic custom controls in the current viewport on normal `http`, `https`, and local `file:` HTML pages.
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
 - Typing a complete navigation menu trigger hint focuses the trigger first, safely clicks only explicit disclosure-style triggers if focus does not reveal links, and then rescans visible targets.
 - Typing a complete media player control hint focuses and clicks visible controls inside recognized player chrome, such as YouTube's player controls.
@@ -103,6 +103,7 @@ Useful checks:
 - Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
 - Focus Safari Start Page or the address bar, then verify `Option+Shift+J` switches to the left tab and `Option+Shift+K` switches to the right tab.
+- Open a local `file:` HTML page, grant the extension local file access in Safari if prompted, then verify `f` shows hints and page movement commands work.
 - Open `manual-test/frame-host.html`, click inside the frame, then verify `Shift+J/K` still switch tabs and `f` still shows hints inside the frame.
 - Press `yy` and paste into the text input to verify the current page URL was copied.
 - Press `y`, wait briefly, then press `y` again and verify the URL is not copied.

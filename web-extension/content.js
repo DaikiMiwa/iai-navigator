@@ -77,6 +77,10 @@
         isSafeMediaControlCandidate,
         isSafeMenuTriggerCandidate,
     };
+    globalThis.SafariKeyboardNavigationPageSupport = {
+        isSupportedPdfCandidate,
+        isSupportedWebPageCandidate,
+    };
     let hintState = null;
     let helpState = null;
     let lastGPressAt = 0;
@@ -283,21 +287,35 @@
             TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase()));
     }
     function isSupportedWebPage() {
-        return ((location.protocol === "http:" || location.protocol === "https:") &&
-            !isPdfDocument());
+        return isSupportedWebPageCandidate(currentPageSupportCandidate());
     }
     function isMovementSurface() {
         return isSupportedWebPage() || isSupportedPdf();
     }
     function isSupportedPdf() {
-        return (isPdfDocument() &&
-            (location.protocol === "http:" ||
-                location.protocol === "https:" ||
-                location.protocol === "file:"));
+        return isSupportedPdfCandidate(currentPageSupportCandidate());
     }
-    function isPdfDocument() {
-        return (document.contentType === "application/pdf" ||
-            /\.pdf(?:[?#]|$)/i.test(location.href));
+    function currentPageSupportCandidate() {
+        return {
+            contentType: document.contentType,
+            href: location.href,
+            protocol: location.protocol,
+        };
+    }
+    function isSupportedWebPageCandidate(candidate) {
+        return (isSupportedPageProtocol(candidate.protocol) &&
+            !isPdfDocumentCandidate(candidate));
+    }
+    function isSupportedPdfCandidate(candidate) {
+        return (isPdfDocumentCandidate(candidate) &&
+            isSupportedPageProtocol(candidate.protocol));
+    }
+    function isSupportedPageProtocol(protocol) {
+        return (protocol === "http:" || protocol === "https:" || protocol === "file:");
+    }
+    function isPdfDocumentCandidate(candidate) {
+        return (candidate.contentType === "application/pdf" ||
+            /\.pdf(?:[?#]|$)/i.test(candidate.href));
     }
     function startHintMode(activationMode) {
         cancelPendingMenuReveal();

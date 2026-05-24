@@ -70,6 +70,12 @@
     overlay: HTMLDivElement;
   }
 
+  interface PageSupportCandidate {
+    protocol: string;
+    contentType: string;
+    href: string;
+  }
+
   interface Movement {
     key: string;
     dx: number;
@@ -193,6 +199,14 @@
     canClickMenuTriggerCandidate,
     isSafeMediaControlCandidate,
     isSafeMenuTriggerCandidate,
+  };
+  (
+    globalThis as typeof globalThis & {
+      SafariKeyboardNavigationPageSupport?: SafariKeyboardNavigationPageSupport;
+    }
+  ).SafariKeyboardNavigationPageSupport = {
+    isSupportedPdfCandidate,
+    isSupportedWebPageCandidate,
   };
 
   let hintState: HintState | null = null;
@@ -461,10 +475,7 @@
   }
 
   function isSupportedWebPage(): boolean {
-    return (
-      (location.protocol === "http:" || location.protocol === "https:") &&
-      !isPdfDocument()
-    );
+    return isSupportedWebPageCandidate(currentPageSupportCandidate());
   }
 
   function isMovementSurface(): boolean {
@@ -472,18 +483,43 @@
   }
 
   function isSupportedPdf(): boolean {
+    return isSupportedPdfCandidate(currentPageSupportCandidate());
+  }
+
+  function currentPageSupportCandidate(): PageSupportCandidate {
+    return {
+      contentType: document.contentType,
+      href: location.href,
+      protocol: location.protocol,
+    };
+  }
+
+  function isSupportedWebPageCandidate(
+    candidate: PageSupportCandidate,
+  ): boolean {
     return (
-      isPdfDocument() &&
-      (location.protocol === "http:" ||
-        location.protocol === "https:" ||
-        location.protocol === "file:")
+      isSupportedPageProtocol(candidate.protocol) &&
+      !isPdfDocumentCandidate(candidate)
     );
   }
 
-  function isPdfDocument(): boolean {
+  function isSupportedPdfCandidate(candidate: PageSupportCandidate): boolean {
     return (
-      document.contentType === "application/pdf" ||
-      /\.pdf(?:[?#]|$)/i.test(location.href)
+      isPdfDocumentCandidate(candidate) &&
+      isSupportedPageProtocol(candidate.protocol)
+    );
+  }
+
+  function isSupportedPageProtocol(protocol: string): boolean {
+    return (
+      protocol === "http:" || protocol === "https:" || protocol === "file:"
+    );
+  }
+
+  function isPdfDocumentCandidate(candidate: PageSupportCandidate): boolean {
+    return (
+      candidate.contentType === "application/pdf" ||
+      /\.pdf(?:[?#]|$)/i.test(candidate.href)
     );
   }
 
