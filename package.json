@@ -1,0 +1,25 @@
+{
+  "name": "safari-keyboard-navigation-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "build:web": "tsc -p tsconfig.json",
+    "test": "pnpm run build:web && node --test tests/*.test.mjs",
+    "lint": "biome check .",
+    "lint:ci": "biome ci .",
+    "format": "biome check --write .",
+    "check": "pnpm run test && pnpm run lint && node --check web-extension/hints.js && node --check web-extension/content.js",
+    "check:ci": "pnpm run test && pnpm run lint:ci && node --check web-extension/hints.js && node --check web-extension/content.js",
+    "build:xcode": "pnpm run build:web && DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project \"xcode/Safari Keyboard Navigation Extension/Safari Keyboard Navigation Extension.xcodeproj\" -scheme \"Safari Keyboard Navigation Extension\" -configuration Debug -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "typescript": "^6.0.3"
+  }
+}

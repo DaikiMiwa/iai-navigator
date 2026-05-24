@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Safari Keyboard Navigation Extension",
+  "version": "0.1.0",
+  "description": "A small Safari extension for link hints and keyboard page movement.",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "js": ["hints.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["http://*/*", "https://*/*", "file:///*"]
+}

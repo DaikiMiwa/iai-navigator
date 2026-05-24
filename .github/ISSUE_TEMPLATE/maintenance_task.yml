@@ -1,0 +1,25 @@
+name: Maintenance task
+description: Track tooling, docs, refactors, or release work.
+title: "[Task]: "
+labels: ["type: chore", "status: needs-triage"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What should be improved or maintained?
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Why is this worth doing now?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true

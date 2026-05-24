@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Safari Keyboard Navigation Extension Manual Test</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        line-height: 1.5;
+      }
+
+      main {
+        max-width: 920px;
+      }
+
+      section {
+        margin: 0 0 48px;
+        padding-block: 16px;
+      }
+
+      a {
+        display: inline-block;
+        margin: 8px 16px 8px 0;
+      }
+
+      .wrapped-link {
+        width: 160px;
+      }
+
+      .hidden-area {
+        display: none;
+      }
+
+      .transparent-link {
+        opacity: 0;
+      }
+
+      .horizontal-scroll {
+        width: 680px;
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid CanvasText;
+        padding: 12px;
+      }
+
+      .wide-strip {
+        width: 1400px;
+        min-height: 80px;
+      }
+
+      .spacer {
+        min-height: 110vh;
+        border-block: 1px dashed color-mix(in srgb, CanvasText 30%, transparent);
+      }
+
+      [contenteditable] {
+        min-height: 48px;
+        border: 1px solid CanvasText;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Manual Test Page</h1>
+      <p>Use this page with the extension loaded from Safari.</p>
+
+      <section>
+        <h2>Visible Links</h2>
+        <a href="#alpha">Alpha anchor</a>
+        <a href="#beta">Beta anchor</a>
+        <a href="https://example.com/">Example external link</a>
+        <a class="wrapped-link" href="#wrapped">This wrapped link should receive exactly one hint</a>
+        <a href="#" id="hash-link">Hash action link</a>
+        <a href="javascript:window.__javascriptLinkCount = (window.__javascriptLinkCount || 0) + 1; document.getElementById('javascript-count').textContent = window.__javascriptLinkCount;">JavaScript action link</a>
+        <p>JavaScript link count: <output id="javascript-count">0</output></p>
+      </section>
+
+      <section>
+        <h2>Inputs Should Keep Text</h2>
+        <label>
+          Text input
+          <input type="text" value="">
+        </label>
+        <label>
+          Textarea
+          <textarea rows="3"></textarea>
+        </label>
+        <div contenteditable="true">Editable content</div>
+      </section>
+
+      <section>
+        <h2>Hidden Links Should Not Receive Hints</h2>
+        <a class="hidden-area" href="#hidden-display">Hidden display link</a>
+        <a class="transparent-link" href="#hidden-opacity">Transparent link</a>
+      </section>
+
+      <section>
+        <h2>Horizontal Scroll</h2>
+        <div class="horizontal-scroll">
+          <div class="wide-strip">
+            <a href="#left">Far left link</a>
+            <span style="display:inline-block; width: 980px;"></span>
+            <a href="#right">Far right link</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="spacer" id="alpha">
+        <h2>Alpha Section</h2>
+        <a href="#top">Partly visible tests can be done near viewport edges</a>
+      </div>
+
+      <div class="spacer" id="beta">
+        <h2>Beta Section</h2>
+        <a href="#bottom">Bottom anchor</a>
+      </div>
+
+      <section id="bottom">
+        <h2>Bottom</h2>
+        <a href="#top">Back to top</a>
+      </section>
+    </main>
+
+    <script>
+      document.getElementById("hash-link").addEventListener("click", (event) => {
+        event.preventDefault();
+        event.currentTarget.textContent = "Hash action clicked";
+      });
+    </script>
+  </body>
+</html>

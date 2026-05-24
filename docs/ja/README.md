@@ -1,0 +1,92 @@
+# Safari Keyboard Navigation Extension
+
+この日本語版は `README.md` の翻訳です。内容が異なる場合は英語版を優先します。
+
+Vimium のようなリンク Hint とページ移動を Safari で使うための、小さく監査しやすい Safari Web Extension です。Vimium 互換を目指すのではなく、ブラウザ自動化スイートにも広げすぎず、必要な操作に絞ります。
+
+## MVP の挙動
+
+- `f` で、通常の `http` / `https` ページの現在の viewport に見えているリンクに、黄色背景・黒文字の Hint を表示します。
+- Hint を最後まで入力すると、そのリンクの通常のクリック動作を現在タブで実行します。
+- `Esc` で Hint mode をキャンセルします。
+- `h`、`j`、`k`、`l` で小刻みにスクロールし、押し続けると滑らかに続けてスクロールします。
+- `g` を短い間隔で 2 回押すとページ上端へ移動します。
+- `Shift+G` でページ下端へ移動します。
+- テキスト入力、textarea、select、編集可能な要素では通常の入力を邪魔しません。
+- PDF ではページ移動だけを best effort で扱い、PDF 内リンクの Hint は MVP の対象外です。
+
+## リポジトリ構成
+
+- `src/`: content script の TypeScript ソース。
+- `web-extension/`: Safari が読み込む Web Extension パッケージ。JavaScript は `src/` から生成されます。
+- `xcode/`: 生成された macOS Safari Web Extension app project。
+- `tests/`: 純粋な JavaScript ロジックの Node tests。
+- `CONTEXT.md`: プロジェクトの用語集とドメイン言語。
+- `docs/research/competitors.md`: Vimari、Vifari、Vimlike の競合メモ。
+
+## ドキュメント言語
+
+このプロジェクトでは英語ドキュメントを正本とします。日本語翻訳は `docs/ja/` 配下に置き、英語版をもとに作成します。英語版と日本語版の内容が異なる場合は英語版を優先します。
+
+詳しくは `docs/ja/process/documentation-language.md` を参照してください。
+
+## 日本語ドキュメント
+
+- `docs/ja/contributing.md`
+- `docs/ja/process/documentation-language.md`
+- `docs/ja/process/github-workflow.md`
+- `docs/ja/strategy/why-use-this-app.md`
+
+## Build And Test
+
+このマシンでは active な `xcode-select` が Command Line Tools を向いていることがあります。Xcode app を使うため、`DEVELOPER_DIR` を指定します。
+
+```sh
+pnpm install
+pnpm run check
+pnpm run build:xcode
+```
+
+`src/*.ts` が編集対象のソースです。`pnpm run build:web` で `web-extension/*.js` にコンパイルし、Safari と Xcode はその生成ファイルを読み込みます。format と lint には Biome を使い、ESLint は使いません。
+
+## 手動テストページ
+
+Safari に拡張を読み込んだあと、manual test page を `http` で配信します。
+
+```sh
+python3 -m http.server 8765
+```
+
+その後、Safari で `http://localhost:8765/manual-test/` を開きます。
+
+確認観点:
+
+- `f` で見えているリンクだけに Hint が表示される。
+- 複数行に折り返されたリンクにも Hint は 1 つだけ付く。
+- hidden link には Hint が付かない。
+- `href="#"` や `javascript:` のリンクは通常のクリック動作で発火する。
+- `Esc` で Hint mode をキャンセルできる。
+- input、textarea、編集可能な要素への入力が奪われない。
+- `j/k` で縦スクロール、`h/l` で横スクロール、`gg` で上端、`Shift+G` で下端へ移動できる。
+
+## Safari で読み込む
+
+### 一時的に読み込む
+
+1. Safari > Settings を開きます。
+2. 必要であれば Advanced > Show features for web developers から Developer tab を有効にします。
+3. Safari > Settings > Developer で Allow unsigned extensions を有効にします。
+4. Add Temporary Extension をクリックし、`web-extension/` フォルダを選択します。
+5. 拡張を有効にし、website access を許可します。
+
+Safari は、一時的に読み込んだ拡張を 24 時間後、または Safari 終了時に削除します。
+
+### Xcode app として読み込む
+
+1. Xcode で `xcode/Safari Keyboard Navigation Extension/Safari Keyboard Navigation Extension.xcodeproj` を開きます。
+2. Signing & Capabilities で両 target に development team を設定するか、ローカル検証では Sign to Run Locally を選びます。
+3. `Safari Keyboard Navigation Extension` scheme を実行します。
+4. Safari の Settings > Extensions で拡張を有効にし、website access を許可します。
+5. unsigned local development で Safari に拡張が表示されない場合は、Safari の Develop menu を有効にし、unsigned extensions を許可します。
+
+生成された app name は仮の working name であり、product name ではありません。

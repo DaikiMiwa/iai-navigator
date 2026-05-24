@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a focused improvement.
+title: "[Feature]: "
+labels: ["type: feature", "status: needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: This project is intentionally minimal. Please explain the user problem before proposing a command or setting.
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What user need is not covered today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should the extension do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What simpler option or existing behavior did you consider?
+    validations:
+      required: false
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Link hints
+        - Page movement
+        - Safari extension packaging
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How would we know this is done?
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true

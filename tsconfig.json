@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "outDir": "web-extension",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}

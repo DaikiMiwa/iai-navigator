@@ -1,0 +1,77 @@
+name: Bug report
+description: Report behavior that is broken or surprising.
+title: "[Bug]: "
+labels: ["type: bug", "status: needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve the extension. Please keep one bug per issue.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the page type, key sequence, and what you saw.
+      placeholder: |
+        1. Open ...
+        2. Press ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Normal http/https web page
+        - Remote PDF
+        - Local PDF
+        - Safari extension app
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: safari-version
+    attributes:
+      label: Safari version
+      placeholder: "For example: Safari 18.4"
+    validations:
+      required: true
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+      placeholder: "For example: macOS 15.5"
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or recordings
+      description: Add media if the issue is visual or interaction-related.
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+    validations:
+      required: false
