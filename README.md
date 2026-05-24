@@ -8,7 +8,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - Typing a complete hint fires that link's normal click behavior in the current tab.
 - `Esc` cancels hint mode.
 - `h`, `j`, `k`, and `l` scroll in small steps and continue smoothly while held.
-- `u` and `d` move up and down by half a page.
+- `u` and `d` smoothly move up and down by half a page.
 - Pressing `g` twice quickly moves to the top of the page.
 - `Shift+G` moves to the bottom of the page.
 - `Shift+H` navigates back and `Shift+L` navigates forward in the current tab history.
@@ -66,7 +66,7 @@ Useful checks:
 - `href="#"` and `javascript:` links activate through normal click behavior.
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
-- `j/k` scroll vertically, `h/l` scroll horizontally where possible, `u/d` move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
+- `j/k` scroll vertically, `h/l` scroll horizontally where possible, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.

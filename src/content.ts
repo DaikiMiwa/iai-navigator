@@ -494,7 +494,7 @@
     scrollSurfaceBy(surface, {
       left: 0,
       top: distance * direction,
-      behavior: "auto",
+      behavior: "smooth",
     });
   }
 
