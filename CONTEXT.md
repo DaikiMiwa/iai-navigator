@@ -25,7 +25,7 @@ The act of choosing a Link Target by typing its complete Hint. In the MVP, Hint 
 _Avoid_: Click emulation, tab opening
 
 **Page Movement Command**:
-A keyboard command that moves the current page view without choosing a Link Target. Page Movement Commands are `h`, `j`, `k`, and `l` for small directional scroll steps that can repeat while held, `u` and `d` for smooth half-page vertical movement, `gg` for moving to the top after two quick `g` presses, and `G` for moving to the bottom of the page. Page Movement Commands do not run while the user is typing in text inputs, textareas, or editable page content.
+A keyboard command that moves the current page view without choosing a Link Target. Page Movement Commands are `h`, `j`, `k`, and `l` for smooth small directional scroll steps that can repeat while held, `u` and `d` for smooth half-page vertical movement, `gg` for moving to the top after two quick `g` presses, and `G` for moving to the bottom of the page. Page Movement Commands do not run while the user is typing in text inputs, textareas, or editable page content.
 _Avoid_: Browser history command, link command
 
 **History Navigation Command**:

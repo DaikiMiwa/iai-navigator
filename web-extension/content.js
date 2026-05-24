@@ -366,7 +366,7 @@
         scrollSurfaceBy(surface, {
             left: movement.dx,
             top: movement.dy,
-            behavior: "auto",
+            behavior: "smooth",
         });
         movementState = {
             ...movement,
