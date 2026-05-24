@@ -8,6 +8,7 @@
     const hints = maybeHints;
     const scroll = maybeScroll;
     const HINT_TRIGGER = "f";
+    const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const SEMANTIC_ACTION_TARGET_SELECTOR = '[role="button"], [role="link"], [role="tab"]';
     const TOP_SEQUENCE_WINDOW_MS = 800;
@@ -48,10 +49,11 @@
         if (shouldIgnoreKeyboardCommand(event)) {
             return;
         }
-        if (!event.repeat && isHintTrigger(event) && isSupportedWebPage()) {
+        const hintActivationMode = hintActivationModeForEvent(event);
+        if (!event.repeat && hintActivationMode && isSupportedWebPage()) {
             event.preventDefault();
             event.stopPropagation();
-            startHintMode();
+            startHintMode(hintActivationMode);
             return;
         }
         const tabSwitchDirection = tabSwitchDirectionForEvent(event);
@@ -120,12 +122,17 @@
         event.stopPropagation();
         stopMovement();
     }
-    function isHintTrigger(event) {
-        return (!event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.shiftKey &&
-            event.key === HINT_TRIGGER);
+    function hintActivationModeForEvent(event) {
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+            return null;
+        }
+        if (!event.shiftKey && event.key === HINT_TRIGGER) {
+            return "current-tab";
+        }
+        if (event.shiftKey && event.code === NEW_TAB_HINT_TRIGGER_CODE) {
+            return "new-tab";
+        }
+        return null;
     }
     function shouldIgnoreKeyboardCommand(event) {
         return (event.defaultPrevented ||
@@ -196,8 +203,8 @@
         return (document.contentType === "application/pdf" ||
             /\.pdf(?:[?#]|$)/i.test(location.href));
     }
-    function startHintMode() {
-        const targets = collectHintTargets();
+    function startHintMode(activationMode) {
+        const targets = collectHintTargets(activationMode);
         if (targets.length === 0) {
             return;
         }
@@ -224,6 +231,7 @@
         });
         document.documentElement.appendChild(overlay);
         hintState = {
+            activationMode,
             entries,
             input: "",
             overlay,
@@ -262,7 +270,7 @@
         }
         const exactMatch = matchingEntries.find((entry) => entry.hint === nextInput);
         if (exactMatch) {
-            activateHintTarget(exactMatch.target);
+            activateHintTarget(exactMatch.target, hintState.activationMode);
         }
     }
     function cancelHintMode() {
@@ -274,11 +282,13 @@
         window.removeEventListener("scroll", cancelHintMode, true);
         window.removeEventListener("resize", cancelHintMode, true);
     }
-    function collectHintTargets() {
+    function collectHintTargets(activationMode) {
         const targets = [];
-        collectLinkTargetsInto(targets);
-        collectFormControlTargetsInto(targets);
-        collectSemanticActionTargetsInto(targets);
+        collectLinkTargetsInto(targets, activationMode);
+        if (activationMode === "current-tab") {
+            collectFormControlTargetsInto(targets);
+            collectSemanticActionTargetsInto(targets);
+        }
         targets.sort((a, b) => {
             if (a.rect.top !== b.rect.top) {
                 return a.rect.top - b.rect.top;
@@ -287,10 +297,12 @@
         });
         return targets;
     }
-    function collectLinkTargetsInto(targets) {
+    function collectLinkTargetsInto(targets, activationMode) {
         const seen = new Set();
         for (const link of document.querySelectorAll("a[href]")) {
-            if (seen.has(link) || !isVisibleLink(link)) {
+            if (seen.has(link) ||
+                !isVisibleLink(link) ||
+                !isActivatableLink(link, activationMode)) {
                 continue;
             }
             const rect = visibleRectForElement(link);
@@ -307,7 +319,7 @@
             if (seen.has(element) || !isVisibleFormControlTarget(element)) {
                 continue;
             }
-            const rect = visibleRectForSemanticActionTarget(element);
+            const rect = visibleRectForElement(element);
             if (!rect) {
                 continue;
             }
@@ -321,13 +333,19 @@
             if (seen.has(element) || !isVisibleSemanticActionTarget(element)) {
                 continue;
             }
-            const rect = visibleRectForElement(element);
+            const rect = visibleRectForSemanticActionTarget(element);
             if (!rect) {
                 continue;
             }
             seen.add(element);
             targets.push({ kind: "semantic-action", element, rect });
         }
+    }
+    function isActivatableLink(link, activationMode) {
+        if (activationMode === "current-tab") {
+            return true;
+        }
+        return isSupportedNewTabUrl(link.href);
     }
     function isVisibleLink(link) {
         return isVisibleElement(link, { allowAriaHidden: true });
@@ -405,9 +423,9 @@
             rect.left < window.innerWidth &&
             rect.top < window.innerHeight);
     }
-    function activateHintTarget(target) {
+    function activateHintTarget(target, activationMode) {
         if (target.kind === "link") {
-            activateLinkTarget(target.element);
+            activateLinkTarget(target.element, activationMode);
             return;
         }
         if (target.kind === "semantic-action") {
@@ -416,7 +434,11 @@
         }
         activateFormControlTarget(target.element);
     }
-    function activateLinkTarget(element) {
+    function activateLinkTarget(element, activationMode) {
+        if (activationMode === "new-tab") {
+            openLinkTargetInNewTab(element);
+            return;
+        }
         const link = element.closest("a[href]") || element;
         const previousTarget = link.getAttribute("target");
         const hadTarget = link.hasAttribute("target");
@@ -449,6 +471,29 @@
         cancelHintMode();
         focusElement(element);
         element.click();
+    }
+    function openLinkTargetInNewTab(element) {
+        const link = element.closest("a[href]") || element;
+        const url = link.href;
+        cancelHintMode();
+        if (!isSupportedNewTabUrl(url)) {
+            return;
+        }
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        void browser.runtime
+            .sendMessage({ type: "open-tab", url, active: true })
+            .catch(() => undefined);
+    }
+    function isSupportedNewTabUrl(url) {
+        try {
+            const parsedUrl = new URL(url);
+            return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+        }
+        catch {
+            return false;
+        }
     }
     function focusElement(element) {
         try {

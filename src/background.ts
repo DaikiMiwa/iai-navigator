@@ -23,8 +23,18 @@
     return orderedTabs[activeIndex + offset]?.id ?? null;
   }
 
+  function isSupportedNewTabUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
   global.SafariKeyboardNavigationTabs = {
     chooseNeighborTabId,
+    isSupportedNewTabUrl,
   };
 
   const api = global.browser;
@@ -33,11 +43,15 @@
   }
 
   api.runtime.onMessage.addListener((message) => {
-    if (!isTabSwitchMessage(message)) {
-      return undefined;
+    if (isTabSwitchMessage(message)) {
+      return switchNeighborTab(api, message.direction);
     }
 
-    return switchNeighborTab(api, message.direction);
+    if (isOpenTabMessage(message)) {
+      return openTab(api, message);
+    }
+
+    return undefined;
   });
 
   async function switchNeighborTab(
@@ -66,6 +80,20 @@
     await api.tabs.update(nextTabId, { active: true });
   }
 
+  async function openTab(
+    api: WebExtensionApi,
+    message: OpenTabMessage,
+  ): Promise<void> {
+    if (!api.tabs || !isSupportedNewTabUrl(message.url)) {
+      return;
+    }
+
+    await api.tabs.create({
+      url: message.url,
+      active: message.active,
+    });
+  }
+
   function isTabSwitchMessage(message: unknown): message is TabSwitchMessage {
     if (!message || typeof message !== "object") {
       return false;
@@ -75,6 +103,19 @@
     return (
       candidate.type === "switch-tab" &&
       (candidate.direction === "previous" || candidate.direction === "next")
+    );
+  }
+
+  function isOpenTabMessage(message: unknown): message is OpenTabMessage {
+    if (!message || typeof message !== "object") {
+      return false;
+    }
+
+    const candidate = message as Partial<OpenTabMessage>;
+    return (
+      candidate.type === "open-tab" &&
+      typeof candidate.url === "string" &&
+      candidate.active === true
     );
   }
 })(

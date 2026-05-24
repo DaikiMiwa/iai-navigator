@@ -5,7 +5,7 @@ This English document is canonical. The Japanese translation lives at `docs/ja/s
 ## SCQ-A
 
 **Situation**:
-Safari users who prefer keyboard-first browsing want a fast way to choose links and move around pages with very few keystrokes. The desired core experience is Vimium-like: press `f` to show link hints, type the displayed hint to open a link, and use `h/j/k/l` plus `gg` / `G` for page movement.
+Safari users who prefer keyboard-first browsing want a fast way to choose links, keep useful pages open, and move around pages with very few keystrokes. The desired core experience is Vimium-like: press `f` to show link hints, type the displayed hint to open a link, use `Shift+F` when the link should open in a new tab, and use `h/j/k/l` plus `gg` / `G` for page movement.
 
 **Complication**:
 Existing options may be too broad, too heavy, or raise maintenance concerns for some users. Vimlike is powerful, but its large command set and settings surface can feel complex when the user only wants simple link and page movement. Vifari uses Hammerspoon and macOS accessibility automation, which makes setup heavier for users who want a normal Safari extension. Vimari is the closest fit, but its public release and code activity are old enough that some users may worry about long-term maintenance.
@@ -14,7 +14,7 @@ Existing options may be too broad, too heavy, or raise maintenance concerns for 
 Why should a Safari user who wants Vimium-like navigation choose this app?
 
 **Answer**:
-This app is for users who want the daily Safari navigation loop from the keyboard: choose visible links or controls, move around pages predictably, and add only the browser actions that keep that loop compact. It should be chosen as a small, understandable Safari Web Extension, not as the broadest Vimium clone or a system automation suite.
+This app is for users who want the daily Safari navigation loop from the keyboard: choose visible links or controls, open useful links in separate tabs, move around pages predictably, and add only the browser actions that keep that loop compact. It should be chosen as a small, understandable Safari Web Extension, not as the broadest Vimium clone or a system automation suite.
 
 ## Open Questions
 
@@ -57,9 +57,11 @@ Choose another option if:
 1. **It is designed around one compact job**
    - `f` can show hints for links currently visible in the viewport.
    - Typing the complete hint fires the link's normal click behavior in the current tab.
+   - `Shift+F` opens hinted web links in a new foreground tab for research and documentation reading.
    - `h/j/k/l` provide small directional scroll steps, and `gg` / `G` move to the top or bottom of the page.
    - New target categories, such as native controls or media controls, should be added only when they fit the same visible-target mental model.
-   - Tab commands, history commands, search commands, custom scripts, and detailed settings should be added deliberately instead of becoming a full command catalog by default.
+   - Neighbor tab switching and simple history navigation are included because they keep the same compact daily browsing loop.
+   - Search commands, custom scripts, and detailed settings should be added deliberately instead of becoming a full command catalog by default.
 
 2. **It is easier to understand than broader extensions**
    - Vimlike is powerful, but its command set and settings surface can feel complex for users who only want link and page movement.
@@ -83,7 +85,7 @@ Choose another option if:
 
 - **Q/A fit**: The question asks why users should choose the app. The answer is that it provides a lightweight Safari extension focused on the core navigation actions.
 - **So what?**: Users who find Vimlike too broad, Hammerspoon-based automation too heavy, or older extensions concerning get a focused alternative.
-- **Why so?**: The feature scope is small, the setup model is a Safari extension, the interaction surface is limited to link selection and page movement, and the project can present visible maintenance activity.
+- **Why so?**: The feature scope is small, the setup model is a Safari extension, the interaction surface is limited to link selection, lightweight tab actions, history navigation, and page movement, and the project can present visible maintenance activity.
 - **MECE check**: The first-level branches are feature fit, understandability, setup simplicity, and trust/maintainability. They overlap slightly, but represent distinct user-value angles.
 
 ## Messaging Notes
@@ -97,8 +99,8 @@ Choose another option if:
 
 ## Executive Summary
 
-This app is for Safari users who want Vimium-like keyboard navigation without adopting a broad extension or an external automation layer such as Hammerspoon. The MVP focuses on the daily navigation loop: `f` link hints, current-tab link activation, `h/j/k/l` scrolling, and `gg` / `G` page movement. Future commands should be added only when they preserve that compact model.
+This app is for Safari users who want Vimium-like keyboard navigation without adopting a broad extension or an external automation layer such as Hammerspoon. The MVP focuses on `f` link hints, current-tab link activation, `Shift+F` new-tab link activation, `h/j/k/l` scrolling, `gg` / `G` page movement, and a small set of history and tab commands.
 
 The reason to choose this app is not breadth; it is restraint. Vimlike is powerful, but may feel complex when the user only wants simple link and page movement. Vifari is powerful too, but its Hammerspoon-based architecture creates a heavier setup model for users who want a Safari extension. Vimari is the closest alternative, but its public release and code activity are old enough to make continuity a concern for some users. This project aims to occupy the space between them: small, understandable, inspectable, and maintained for current Safari.
 
-The most natural positioning is therefore: "keyboard-first visible page navigation for Safari, without the weight of a full command suite." The project should be clear about what it is not: not the most feature-rich Safari keyboard tool, not a Hammerspoon replacement, and not a complete Vimium clone. Its advantage is that a user can understand the whole product: visible targets, prefix-free hints, predictable movement, public development, and a roadmap that adds capability without making the core experience hard to reason about.
+The most natural positioning is therefore: "keyboard-first link and control selection, page movement, and lightweight tab actions for Safari, without the weight of a full command suite." Near-term work should prioritize stability, clarity, and low-surprise everyday behavior over adding search commands or detailed settings too early.

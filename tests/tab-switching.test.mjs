@@ -3,7 +3,8 @@ import test from "node:test";
 
 await import("../web-extension/background.js");
 
-const { chooseNeighborTabId } = globalThis.SafariKeyboardNavigationTabs;
+const { chooseNeighborTabId, isSupportedNewTabUrl } =
+  globalThis.SafariKeyboardNavigationTabs;
 
 test("chooses the tab to the left of the active tab", () => {
   assert.equal(
@@ -69,4 +70,15 @@ test("ignores tabs without numeric ids", () => {
     ),
     12,
   );
+});
+
+test("accepts only web URLs for new foreground tabs", () => {
+  assert.equal(isSupportedNewTabUrl("https://example.com/docs"), true);
+  assert.equal(
+    isSupportedNewTabUrl("http://localhost:8765/manual-test/"),
+    true,
+  );
+  assert.equal(isSupportedNewTabUrl("javascript:alert(1)"), false);
+  assert.equal(isSupportedNewTabUrl("mailto:hello@example.com"), false);
+  assert.equal(isSupportedNewTabUrl("not a url"), false);
 });
