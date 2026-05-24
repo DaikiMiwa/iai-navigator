@@ -59,6 +59,21 @@ interface SafariKeyboardNavigationHintTargets {
   ): boolean;
 }
 
+interface SafariKeyboardNavigationPageSupportCandidate {
+  protocol: string;
+  contentType: string;
+  href: string;
+}
+
+interface SafariKeyboardNavigationPageSupport {
+  isSupportedPdfCandidate(
+    candidate: SafariKeyboardNavigationPageSupportCandidate,
+  ): boolean;
+  isSupportedWebPageCandidate(
+    candidate: SafariKeyboardNavigationPageSupportCandidate,
+  ): boolean;
+}
+
 interface ScrollSurfaceCandidate {
   id: string;
   kind: "probe" | "window" | "visible";

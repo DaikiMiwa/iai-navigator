@@ -69,8 +69,8 @@ A two-key keyboard command that copies the current page URL from normal page foc
 _Avoid_: Link copy command, hinted URL copy, clipboard manager
 
 **Supported Web Page**:
-A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, Tab Switching Commands, and URL Copy Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
-_Avoid_: Any browser page, local HTML page
+A normal `http`, `https`, or local `file:` HTML page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, Tab Switching Commands, and URL Copy Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
+_Avoid_: Any browser page, browser chrome page
 
 **Supported PDF**:
 A PDF document opened in Safari, whether remote or local, where Page Movement Commands may run but Hint Mode does not. PDF links are not Link Targets in the MVP.
