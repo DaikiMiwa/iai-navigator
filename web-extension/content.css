@@ -13,19 +13,22 @@
   display: inline-block;
   position: absolute;
   box-sizing: border-box;
-  min-width: 14px;
-  padding: 1px 4px 2px;
-  border: 1px solid #4a3b00;
-  border-radius: 2px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 2px 5px;
+  border: 0;
+  border-radius: 3px;
   background: #ffd84d;
   color: #111;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
   font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1;
   text-align: center;
   text-transform: lowercase;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 32%);
 }
 
 #skne-hint-overlay .skne-hint[data-hidden="true"] {
