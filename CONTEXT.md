@@ -17,7 +17,7 @@ A Hint Target backed by a page link. In the MVP, each link is at most one Link T
 _Avoid_: Click target, action target, selectable element
 
 **Form Control Target**:
-A Hint Target backed by a visible, enabled native form control, currently `button`, `input`, `select`, and `textarea` elements. Activating a text-entry Form Control Target focuses the control so the user's next keystroke types into it. Activating other Form Control Targets fires their normal click/focus behavior. Hidden, disabled, fully offscreen, and `input type="hidden"` controls are not Form Control Targets.
+A Hint Target backed by a visible, enabled native form control, currently `button`, `input`, `select`, and `textarea` elements. Activating a text-entry Form Control Target focuses the control and places the caret at the end where Safari exposes text selection. Activating other Form Control Targets fires their normal click/focus behavior. Hidden, disabled, fully offscreen, and `input type="hidden"` controls are not Form Control Targets.
 _Avoid_: Arbitrary input target, editable action, custom onclick target
 
 **Hint**:
@@ -29,7 +29,7 @@ A temporary keyboard state started from the page body, where visible Hint Target
 _Avoid_: Selection mode, command mode
 
 **Hint Activation**:
-The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, focuses a text-entry Form Control Target, or fires normal click/focus behavior for another Form Control Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
+The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, focuses a text-entry Form Control Target with the caret at the end where possible, or fires normal click/focus behavior for another Form Control Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
 _Avoid_: Click emulation, tab opening
 
 **Page Movement Command**:

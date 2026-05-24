@@ -6,7 +6,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 - `f` shows compact yellow, black-text hints for visible link targets and native form controls in the current viewport on normal `http` and `https` pages.
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
-- Typing a complete form-control hint focuses text-entry controls or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
+- Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
 - `Esc` cancels hint mode.
 - `h`, `j`, `k`, and `l` scroll in smooth small steps and continue smoothly while held.
 - `u` and `d` smoothly move up and down by half a page.
@@ -65,7 +65,7 @@ Useful checks:
 
 - `f` shows hints only for visible links.
 - Visible native form controls receive hints.
-- Completing hints for text inputs and textareas focuses the control.
+- Completing hints for text inputs and textareas focuses the control with the caret at the end.
 - Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
 - Disabled, hidden, and offscreen controls do not receive hints.
 - Wrapped links receive one hint.

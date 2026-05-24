@@ -375,9 +375,11 @@
     function activateFormControlTarget(element) {
         cancelHintMode();
         focusElement(element);
-        if (!isTextEntryControl(element)) {
-            element.click();
+        if (isTextEntryControl(element)) {
+            placeTextEntryCaretAtEnd(element);
+            return;
         }
+        element.click();
     }
     function focusElement(element) {
         try {
@@ -393,6 +395,15 @@
         }
         return (element instanceof HTMLInputElement &&
             TEXT_ENTRY_INPUT_TYPES.has(element.type.toLowerCase()));
+    }
+    function placeTextEntryCaretAtEnd(element) {
+        const end = element.value.length;
+        try {
+            element.setSelectionRange(end, end);
+        }
+        catch {
+            // Some text-entry-like input types do not expose text selection in Safari.
+        }
     }
     function movementForEvent(event) {
         if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
