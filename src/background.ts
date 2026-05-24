@@ -32,26 +32,51 @@
     }
   }
 
+  function tabSwitchDirectionForCommand(
+    command: string,
+  ): TabSwitchDirection | null {
+    switch (command) {
+      case "switch-tab-previous":
+        return "previous";
+      case "switch-tab-next":
+        return "next";
+      default:
+        return null;
+    }
+  }
+
   global.SafariKeyboardNavigationTabs = {
     chooseNeighborTabId,
     isSupportedNewTabUrl,
+    tabSwitchDirectionForCommand,
   };
 
   const api = global.browser;
-  if (!api?.runtime?.onMessage || !api.tabs) {
+  if (!api?.tabs) {
     return;
   }
 
-  api.runtime.onMessage.addListener((message) => {
-    if (isTabSwitchMessage(message)) {
-      return switchNeighborTab(api, message.direction);
+  if (api.runtime?.onMessage) {
+    api.runtime.onMessage.addListener((message) => {
+      if (isTabSwitchMessage(message)) {
+        return switchNeighborTab(api, message.direction);
+      }
+
+      if (isOpenTabMessage(message)) {
+        return openTab(api, message);
+      }
+
+      return undefined;
+    });
+  }
+
+  api.commands?.onCommand.addListener((command) => {
+    const direction = tabSwitchDirectionForCommand(command);
+    if (!direction) {
+      return undefined;
     }
 
-    if (isOpenTabMessage(message)) {
-      return openTab(api, message);
-    }
-
-    return undefined;
+    return switchNeighborTab(api, direction);
   });
 
   async function switchNeighborTab(

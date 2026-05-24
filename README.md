@@ -18,6 +18,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `r` reloads the current page from normal page focus.
 - `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
+- `Option+Shift+J` and `Option+Shift+K` are browser-level fallback shortcuts for tab switching when page-level shortcuts cannot run, such as Safari Start Page or browser chrome focus.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.
 - PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
@@ -89,6 +90,7 @@ Useful checks:
 - Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
 - Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
+- With at least three Safari tabs open, focus Safari Start Page or the address bar, then verify `Option+Shift+J` switches to the left tab and `Option+Shift+K` switches to the right tab. If Safari reports a shortcut conflict, assign the same commands in Safari's extension shortcut settings and repeat the check.
 - Open `manual-test/frame-host.html`, click inside the frame, then verify `Shift+J/K` still switch tabs and `f` still shows hints inside the frame.
 - Press `yy` and paste into the text input to verify the current page URL was copied.
 - Press `y`, wait briefly, then press `y` again and verify the URL is not copied.

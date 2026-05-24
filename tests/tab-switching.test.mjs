@@ -5,6 +5,8 @@ await import("../web-extension/background.js");
 
 const { chooseNeighborTabId, isSupportedNewTabUrl } =
   globalThis.SafariKeyboardNavigationTabs;
+const { tabSwitchDirectionForCommand } =
+  globalThis.SafariKeyboardNavigationTabs;
 
 test("chooses the tab to the left of the active tab", () => {
   assert.equal(
@@ -81,4 +83,10 @@ test("accepts only web URLs for new foreground tabs", () => {
   assert.equal(isSupportedNewTabUrl("javascript:alert(1)"), false);
   assert.equal(isSupportedNewTabUrl("mailto:hello@example.com"), false);
   assert.equal(isSupportedNewTabUrl("not a url"), false);
+});
+
+test("maps browser-level tab switching commands to directions", () => {
+  assert.equal(tabSwitchDirectionForCommand("switch-tab-previous"), "previous");
+  assert.equal(tabSwitchDirectionForCommand("switch-tab-next"), "next");
+  assert.equal(tabSwitchDirectionForCommand("unknown-command"), null);
 });
