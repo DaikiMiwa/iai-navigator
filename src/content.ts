@@ -18,7 +18,12 @@
     element: FormControlTargetElement;
   }
 
-  type HintTarget = LinkTarget | FormControlTarget;
+  interface SemanticActionTarget extends HintTargetBase {
+    kind: "semantic-action";
+    element: HTMLElement;
+  }
+
+  type HintTarget = LinkTarget | FormControlTarget | SemanticActionTarget;
   type FormControlTargetElement =
     | HTMLButtonElement
     | HTMLInputElement
@@ -79,6 +84,10 @@
   const scroll: SafariKeyboardNavigationScroll = maybeScroll;
 
   const HINT_TRIGGER = "f";
+  const NATIVE_HINT_TARGET_SELECTOR =
+    "a[href], button, input, select, textarea";
+  const SEMANTIC_ACTION_TARGET_SELECTOR =
+    '[role="button"], [role="link"], [role="tab"]';
   const TOP_SEQUENCE_WINDOW_MS = 800;
   const HOLD_DELAY_MS = 140;
   const VERTICAL_STEP_PX = 72;
@@ -426,6 +435,7 @@
     const targets: HintTarget[] = [];
     collectLinkTargetsInto(targets);
     collectFormControlTargetsInto(targets);
+    collectSemanticActionTargetsInto(targets);
 
     targets.sort((a, b) => {
       if (a.rect.top !== b.rect.top) {
@@ -465,7 +475,7 @@
         continue;
       }
 
-      const rect = visibleRectForElement(element);
+      const rect = visibleRectForSemanticActionTarget(element);
       if (!rect) {
         continue;
       }
@@ -475,8 +485,27 @@
     }
   }
 
+  function collectSemanticActionTargetsInto(targets: HintTarget[]): void {
+    const seen = new Set<HTMLElement>();
+    for (const element of document.querySelectorAll<HTMLElement>(
+      SEMANTIC_ACTION_TARGET_SELECTOR,
+    )) {
+      if (seen.has(element) || !isVisibleSemanticActionTarget(element)) {
+        continue;
+      }
+
+      const rect = visibleRectForElement(element);
+      if (!rect) {
+        continue;
+      }
+
+      seen.add(element);
+      targets.push({ kind: "semantic-action", element, rect });
+    }
+  }
+
   function isVisibleLink(link: HTMLAnchorElement): boolean {
-    return isVisibleElement(link);
+    return isVisibleElement(link, { allowAriaHidden: true });
   }
 
   function isVisibleFormControlTarget(
@@ -493,8 +522,35 @@
     return true;
   }
 
-  function isVisibleElement(element: HTMLElement): boolean {
-    if (element.hidden || element.getAttribute("aria-hidden") === "true") {
+  function isVisibleSemanticActionTarget(element: HTMLElement): boolean {
+    if (!isVisibleElement(element) || isNativeHintTarget(element)) {
+      return false;
+    }
+
+    if (element.getAttribute("aria-disabled") === "true") {
+      return false;
+    }
+
+    return true;
+  }
+
+  function isNativeHintTarget(element: HTMLElement): boolean {
+    return (
+      element.matches(NATIVE_HINT_TARGET_SELECTOR) ||
+      element.closest(NATIVE_HINT_TARGET_SELECTOR) !== null ||
+      element.querySelector(NATIVE_HINT_TARGET_SELECTOR) !== null
+    );
+  }
+
+  function isVisibleElement(
+    element: HTMLElement,
+    options: { allowAriaHidden?: boolean } = {},
+  ): boolean {
+    if (
+      element.hidden ||
+      (!options.allowAriaHidden &&
+        element.getAttribute("aria-hidden") === "true")
+    ) {
       return false;
     }
 
@@ -508,7 +564,35 @@
   }
 
   function visibleRectForElement(element: Element): HintPosition | null {
-    for (const rect of element.getClientRects()) {
+    return firstVisibleRect(element.getClientRects());
+  }
+
+  function visibleRectForSemanticActionTarget(
+    element: HTMLElement,
+  ): HintPosition | null {
+    const ownRect = visibleRectForElement(element);
+    if (ownRect) {
+      return ownRect;
+    }
+
+    return visibleContentRectForElement(element);
+  }
+
+  function visibleContentRectForElement(
+    element: HTMLElement,
+  ): HintPosition | null {
+    const range = document.createRange();
+
+    try {
+      range.selectNodeContents(element);
+      return firstVisibleRect(range.getClientRects());
+    } finally {
+      range.detach();
+    }
+  }
+
+  function firstVisibleRect(rects: DOMRectList): HintPosition | null {
+    for (const rect of rects) {
       if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
         continue;
       }
@@ -534,6 +618,11 @@
   function activateHintTarget(target: HintTarget): void {
     if (target.kind === "link") {
       activateLinkTarget(target.element);
+      return;
+    }
+
+    if (target.kind === "semantic-action") {
+      activateSemanticActionTarget(target.element);
       return;
     }
 
@@ -571,6 +660,12 @@
       return;
     }
 
+    element.click();
+  }
+
+  function activateSemanticActionTarget(element: HTMLElement): void {
+    cancelHintMode();
+    focusElement(element);
     element.click();
   }
 

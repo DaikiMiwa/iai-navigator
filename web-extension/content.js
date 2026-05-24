@@ -8,6 +8,8 @@
     const hints = maybeHints;
     const scroll = maybeScroll;
     const HINT_TRIGGER = "f";
+    const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
+    const SEMANTIC_ACTION_TARGET_SELECTOR = '[role="button"], [role="link"], [role="tab"]';
     const TOP_SEQUENCE_WINDOW_MS = 800;
     const HOLD_DELAY_MS = 140;
     const VERTICAL_STEP_PX = 72;
@@ -276,6 +278,7 @@
         const targets = [];
         collectLinkTargetsInto(targets);
         collectFormControlTargetsInto(targets);
+        collectSemanticActionTargetsInto(targets);
         targets.sort((a, b) => {
             if (a.rect.top !== b.rect.top) {
                 return a.rect.top - b.rect.top;
@@ -304,7 +307,7 @@
             if (seen.has(element) || !isVisibleFormControlTarget(element)) {
                 continue;
             }
-            const rect = visibleRectForElement(element);
+            const rect = visibleRectForSemanticActionTarget(element);
             if (!rect) {
                 continue;
             }
@@ -312,8 +315,22 @@
             targets.push({ kind: "form-control", element, rect });
         }
     }
+    function collectSemanticActionTargetsInto(targets) {
+        const seen = new Set();
+        for (const element of document.querySelectorAll(SEMANTIC_ACTION_TARGET_SELECTOR)) {
+            if (seen.has(element) || !isVisibleSemanticActionTarget(element)) {
+                continue;
+            }
+            const rect = visibleRectForElement(element);
+            if (!rect) {
+                continue;
+            }
+            seen.add(element);
+            targets.push({ kind: "semantic-action", element, rect });
+        }
+    }
     function isVisibleLink(link) {
-        return isVisibleElement(link);
+        return isVisibleElement(link, { allowAriaHidden: true });
     }
     function isVisibleFormControlTarget(element) {
         if (element.disabled || !isVisibleElement(element)) {
@@ -324,8 +341,24 @@
         }
         return true;
     }
-    function isVisibleElement(element) {
-        if (element.hidden || element.getAttribute("aria-hidden") === "true") {
+    function isVisibleSemanticActionTarget(element) {
+        if (!isVisibleElement(element) || isNativeHintTarget(element)) {
+            return false;
+        }
+        if (element.getAttribute("aria-disabled") === "true") {
+            return false;
+        }
+        return true;
+    }
+    function isNativeHintTarget(element) {
+        return (element.matches(NATIVE_HINT_TARGET_SELECTOR) ||
+            element.closest(NATIVE_HINT_TARGET_SELECTOR) !== null ||
+            element.querySelector(NATIVE_HINT_TARGET_SELECTOR) !== null);
+    }
+    function isVisibleElement(element, options = {}) {
+        if (element.hidden ||
+            (!options.allowAriaHidden &&
+                element.getAttribute("aria-hidden") === "true")) {
             return false;
         }
         const style = getComputedStyle(element);
@@ -335,7 +368,27 @@
             style.opacity !== "0");
     }
     function visibleRectForElement(element) {
-        for (const rect of element.getClientRects()) {
+        return firstVisibleRect(element.getClientRects());
+    }
+    function visibleRectForSemanticActionTarget(element) {
+        const ownRect = visibleRectForElement(element);
+        if (ownRect) {
+            return ownRect;
+        }
+        return visibleContentRectForElement(element);
+    }
+    function visibleContentRectForElement(element) {
+        const range = document.createRange();
+        try {
+            range.selectNodeContents(element);
+            return firstVisibleRect(range.getClientRects());
+        }
+        finally {
+            range.detach();
+        }
+    }
+    function firstVisibleRect(rects) {
+        for (const rect of rects) {
             if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
                 continue;
             }
@@ -355,6 +408,10 @@
     function activateHintTarget(target) {
         if (target.kind === "link") {
             activateLinkTarget(target.element);
+            return;
+        }
+        if (target.kind === "semantic-action") {
+            activateSemanticActionTarget(target.element);
             return;
         }
         activateFormControlTarget(target.element);
@@ -386,6 +443,11 @@
             placeTextEntryCaretAtEnd(element);
             return;
         }
+        element.click();
+    }
+    function activateSemanticActionTarget(element) {
+        cancelHintMode();
+        focusElement(element);
         element.click();
     }
     function focusElement(element) {
