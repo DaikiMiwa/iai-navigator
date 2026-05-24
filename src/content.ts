@@ -67,6 +67,7 @@
   const HOLD_DELAY_MS = 140;
   const VERTICAL_STEP_PX = 72;
   const HORIZONTAL_STEP_PX = 84;
+  const HALF_PAGE_RATIO = 0.5;
   const VERTICAL_HOLD_SPEED_PX_PER_SECOND = 720;
   const HORIZONTAL_HOLD_SPEED_PX_PER_SECOND = 720;
 
@@ -105,6 +106,14 @@
       event.preventDefault();
       event.stopPropagation();
       startMovement(movement);
+      return;
+    }
+
+    const halfPageDirection = halfPageDirectionForEvent(event);
+    if (halfPageDirection) {
+      event.preventDefault();
+      event.stopPropagation();
+      scrollHalfPage(halfPageDirection);
       return;
     }
 
@@ -448,6 +457,45 @@
       default:
         return null;
     }
+  }
+
+  function halfPageDirectionForEvent(event: KeyboardEvent): -1 | 1 | null {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      return null;
+    }
+
+    switch (event.key) {
+      case "d":
+        return 1;
+      case "u":
+        return -1;
+      default:
+        return null;
+    }
+  }
+
+  function scrollHalfPage(direction: -1 | 1): void {
+    const surface = findScrollSurface(
+      {
+        key: direction > 0 ? "d" : "u",
+        dx: 0,
+        dy: direction,
+        speedX: 0,
+        speedY: 0,
+      },
+      { requireCanMove: true },
+    );
+    const distance = Math.max(
+      1,
+      Math.round(surfaceClientHeight(surface) * HALF_PAGE_RATIO),
+    );
+
+    stopMovement();
+    scrollSurfaceBy(surface, {
+      left: 0,
+      top: distance * direction,
+      behavior: "auto",
+    });
   }
 
   function startMovement(movement: Movement): void {
@@ -805,6 +853,10 @@
     return isWindowSurface(surface)
       ? Math.max(0, documentHeight() - window.innerHeight)
       : maxElementScroll(surface, "y");
+  }
+
+  function surfaceClientHeight(surface: ScrollSurface): number {
+    return isWindowSurface(surface) ? window.innerHeight : surface.clientHeight;
   }
 
   function documentHeight(): number {
