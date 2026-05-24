@@ -31,6 +31,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `CONTEXT.md`: project glossary and domain language.
 - `docs/research/competitors.md`: competitor notes for Vimari, Vifari, and Vimlike.
 - `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
+- `docs/research/bookmark-history-open-command.md`: compatibility spike for bookmark/history-backed destination search.
 
 ## Documentation Language
 
@@ -43,6 +44,7 @@ Start here for Japanese documentation:
 - `docs/ja/process/documentation-language.md`
 - `docs/ja/process/github-workflow.md`
 - `docs/ja/research/ipados-safari-support.md`
+- `docs/ja/research/bookmark-history-open-command.md`
 - `docs/ja/strategy/why-use-this-app.md`
 
 ## Build And Test
