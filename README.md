@@ -82,7 +82,7 @@ Useful checks:
 - `href="#"` and `javascript:` links activate through normal click behavior.
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
-- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys continue scrolling smoothly, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
+- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys transition into continuous scrolling without a visible stutter, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 - Press `r` from normal page focus and verify the Reload Command page load count increments.
 - Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
@@ -95,7 +95,9 @@ Useful checks:
 - Press `y`, then `Esc`, then `y` again and verify the URL is not copied.
 - Press `f`, then press `yy` while hint mode is active and verify hint mode consumes the keys instead of copying the URL.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
+- On `manual-test/nested-scroll.html`, press and hold `j/k` and verify the first smooth step transitions into held scrolling without a visible jump.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
+- On `manual-test/body-scroll.html`, press and hold `j/k`, then use the horizontal scroll area on the main manual test page to press and hold `h/l`; verify each first smooth step transitions into held scrolling without a visible jump.
 
 ## Load In Safari
 

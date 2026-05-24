@@ -86,7 +86,7 @@ python3 -m http.server 8765
 - `href="#"` や `javascript:` のリンクは通常のクリック動作で発火する。
 - `Esc` で Hint mode をキャンセルできる。
 - input、textarea、編集可能な要素への入力が奪われない。
-- `j/k` で滑らかな単発の縦スクロール、`h/l` で可能な場所では滑らかな単発の横スクロール、長押しで滑らかな連続スクロール、`u/d` で滑らかな半ページ移動、`gg` で上端、`Shift+G` で下端へ移動できる。
+- `j/k` で滑らかな単発の縦スクロール、`h/l` で可能な場所では滑らかな単発の横スクロール、長押しへ移るときも引っかかりなく連続スクロールへ移行し、`u/d` で滑らかな半ページ移動、`gg` で上端、`Shift+G` で下端へ移動できる。
 - `manual-test/history-a.html` を開き、`history-b.html` に移動したあと、`Shift+H` で戻り、`Shift+L` で進める。
 - 通常のページフォーカスで `r` を押し、Reload Command の page load count が増える。
 - input、textarea、編集可能な要素にフォーカスした状態で `r` を押し、再読み込みされず通常通り入力される。
@@ -99,7 +99,9 @@ python3 -m http.server 8765
 - `y` を押してから `Esc` を押し、もう一度 `y` を押しても URL がコピーされないことを確認する。
 - `f` を押してから Hint mode 中に `yy` を押し、URL コピーではなく Hint mode 側でキーが処理されることを確認する。
 - `manual-test/nested-scroll.html` を開き、`j/k`、`u/d`、`gg`、`Shift+G` で内部 scroll container が動く。
+- `manual-test/nested-scroll.html` で `j/k` を長押しし、最初の滑らかな step から長押し scroll へ見えるジャンプなく移行することを確認する。
 - `manual-test/body-scroll.html` を開き、`j/k`、`u/d`、`gg`、`Shift+G` で body scroll container が動く。
+- `manual-test/body-scroll.html` で `j/k` を長押しし、main manual test page の horizontal scroll area で `h/l` を長押しして、それぞれ最初の滑らかな step から長押し scroll へ見えるジャンプなく移行することを確認する。
 
 ## Safari で読み込む
 

@@ -57,6 +57,7 @@
     surface: ScrollSurface;
     startedAt: number;
     lastFrameAt: number;
+    hasEnteredHold: boolean;
     frameId: number;
   }
 
@@ -920,6 +921,7 @@
 
     stopMovement();
     const surface = findScrollSurface(movement, { requireCanMove: true });
+    stopNativeScrollAnimation(surface);
     scrollSurfaceBy(surface, {
       left: movement.dx,
       top: movement.dy,
@@ -931,6 +933,7 @@
       surface,
       startedAt: performance.now(),
       lastFrameAt: performance.now(),
+      hasEnteredHold: false,
       frameId: 0,
     };
     movementState.frameId = window.requestAnimationFrame(tickMovement);
@@ -946,6 +949,11 @@
     movementState.lastFrameAt = now;
 
     if (elapsed >= HOLD_DELAY_MS) {
+      if (!movementState.hasEnteredHold) {
+        stopNativeScrollAnimation(movementState.surface);
+        movementState.hasEnteredHold = true;
+      }
+
       scrollSurfaceBy(movementState.surface, {
         left: movementState.speedX * deltaSeconds,
         top: movementState.speedY * deltaSeconds,
@@ -963,6 +971,14 @@
 
     window.cancelAnimationFrame(movementState.frameId);
     movementState = null;
+  }
+
+  function stopNativeScrollAnimation(surface: ScrollSurface): void {
+    scrollSurfaceTo(surface, {
+      left: currentScrollX(surface),
+      top: currentScrollY(surface),
+      behavior: "auto",
+    });
   }
 
   function isTopCommand(event: KeyboardEvent): boolean {
