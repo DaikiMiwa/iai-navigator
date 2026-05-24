@@ -86,7 +86,7 @@ Useful checks:
 - `href="#"` and `javascript:` links activate through normal click behavior.
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
-- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys continue scrolling smoothly, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
+- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys transition into continuous scrolling without a visible stutter, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 - Press `r` from normal page focus and verify the Reload Command page load count increments.
 - Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.

@@ -137,6 +137,10 @@
         }
         event.preventDefault();
         event.stopPropagation();
+        if (movementState.initialProgress < 1) {
+            movementState.keyReleased = true;
+            return;
+        }
         stopMovement();
     }
     function hintActivationModeForEvent(event) {
@@ -633,21 +637,19 @@
             .catch(() => undefined);
     }
     function startMovement(movement) {
-        if (movementState && movementState.key === movement.key) {
+        if (movementState?.key === movement.key && !movementState.keyReleased) {
             return;
         }
         stopMovement();
         const surface = findScrollSurface(movement, { requireCanMove: true });
-        scrollSurfaceBy(surface, {
-            left: movement.dx,
-            top: movement.dy,
-            behavior: "smooth",
-        });
+        const now = performance.now();
         movementState = {
             ...movement,
             surface,
-            startedAt: performance.now(),
-            lastFrameAt: performance.now(),
+            startedAt: now,
+            lastFrameAt: now,
+            initialProgress: 0,
+            keyReleased: false,
             frameId: 0,
         };
         movementState.frameId = window.requestAnimationFrame(tickMovement);
@@ -657,16 +659,37 @@
             return;
         }
         const elapsed = now - movementState.startedAt;
-        const deltaSeconds = Math.max(0, now - movementState.lastFrameAt) / 1000;
+        const nextInitialProgress = movementInitialProgress(elapsed);
+        const initialProgressDelta = nextInitialProgress - movementState.initialProgress;
+        if (initialProgressDelta > 0) {
+            scrollSurfaceBy(movementState.surface, {
+                left: movementState.dx * initialProgressDelta,
+                top: movementState.dy * initialProgressDelta,
+                behavior: "auto",
+            });
+            movementState.initialProgress = nextInitialProgress;
+        }
+        const continuousFrom = Math.max(movementState.lastFrameAt, movementState.startedAt + HOLD_DELAY_MS);
+        const deltaSeconds = !movementState.keyReleased && elapsed >= HOLD_DELAY_MS
+            ? Math.max(0, now - continuousFrom) / 1000
+            : 0;
         movementState.lastFrameAt = now;
-        if (elapsed >= HOLD_DELAY_MS) {
+        if (deltaSeconds > 0) {
             scrollSurfaceBy(movementState.surface, {
                 left: movementState.speedX * deltaSeconds,
                 top: movementState.speedY * deltaSeconds,
                 behavior: "auto",
             });
         }
+        if (movementState.keyReleased && movementState.initialProgress >= 1) {
+            stopMovement();
+            return;
+        }
         movementState.frameId = window.requestAnimationFrame(tickMovement);
+    }
+    function movementInitialProgress(elapsedMs) {
+        const linearProgress = clamp(elapsedMs / HOLD_DELAY_MS, 0, 1);
+        return 1 - (1 - linearProgress) ** 3;
     }
     function stopMovement() {
         if (!movementState) {
