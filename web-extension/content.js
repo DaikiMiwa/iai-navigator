@@ -1,14 +1,17 @@
 "use strict";
 (() => {
     const maybeHints = globalThis.SafariKeyboardNavigationHints;
+    const maybeHelp = globalThis.SafariKeyboardNavigationHelp;
     const maybeScroll = globalThis.SafariKeyboardNavigationScroll;
-    if (!maybeHints || !maybeScroll) {
+    if (!maybeHints || !maybeHelp || !maybeScroll) {
         return;
     }
     const hints = maybeHints;
+    const help = maybeHelp;
     const scroll = maybeScroll;
     const HINT_TRIGGER = "f";
     const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
+    const HELP_OVERLAY_ID = "skne-help-overlay";
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const SEMANTIC_ACTION_TARGET_SELECTOR = '[role="button"], [role="link"], [role="tab"]';
     const TOP_SEQUENCE_WINDOW_MS = 800;
@@ -30,6 +33,7 @@
         "url",
     ]);
     let hintState = null;
+    let helpState = null;
     let lastGPressAt = 0;
     let lastYPressAt = 0;
     let urlCopyToastTimer = 0;
@@ -37,10 +41,15 @@
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopMovement, true);
+    window.addEventListener("pagehide", closeHelpOverlay, true);
     window.addEventListener("pagehide", stopMovement, true);
     function handleKeyDown(event) {
         if (hintState) {
             handleHintKeyDown(event);
+            return;
+        }
+        if (helpState) {
+            handleHelpKeyDown(event);
             return;
         }
         const blurTarget = editableBlurTargetForEvent(event);
@@ -67,6 +76,12 @@
             return;
         }
         clearUrlCopySequence();
+        if (help.isHelpCommandEvent(event)) {
+            event.preventDefault();
+            event.stopPropagation();
+            showHelpOverlay();
+            return;
+        }
         if (!event.repeat && hintActivationMode && isSupportedWebPage()) {
             event.preventDefault();
             event.stopPropagation();
@@ -129,6 +144,14 @@
                 top: maxScrollTop(surface),
                 left: currentScrollX(surface),
             });
+        }
+    }
+    function handleHelpKeyDown(event) {
+        const shouldClose = help.isHelpCloseCommandEvent(event);
+        event.preventDefault();
+        event.stopPropagation();
+        if (shouldClose) {
+            closeHelpOverlay();
         }
     }
     function handleKeyUp(event) {
@@ -302,6 +325,71 @@
         hintState = null;
         window.removeEventListener("scroll", cancelHintMode, true);
         window.removeEventListener("resize", cancelHintMode, true);
+    }
+    function showHelpOverlay() {
+        stopMovement();
+        closeHelpOverlay();
+        const overlay = document.createElement("div");
+        overlay.id = HELP_OVERLAY_ID;
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-label", "Keyboard shortcuts");
+        const panel = document.createElement("div");
+        panel.className = "skne-help-panel";
+        const header = document.createElement("div");
+        header.className = "skne-help-header";
+        const title = document.createElement("div");
+        title.className = "skne-help-title";
+        title.textContent = "Keyboard Shortcuts";
+        header.appendChild(title);
+        const closeHint = document.createElement("div");
+        closeHint.className = "skne-help-close-hint";
+        closeHint.textContent = "Esc closes";
+        header.appendChild(closeHint);
+        panel.appendChild(header);
+        const sections = document.createElement("div");
+        sections.className = "skne-help-sections";
+        for (const section of help.HELP_SECTIONS) {
+            sections.appendChild(createHelpSection(section));
+        }
+        panel.appendChild(sections);
+        overlay.appendChild(panel);
+        document.documentElement.appendChild(overlay);
+        helpState = { overlay };
+    }
+    function createHelpSection(section) {
+        const sectionElement = document.createElement("div");
+        sectionElement.className = "skne-help-section";
+        const title = document.createElement("div");
+        title.className = "skne-help-section-title";
+        title.textContent = section.title;
+        sectionElement.appendChild(title);
+        const list = document.createElement("div");
+        list.className = "skne-help-shortcut-list";
+        for (const shortcut of section.shortcuts) {
+            list.appendChild(createHelpShortcut(shortcut));
+        }
+        sectionElement.appendChild(list);
+        return sectionElement;
+    }
+    function createHelpShortcut(shortcut) {
+        const row = document.createElement("div");
+        row.className = "skne-help-shortcut";
+        const key = document.createElement("kbd");
+        key.className = "skne-help-key";
+        key.textContent = shortcut.key;
+        row.appendChild(key);
+        const description = document.createElement("span");
+        description.className = "skne-help-description";
+        description.textContent = shortcut.description;
+        row.appendChild(description);
+        return row;
+    }
+    function closeHelpOverlay() {
+        if (!helpState) {
+            return;
+        }
+        helpState.overlay.remove();
+        helpState = null;
     }
     function collectHintTargets(activationMode) {
         const targets = [];

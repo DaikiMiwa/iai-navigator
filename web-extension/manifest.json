@@ -26,7 +26,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "js": ["hints.js", "scroll-surface.js", "content.js"],
+      "js": ["hints.js", "help.js", "scroll-surface.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_start",
       "all_frames": true
