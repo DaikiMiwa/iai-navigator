@@ -9,7 +9,7 @@ A small, auditable Safari browser extension that gives users keyboard-first navi
 _Avoid_: Vimium port, Vimium-compatible Safari extension, Hammerspoon automation, full browser automation suite
 
 **Hint Target**:
-A page element that is at least partly visible within the current viewport and that can receive a Hint. Hint Targets are Link Targets, Menu Trigger Targets, native Form Control Targets, and Semantic Action Targets only. Arbitrary non-semantic clickable elements, hidden elements, fully offscreen elements, disabled controls, and destructive page actions are not Hint Targets.
+A page element that is at least partly visible within the current viewport and that can receive a Hint. Hint Targets are Link Targets, Menu Trigger Targets, Media Control Targets, Media Surface Targets, native Form Control Targets, and Semantic Action Targets only. Arbitrary non-semantic clickable elements, hidden elements, fully offscreen elements, disabled controls, and destructive page actions are not Hint Targets.
 _Avoid_: Click target, action target, selectable element
 
 **Link Target**:
@@ -24,6 +24,14 @@ _Avoid_: Arbitrary input target, editable action, custom onclick target
 A Hint Target backed by a visible, enabled navigation disclosure trigger that may reveal additional links. Menu Trigger Targets include explicit disclosure controls with `aria-haspopup`, `aria-expanded`, or `aria-controls`, plus button-like controls inside `nav`, `header`, `role="navigation"`, `role="menubar"`, or `role="menu"` contexts. Activating a Menu Trigger Target focuses the trigger first, waits briefly, and rescans visible links; it only clicks the trigger when the candidate has an explicit disclosure signal. Ordinary links, non-button form controls, disabled controls, submit buttons in forms, arbitrary page buttons, and hover-only menus are excluded.
 _Avoid_: Arbitrary button target, hover menu target, click-anything target
 
+**Media Control Target**:
+A Hint Target backed by a visible, enabled control inside recognized media player chrome. Media Control Targets include native controls, YouTube `.ytp-button` controls, accessible ARIA button/slider/switch/menuitem controls, and focusable named controls inside `.ytp-chrome-controls`, `.ytp-chrome-bottom`, or explicit `data-skne-media-controls` containers. Activating a Media Control Target focuses the control and fires its normal click behavior. Links, disabled controls, controls outside bounded player chrome, hidden controls, and fully offscreen controls are excluded.
+_Avoid_: Arbitrary video click target, global media shortcut, click-anything target
+
+**Media Surface Target**:
+A Hint Target backed by a visible recognized media player surface, currently YouTube player surfaces and explicit `data-skne-media-player` containers. Media Surface Targets are only collected when no visible Media Control Targets are available. Activating a Media Surface Target focuses the player, dispatches a best-effort pointer reveal event, and rescans visible Hint Targets. It does not directly play, pause, seek, or activate arbitrary player actions.
+_Avoid_: Video action target, hidden control target, direct playback command
+
 **Semantic Action Target**:
 A Hint Target backed by a visible, enabled semantic custom control, currently elements with `role="button"`, `role="link"`, or `role="tab"` that are not wrappers around a native Link Target, Menu Trigger Target, or Form Control Target. A Semantic Action Target may use its visible content rectangle when the semantic element itself has no layout box, such as inline expanders. Activating a Semantic Action Target focuses the element and fires its normal click behavior. Hidden, fully offscreen, `aria-hidden`, and `aria-disabled="true"` semantic controls are not Semantic Action Targets.
 _Avoid_: Arbitrary clickable element, div with onclick, site-specific control
@@ -37,7 +45,7 @@ A temporary keyboard state started from the page body, where visible Hint Target
 _Avoid_: Selection mode, command mode
 
 **Hint Activation**:
-The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, uses focus-first disclosure and a rescan for Menu Trigger Targets, focuses a text-entry Form Control Target with the caret at the end where possible, or fires normal click/focus behavior for another Form Control Target or Semantic Action Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
+The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, uses focus-first disclosure and a rescan for Menu Trigger Targets, focuses and clicks Media Control Targets, uses a best-effort reveal and rescan for Media Surface Targets, focuses a text-entry Form Control Target with the caret at the end where possible, or fires normal click/focus behavior for another Form Control Target or Semantic Action Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
 _Avoid_: Click emulation, tab opening
 
 **Page Movement Command**:

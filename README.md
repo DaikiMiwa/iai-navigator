@@ -4,9 +4,11 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
+- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
 - Typing a complete navigation menu trigger hint focuses the trigger first, safely clicks only explicit disclosure-style triggers if focus does not reveal links, and then rescans visible targets.
+- Typing a complete media player control hint focuses and clicks visible controls inside recognized player chrome, such as YouTube's player controls.
+- When recognized media controls are hidden, `f` may show a player-surface hint that focuses the player, sends a best-effort reveal event, and rescans for newly visible controls.
 - Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
 - Typing a complete semantic custom control hint fires that element's normal click/focus behavior for controls such as ARIA tabs, buttons, links, and inline expanders.
 - `Shift+F` shows hints for visible `http` and `https` link targets and opens the chosen target in a new foreground tab.
@@ -76,6 +78,7 @@ Useful checks:
 
 - Visible links receive hints.
 - Safe visible navigation menu triggers receive hints and rescan newly revealed links after activation.
+- Visible bounded media player controls receive hints and activate through normal click/focus behavior.
 - Visible native form controls receive hints.
 - Visible semantic custom controls, such as `role="tab"`, receive hints.
 - Inline semantic custom controls, such as `role="button"` expanders whose visible text provides the layout box, receive hints.
@@ -84,6 +87,8 @@ Useful checks:
 - Completing hints for text inputs and textareas focuses the control with the caret at the end.
 - Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
 - Completing hints for semantic custom controls fires normal click/focus behavior.
+- Completing hints for visible media controls fires normal click/focus behavior.
+- On a YouTube watch page, visible play/pause, mute, captions, settings, theater/miniplayer, and fullscreen controls receive hints; when controls are hidden, choosing the player-surface hint should reveal controls and rescan where Safari and YouTube accept the synthetic reveal event.
 - Disabled, hidden, and offscreen controls do not receive hints.
 - Wrapped links receive one hint.
 - Hidden links do not receive hints.

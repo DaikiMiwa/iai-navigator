@@ -34,9 +34,25 @@ interface SafariKeyboardNavigationMenuTriggerCandidate {
   isNonButtonFormControl: boolean;
 }
 
+interface SafariKeyboardNavigationMediaControlCandidate {
+  tagName: string;
+  role: string;
+  hasAccessibleName: boolean;
+  isAriaDisabled: boolean;
+  isDisabled: boolean;
+  isFocusable: boolean;
+  isInMediaControlSurface: boolean;
+  isLink: boolean;
+  isNativeControl: boolean;
+  isYouTubeButton: boolean;
+}
+
 interface SafariKeyboardNavigationHintTargets {
   canClickMenuTriggerCandidate(
     candidate: SafariKeyboardNavigationMenuTriggerCandidate,
+  ): boolean;
+  isSafeMediaControlCandidate(
+    candidate: SafariKeyboardNavigationMediaControlCandidate,
   ): boolean;
   isSafeMenuTriggerCandidate(
     candidate: SafariKeyboardNavigationMenuTriggerCandidate,

@@ -130,6 +130,34 @@
       .manual-focus-menu:focus-within .manual-menu-panel {
         display: flex;
       }
+
+      .manual-media-player {
+        display: grid;
+        gap: 12px;
+        max-width: 560px;
+        padding: 16px;
+        border: 1px solid CanvasText;
+        background: color-mix(in srgb, CanvasText 8%, Canvas);
+      }
+
+      .manual-media-player video {
+        width: 100%;
+        min-height: 160px;
+        background: #111;
+      }
+
+      .manual-media-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .manual-media-slider {
+        min-width: 120px;
+        padding: 4px 8px;
+        border: 1px solid CanvasText;
+      }
     </style>
   </head>
   <body>
@@ -244,6 +272,31 @@
             <a href="#click-menu-second-link">Second click-revealed link</a>
           </div>
         </nav>
+      </section>
+
+      <section>
+        <h2>Media Player Controls</h2>
+        <div class="manual-media-player" data-skne-media-player tabindex="0">
+          <video aria-label="Manual media fixture">
+            <track kind="captions" label="English captions" src="data:text/vtt,WEBVTT" srclang="en">
+          </video>
+          <div class="manual-media-controls" data-skne-media-controls>
+            <button type="button" id="manual-media-play">Play control should receive a hint</button>
+            <button type="button" id="manual-media-mute" aria-label="Mute">Mute</button>
+            <div
+              class="manual-media-slider"
+              role="slider"
+              tabindex="0"
+              aria-label="Playback progress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="25"
+            >
+              Progress slider should receive a hint
+            </div>
+          </div>
+        </div>
+        <p>Media control click count: <output id="manual-media-count">0</output></p>
       </section>
 
       <section>
@@ -368,6 +421,13 @@
         window.__manualSemanticInlineButtonCount = (window.__manualSemanticInlineButtonCount || 0) + 1;
         document.getElementById("manual-semantic-inline-button-count").textContent = window.__manualSemanticInlineButtonCount;
       });
+
+      for (const mediaControlId of ["manual-media-play", "manual-media-mute"]) {
+        document.getElementById(mediaControlId).addEventListener("click", () => {
+          window.__manualMediaCount = (window.__manualMediaCount || 0) + 1;
+          document.getElementById("manual-media-count").textContent = window.__manualMediaCount;
+        });
+      }
 
       document.getElementById("manual-click-menu-trigger").addEventListener("click", (event) => {
         const trigger = event.currentTarget;

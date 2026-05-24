@@ -27,9 +27,33 @@
         '[role="menubar"] [role="button"]',
         '[role="menuitem"]',
     ].join(", ");
+    const MEDIA_CONTROL_SURFACE_SELECTOR = [
+        ".ytp-chrome-controls",
+        ".ytp-chrome-bottom",
+        "[data-skne-media-controls]",
+    ].join(", ");
+    const MEDIA_CONTROL_TARGET_SELECTOR = [
+        "button",
+        "input",
+        "select",
+        "textarea",
+        '[role="button"]',
+        '[role="slider"]',
+        '[role="switch"]',
+        '[role="menuitem"]',
+        ".ytp-button",
+        '[aria-label][tabindex]:not([tabindex="-1"])',
+        '[title][tabindex]:not([tabindex="-1"])',
+    ].join(", ");
+    const MEDIA_SURFACE_TARGET_SELECTOR = [
+        "#movie_player",
+        ".html5-video-player",
+        "[data-skne-media-player]",
+    ].join(", ");
     const SEMANTIC_ACTION_TARGET_SELECTOR = '[role="button"], [role="link"], [role="tab"]';
     const MENU_TRIGGER_FOCUS_RESCAN_DELAY_MS = 80;
     const MENU_TRIGGER_CLICK_RESCAN_DELAY_MS = 120;
+    const MEDIA_SURFACE_RESCAN_DELAY_MS = 120;
     const TOP_SEQUENCE_WINDOW_MS = 800;
     const URL_COPY_SEQUENCE_WINDOW_MS = 800;
     const URL_COPY_TOAST_MS = 1200;
@@ -50,6 +74,7 @@
     ]);
     globalThis.SafariKeyboardNavigationHintTargets = {
         canClickMenuTriggerCandidate,
+        isSafeMediaControlCandidate,
         isSafeMenuTriggerCandidate,
     };
     let hintState = null;
@@ -467,6 +492,7 @@
         collectLinkTargetsInto(targets, activationMode);
         if (activationMode === "current-tab") {
             collectMenuTriggerTargetsInto(targets);
+            collectMediaTargetsInto(targets);
             collectFormControlTargetsInto(targets);
             collectSemanticActionTargetsInto(targets);
         }
@@ -522,6 +548,48 @@
             targets.push({ kind: "menu-trigger", element, rect });
         }
     }
+    function collectMediaTargetsInto(targets) {
+        const addedControls = collectMediaControlTargetsInto(targets);
+        if (!addedControls) {
+            collectMediaSurfaceTargetsInto(targets);
+        }
+    }
+    function collectMediaControlTargetsInto(targets) {
+        const seen = new Set();
+        let addedControl = false;
+        for (const surface of document.querySelectorAll(MEDIA_CONTROL_SURFACE_SELECTOR)) {
+            if (!isVisibleElementWithAncestors(surface)) {
+                continue;
+            }
+            for (const element of surface.querySelectorAll(MEDIA_CONTROL_TARGET_SELECTOR)) {
+                if (seen.has(element) || !isVisibleMediaControlTarget(element)) {
+                    continue;
+                }
+                const rect = visibleRectForMediaControlTarget(element);
+                if (!rect) {
+                    continue;
+                }
+                seen.add(element);
+                addedControl = true;
+                targets.push({ kind: "media-control", element, rect });
+            }
+        }
+        return addedControl;
+    }
+    function collectMediaSurfaceTargetsInto(targets) {
+        const seen = new Set();
+        for (const element of document.querySelectorAll(MEDIA_SURFACE_TARGET_SELECTOR)) {
+            if (seen.has(element) || !isVisibleMediaSurfaceTarget(element)) {
+                continue;
+            }
+            const rect = visibleRectForElement(element);
+            if (!rect) {
+                continue;
+            }
+            seen.add(element);
+            targets.push({ kind: "media-surface", element, rect });
+        }
+    }
     function collectSemanticActionTargetsInto(targets) {
         const seen = new Set();
         for (const element of document.querySelectorAll(SEMANTIC_ACTION_TARGET_SELECTOR)) {
@@ -548,6 +616,7 @@
     function isVisibleFormControlTarget(element) {
         if (element.disabled ||
             isSafeMenuTriggerElementCandidate(element) ||
+            isSafeMediaControlElementCandidate(element) ||
             !isVisibleElement(element)) {
             return false;
         }
@@ -559,10 +628,18 @@
     function isVisibleMenuTriggerTarget(element) {
         return (isVisibleElement(element) && isSafeMenuTriggerElementCandidate(element));
     }
+    function isVisibleMediaControlTarget(element) {
+        return (isVisibleElementWithAncestors(element) &&
+            isSafeMediaControlElementCandidate(element));
+    }
+    function isVisibleMediaSurfaceTarget(element) {
+        return isVisibleElementWithAncestors(element) && hasMediaElement(element);
+    }
     function isVisibleSemanticActionTarget(element) {
         if (!isVisibleElement(element) ||
             isNativeHintTarget(element) ||
-            isSafeMenuTriggerElementCandidate(element)) {
+            isSafeMenuTriggerElementCandidate(element) ||
+            isSafeMediaControlElementCandidate(element)) {
             return false;
         }
         if (element.getAttribute("aria-disabled") === "true") {
@@ -575,6 +652,9 @@
     }
     function canClickMenuTriggerElement(element) {
         return canClickMenuTriggerCandidate(menuTriggerCandidateForElement(element));
+    }
+    function isSafeMediaControlElementCandidate(element) {
+        return isSafeMediaControlCandidate(mediaControlCandidateForElement(element));
     }
     function menuTriggerCandidateForElement(element) {
         return {
@@ -630,6 +710,50 @@
             isNavigationButtonLike: candidate.isInNavigationContext && isButtonLike,
         };
     }
+    function mediaControlCandidateForElement(element) {
+        const tagName = element.tagName.toLowerCase();
+        const role = (element.getAttribute("role") ?? "").toLowerCase();
+        return {
+            hasAccessibleName: element.hasAttribute("aria-label") || element.hasAttribute("title"),
+            isAriaDisabled: element.getAttribute("aria-disabled") === "true",
+            isDisabled: element instanceof HTMLButtonElement ||
+                element instanceof HTMLInputElement ||
+                element instanceof HTMLSelectElement ||
+                element instanceof HTMLTextAreaElement
+                ? element.disabled
+                : false,
+            isFocusable: element.tabIndex >= 0 ||
+                element instanceof HTMLButtonElement ||
+                element instanceof HTMLInputElement ||
+                element instanceof HTMLSelectElement ||
+                element instanceof HTMLTextAreaElement,
+            isInMediaControlSurface: element.closest(MEDIA_CONTROL_SURFACE_SELECTOR) !== null,
+            isLink: element.matches("a[href]") || element.closest("a[href]") !== null,
+            isNativeControl: tagName === "button" ||
+                tagName === "input" ||
+                tagName === "select" ||
+                tagName === "textarea",
+            isYouTubeButton: element.classList.contains("ytp-button") ||
+                element.closest(".ytp-button") !== null,
+            role,
+            tagName,
+        };
+    }
+    function isSafeMediaControlCandidate(candidate) {
+        if (!candidate.isInMediaControlSurface ||
+            candidate.isAriaDisabled ||
+            candidate.isDisabled ||
+            candidate.isLink) {
+            return false;
+        }
+        return (candidate.isNativeControl ||
+            candidate.isYouTubeButton ||
+            candidate.role === "button" ||
+            candidate.role === "slider" ||
+            candidate.role === "switch" ||
+            candidate.role === "menuitem" ||
+            (candidate.isFocusable && candidate.hasAccessibleName));
+    }
     function isNativeHintTarget(element) {
         return (element.matches(NATIVE_HINT_TARGET_SELECTOR) ||
             element.closest(NATIVE_HINT_TARGET_SELECTOR) !== null ||
@@ -647,8 +771,25 @@
             style.visibility !== "collapse" &&
             style.opacity !== "0");
     }
+    function isVisibleElementWithAncestors(element) {
+        let current = element;
+        while (current && current !== document.documentElement) {
+            if (!isVisibleElement(current)) {
+                return false;
+            }
+            current = current.parentElement;
+        }
+        return isVisibleElement(element);
+    }
     function visibleRectForElement(element) {
         return firstVisibleRect(element.getClientRects());
+    }
+    function visibleRectForMediaControlTarget(element) {
+        const ownRect = visibleRectForElement(element);
+        if (ownRect) {
+            return ownRect;
+        }
+        return visibleContentRectForElement(element);
     }
     function visibleRectForSemanticActionTarget(element) {
         const ownRect = visibleRectForElement(element);
@@ -685,6 +826,10 @@
             rect.left < window.innerWidth &&
             rect.top < window.innerHeight);
     }
+    function hasMediaElement(element) {
+        return (element.matches("video, audio") ||
+            element.querySelector("video, audio") !== null);
+    }
     function activateHintTarget(target, activationMode) {
         if (target.kind === "link") {
             activateLinkTarget(target.element, activationMode);
@@ -692,6 +837,14 @@
         }
         if (target.kind === "menu-trigger") {
             activateMenuTriggerTarget(target.element);
+            return;
+        }
+        if (target.kind === "media-control") {
+            activateMediaControlTarget(target.element);
+            return;
+        }
+        if (target.kind === "media-surface") {
+            activateMediaSurfaceTarget(target.element);
             return;
         }
         if (target.kind === "semantic-action") {
@@ -719,6 +872,32 @@
             }
             startHintMode("current-tab");
         }, MENU_TRIGGER_FOCUS_RESCAN_DELAY_MS);
+    }
+    function activateMediaControlTarget(element) {
+        cancelHintMode();
+        focusElement(element);
+        element.click();
+    }
+    function activateMediaSurfaceTarget(element) {
+        cancelHintMode();
+        focusElement(element);
+        dispatchMediaSurfaceRevealEvent(element);
+        scheduleMenuRevealStep(() => {
+            startHintMode("current-tab");
+        }, MEDIA_SURFACE_RESCAN_DELAY_MS);
+    }
+    function dispatchMediaSurfaceRevealEvent(element) {
+        const rect = element.getBoundingClientRect();
+        const clientX = Math.max(0, Math.min(window.innerWidth - 1, rect.left + rect.width / 2));
+        const clientY = Math.max(0, Math.min(window.innerHeight - 1, rect.top + rect.height / 2));
+        const event = new MouseEvent("mousemove", {
+            bubbles: true,
+            cancelable: true,
+            clientX,
+            clientY,
+            view: window,
+        });
+        element.dispatchEvent(event);
     }
     function activateLinkTarget(element, activationMode) {
         if (activationMode === "new-tab") {
