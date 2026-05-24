@@ -20,23 +20,44 @@
             return false;
         }
     }
+    function tabSwitchDirectionForCommand(command) {
+        switch (command) {
+            case "switch-tab-previous":
+                return "previous";
+            case "switch-tab-next":
+                return "next";
+            default:
+                return null;
+        }
+    }
     global.SafariKeyboardNavigationTabs = {
         chooseNeighborTabId,
         isSupportedNewTabUrl,
+        tabSwitchDirectionForCommand,
     };
     const api = global.browser;
-    if (!api?.runtime?.onMessage || !api.tabs) {
+    if (!api?.tabs) {
         return;
     }
-    api.runtime.onMessage.addListener((message) => {
-        if (isTabSwitchMessage(message)) {
-            return switchNeighborTab(api, message.direction);
-        }
-        if (isOpenTabMessage(message)) {
-            return openTab(api, message);
-        }
-        return undefined;
-    });
+    if (api.runtime?.onMessage) {
+        api.runtime.onMessage.addListener((message) => {
+            if (isTabSwitchMessage(message)) {
+                return switchNeighborTab(api, message.direction);
+            }
+            if (isOpenTabMessage(message)) {
+                return openTab(api, message);
+            }
+            return undefined;
+        });
+    }
+    if (api.commands?.onCommand) {
+        api.commands.onCommand.addListener((command) => {
+            const direction = tabSwitchDirectionForCommand(command);
+            if (direction) {
+                void switchNeighborTab(api, direction);
+            }
+        });
+    }
     async function switchNeighborTab(api, direction) {
         if (!api.tabs) {
             return;
