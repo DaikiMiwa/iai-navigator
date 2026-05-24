@@ -12,6 +12,7 @@
     const HOLD_DELAY_MS = 140;
     const VERTICAL_STEP_PX = 72;
     const HORIZONTAL_STEP_PX = 84;
+    const HALF_PAGE_RATIO = 0.5;
     const VERTICAL_HOLD_SPEED_PX_PER_SECOND = 720;
     const HORIZONTAL_HOLD_SPEED_PX_PER_SECOND = 720;
     let hintState = null;
@@ -43,6 +44,13 @@
             event.preventDefault();
             event.stopPropagation();
             startMovement(movement);
+            return;
+        }
+        const halfPageDirection = halfPageDirectionForEvent(event);
+        if (halfPageDirection) {
+            event.preventDefault();
+            event.stopPropagation();
+            scrollHalfPage(halfPageDirection);
             return;
         }
         if (isHistoryBackCommand(event)) {
@@ -314,6 +322,35 @@
                 return null;
         }
     }
+    function halfPageDirectionForEvent(event) {
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return null;
+        }
+        switch (event.key) {
+            case "d":
+                return 1;
+            case "u":
+                return -1;
+            default:
+                return null;
+        }
+    }
+    function scrollHalfPage(direction) {
+        const surface = findScrollSurface({
+            key: direction > 0 ? "d" : "u",
+            dx: 0,
+            dy: direction,
+            speedX: 0,
+            speedY: 0,
+        }, { requireCanMove: true });
+        const distance = Math.max(1, Math.round(surfaceClientHeight(surface) * HALF_PAGE_RATIO));
+        stopMovement();
+        scrollSurfaceBy(surface, {
+            left: 0,
+            top: distance * direction,
+            behavior: "smooth",
+        });
+    }
     function startMovement(movement) {
         if (movementState && movementState.key === movement.key) {
             return;
@@ -543,6 +580,9 @@
         return isWindowSurface(surface)
             ? Math.max(0, documentHeight() - window.innerHeight)
             : maxElementScroll(surface, "y");
+    }
+    function surfaceClientHeight(surface) {
+        return isWindowSurface(surface) ? window.innerHeight : surface.clientHeight;
     }
     function documentHeight() {
         const body = document.body;
