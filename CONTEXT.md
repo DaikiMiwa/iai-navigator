@@ -44,8 +44,12 @@ _Avoid_: Page Movement Command, horizontal scroll command
 A keyboard command that reloads the current page from normal page focus. The Reload Command is `r`. It does not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
 _Avoid_: Browser refresh shortcut, hard reload, cache bypass
 
+**Tab Switching Command**:
+A keyboard command that activates a neighboring browser tab without choosing a Link Target. Tab Switching Commands are `Shift+J` for the tab on the left and `Shift+K` for the tab on the right. They do not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
+_Avoid_: Page Movement Command, full tab management command
+
 **Supported Web Page**:
-A normal `http` or `https` web page where Hint Mode, Page Movement Commands, and History Navigation Commands may run.
+A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, and Tab Switching Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
 _Avoid_: Any browser page, local HTML page
 
 **Supported PDF**:
@@ -101,6 +105,10 @@ Domain expert: No. They are Page Movement Commands for horizontal scrolling. Bro
 Dev: How does the user move through browser history?
 
 Domain expert: Use History Navigation Commands: `H` moves back and `L` moves forward, as long as the user is not typing and Hint Mode is not active.
+
+Dev: Do `Shift+J` and `Shift+K` scroll the page or type into inputs?
+
+Domain expert: No. From normal page focus, `Shift+J` and `Shift+K` are Tab Switching Commands for neighboring tabs. While the user is typing into editable content, they remain normal text input.
 
 Dev: Can Page Movement Commands fire while the user is typing?
 

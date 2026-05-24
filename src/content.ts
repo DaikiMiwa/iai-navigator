@@ -100,8 +100,8 @@
   let lastGPressAt = 0;
   let movementState: MovementState | null = null;
 
-  document.addEventListener("keydown", handleKeyDown, true);
-  document.addEventListener("keyup", handleKeyUp, true);
+  window.addEventListener("keydown", handleKeyDown, true);
+  window.addEventListener("keyup", handleKeyUp, true);
   window.addEventListener("blur", stopMovement, true);
   window.addEventListener("pagehide", stopMovement, true);
 
@@ -127,6 +127,14 @@
       event.preventDefault();
       event.stopPropagation();
       startHintMode();
+      return;
+    }
+
+    const tabSwitchDirection = tabSwitchDirectionForEvent(event);
+    if (tabSwitchDirection) {
+      event.preventDefault();
+      event.stopPropagation();
+      switchTab(tabSwitchDirection);
       return;
     }
 
@@ -656,6 +664,29 @@
     }
   }
 
+  function tabSwitchDirectionForEvent(
+    event: KeyboardEvent,
+  ): TabSwitchDirection | null {
+    if (
+      event.repeat ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      !event.shiftKey
+    ) {
+      return null;
+    }
+
+    switch (event.code) {
+      case "KeyJ":
+        return "previous";
+      case "KeyK":
+        return "next";
+      default:
+        return null;
+    }
+  }
+
   function scrollHalfPage(direction: -1 | 1): void {
     const surface = findScrollSurface(
       {
@@ -678,6 +709,17 @@
       top: distance * direction,
       behavior: "smooth",
     });
+  }
+
+  function switchTab(direction: TabSwitchDirection): void {
+    stopMovement();
+    if (typeof browser === "undefined" || !browser.runtime) {
+      return;
+    }
+
+    void browser.runtime
+      .sendMessage({ type: "switch-tab", direction })
+      .catch(() => undefined);
   }
 
   function startMovement(movement: Movement): void {

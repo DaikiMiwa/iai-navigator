@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frame Content</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 900px;
+        padding: 24px;
+        line-height: 1.5;
+      }
+
+      a {
+        display: inline-block;
+        margin: 8px 16px 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Frame Content</h1>
+    <p>Keyboard commands should still run when this frame has focus.</p>
+    <a href="#alpha">Frame alpha link</a>
+    <a href="#beta">Frame beta link</a>
+    <p>
+      <label>
+        Frame input should keep normal typing
+        <input type="text" value="Frame input">
+      </label>
+    </p>
+    <div id="alpha" style="margin-top: 420px;">Alpha anchor</div>
+    <div id="beta" style="margin-top: 420px;">Beta anchor</div>
+  </body>
+</html>
