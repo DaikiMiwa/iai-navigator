@@ -68,6 +68,7 @@ Useful checks:
 - `j/k` scroll vertically, `h/l` scroll horizontally where possible, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `gg`, and `Shift+G` move the internal scroll container.
+- Open `manual-test/body-scroll.html`, then verify `j/k`, `gg`, and `Shift+G` move the body scroll container.
 
 ## Load In Safari
 

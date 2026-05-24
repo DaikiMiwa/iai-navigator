@@ -71,6 +71,7 @@ python3 -m http.server 8765
 - `j/k` で縦スクロール、`h/l` で横スクロール、`gg` で上端、`Shift+G` で下端へ移動できる。
 - `manual-test/history-a.html` を開き、`history-b.html` に移動したあと、`Shift+H` で戻り、`Shift+L` で進める。
 - `manual-test/nested-scroll.html` を開き、`j/k`、`gg`、`Shift+G` で内部 scroll container が動く。
+- `manual-test/body-scroll.html` を開き、`j/k`、`gg`、`Shift+G` で body scroll container が動く。
 
 ## Safari で読み込む
 

@@ -450,7 +450,7 @@
         surfaces.set(scroll.WINDOW_SURFACE_ID, window);
         for (const element of elementsFromViewportProbePoints()) {
             let current = element;
-            while (current && current !== document.body) {
+            while (current && current !== document.documentElement) {
                 if (current !== document.documentElement) {
                     addElementCandidate(candidates, surfaces, elementIds, current, "probe", axis, movement);
                 }
@@ -459,7 +459,7 @@
         }
         candidates.push(windowScrollCandidate(axis, movement));
         for (const element of document.querySelectorAll("*")) {
-            if (element === document.documentElement || element === document.body) {
+            if (element === document.documentElement) {
                 continue;
             }
             addElementCandidate(candidates, surfaces, elementIds, element, "visible", axis, movement);
