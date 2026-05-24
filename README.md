@@ -34,7 +34,6 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `xcode/`: generated macOS Safari Web Extension app project.
 - `tests/`: Node tests for pure JavaScript logic.
 - `CONTEXT.md`: project glossary and domain language.
-- `docs/research/competitors.md`: competitor notes for Vimari, Vifari, and Vimlike.
 - `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
 - `docs/research/bookmark-history-open-command.md`: compatibility spike for bookmark/history-backed destination search.
 
@@ -50,7 +49,6 @@ Start here for Japanese documentation:
 - `docs/ja/process/github-workflow.md`
 - `docs/ja/research/ipados-safari-support.md`
 - `docs/ja/research/bookmark-history-open-command.md`
-- `docs/ja/strategy/why-use-this-app.md`
 
 ## Build And Test
 
