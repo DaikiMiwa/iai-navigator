@@ -106,6 +106,7 @@ python3 -m http.server 8765
 - 通常のページフォーカスで `r` を押し、Reload Command の page load count が増える。
 - input、textarea、編集可能な要素にフォーカスした状態で `r` を押し、再読み込みされず通常通り入力される。
 - `f` を押してから Hint mode 中に `r` を押し、再読み込みではなく Hint mode 側でキーが処理される。
+- `f` を押し、複数文字 Hint の最初の文字を入力して、入力済み prefix が赤くなり、残りの Hint 文字は通常色のままであることを確認する。
 - text input、textarea、編集可能な要素にフォーカスした状態で `Esc` を押し、フォーカスが外れる。
 - 拡張を有効にした Safari タブを 3 つ以上開き、`Shift+J` で左のタブへ、`Shift+K` で右のタブへ移動できる。
 - Safari Start Page または address bar にフォーカスし、`Option+Shift+J` で左のタブへ、`Option+Shift+K` で右のタブへ移動できる。

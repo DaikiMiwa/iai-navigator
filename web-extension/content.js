@@ -315,10 +315,10 @@
             const hint = hintValues[index];
             const label = document.createElement("span");
             label.className = "skne-hint";
-            label.textContent = hint;
             label.dataset.hint = hint;
             label.style.left = `${Math.round(target.rect.left)}px`;
             label.style.top = `${Math.round(target.rect.top)}px`;
+            renderHintLabel(label, hint, "");
             overlay.appendChild(label);
             return {
                 target,
@@ -361,9 +361,11 @@
         }
         hintState.input = nextInput;
         for (const entry of hintState.entries) {
-            entry.label.dataset.hidden = entry.hint.startsWith(nextInput)
-                ? "false"
-                : "true";
+            const isMatch = entry.hint.startsWith(nextInput);
+            entry.label.dataset.hidden = isMatch ? "false" : "true";
+            if (isMatch) {
+                renderHintLabel(entry.label, entry.hint, nextInput);
+            }
         }
         const exactMatch = matchingEntries.find((entry) => entry.hint === nextInput);
         if (exactMatch) {
@@ -380,6 +382,18 @@
         cancelPendingMenuReveal();
         window.removeEventListener("scroll", cancelHintMode, true);
         window.removeEventListener("resize", cancelHintMode, true);
+    }
+    function renderHintLabel(label, hint, input) {
+        label.replaceChildren();
+        if (input.length === 0 || !hint.startsWith(input)) {
+            label.textContent = hint;
+            return;
+        }
+        const match = document.createElement("span");
+        match.className = "skne-hint-match";
+        match.textContent = input;
+        label.appendChild(match);
+        label.append(hint.slice(input.length));
     }
     function showHelpOverlay() {
         stopMovement();

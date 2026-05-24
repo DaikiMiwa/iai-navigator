@@ -101,6 +101,7 @@ Useful checks:
 - Press `r` from normal page focus and verify the Reload Command page load count increments.
 - Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
 - Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
+- Press `f`, type the first character of a multi-character hint, and verify the typed prefix turns red while the remaining hint characters keep their normal color.
 - Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
 - Focus Safari Start Page or the address bar, then verify `Option+Shift+J` switches to the left tab and `Option+Shift+K` switches to the right tab.
