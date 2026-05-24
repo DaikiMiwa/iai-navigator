@@ -9,7 +9,7 @@ A small, auditable Safari browser extension that gives users keyboard-first navi
 _Avoid_: Vimium port, Vimium-compatible Safari extension, Hammerspoon automation, full browser automation suite
 
 **Hint Target**:
-A page element that is at least partly visible within the current viewport and that can receive a Hint. Hint Targets are Link Targets, native Form Control Targets, and Semantic Action Targets only. Arbitrary non-semantic clickable elements, hidden elements, fully offscreen elements, disabled controls, and destructive page actions are not Hint Targets.
+A page element that is at least partly visible within the current viewport and that can receive a Hint. Hint Targets are Link Targets, Menu Trigger Targets, native Form Control Targets, and Semantic Action Targets only. Arbitrary non-semantic clickable elements, hidden elements, fully offscreen elements, disabled controls, and destructive page actions are not Hint Targets.
 _Avoid_: Click target, action target, selectable element
 
 **Link Target**:
@@ -17,11 +17,15 @@ A Hint Target backed by a page link. Each link is at most one Link Target even i
 _Avoid_: Click target, action target, selectable element
 
 **Form Control Target**:
-A Hint Target backed by a visible, enabled native form control, currently `button`, `input`, `select`, and `textarea` elements. Activating a text-entry Form Control Target focuses the control and places the caret at the end where Safari exposes text selection. Activating other Form Control Targets fires their normal click/focus behavior. Hidden, disabled, fully offscreen, and `input type="hidden"` controls are not Form Control Targets.
+A Hint Target backed by a visible, enabled native form control, currently `button`, `input`, `select`, and `textarea` elements. Activating a text-entry Form Control Target focuses the control and places the caret at the end where Safari exposes text selection. Activating other Form Control Targets fires their normal click/focus behavior. Hidden, disabled, fully offscreen, `input type="hidden"` controls, and controls that qualify as Menu Trigger Targets are not Form Control Targets.
 _Avoid_: Arbitrary input target, editable action, custom onclick target
 
+**Menu Trigger Target**:
+A Hint Target backed by a visible, enabled navigation disclosure trigger that may reveal additional links. Menu Trigger Targets include explicit disclosure controls with `aria-haspopup`, `aria-expanded`, or `aria-controls`, plus button-like controls inside `nav`, `header`, `role="navigation"`, `role="menubar"`, or `role="menu"` contexts. Activating a Menu Trigger Target focuses the trigger first, waits briefly, and rescans visible links; it only clicks the trigger when the candidate has an explicit disclosure signal. Ordinary links, non-button form controls, disabled controls, submit buttons in forms, arbitrary page buttons, and hover-only menus are excluded.
+_Avoid_: Arbitrary button target, hover menu target, click-anything target
+
 **Semantic Action Target**:
-A Hint Target backed by a visible, enabled semantic custom control, currently elements with `role="button"`, `role="link"`, or `role="tab"` that are not wrappers around a native Link Target or Form Control Target. A Semantic Action Target may use its visible content rectangle when the semantic element itself has no layout box, such as inline expanders. Activating a Semantic Action Target focuses the element and fires its normal click behavior. Hidden, fully offscreen, `aria-hidden`, and `aria-disabled="true"` semantic controls are not Semantic Action Targets.
+A Hint Target backed by a visible, enabled semantic custom control, currently elements with `role="button"`, `role="link"`, or `role="tab"` that are not wrappers around a native Link Target, Menu Trigger Target, or Form Control Target. A Semantic Action Target may use its visible content rectangle when the semantic element itself has no layout box, such as inline expanders. Activating a Semantic Action Target focuses the element and fires its normal click behavior. Hidden, fully offscreen, `aria-hidden`, and `aria-disabled="true"` semantic controls are not Semantic Action Targets.
 _Avoid_: Arbitrary clickable element, div with onclick, site-specific control
 
 **Hint**:
@@ -33,7 +37,7 @@ A temporary keyboard state started from the page body, where visible Hint Target
 _Avoid_: Selection mode, command mode
 
 **Hint Activation**:
-The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, focuses a text-entry Form Control Target with the caret at the end where possible, or fires normal click/focus behavior for another Form Control Target or Semantic Action Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
+The act of choosing a Hint Target by typing its complete Hint. In the MVP, Hint Activation fires a Link Target's normal click behavior in the current tab, uses focus-first disclosure and a rescan for Menu Trigger Targets, focuses a text-entry Form Control Target with the caret at the end where possible, or fires normal click/focus behavior for another Form Control Target or Semantic Action Target. It does not auto-activate on partial matches, open new tabs, or open background tabs.
 _Avoid_: Click emulation, tab opening
 
 **Page Movement Command**:
@@ -76,7 +80,11 @@ Domain expert: No. The project should stay small and auditable: a focused Safari
 
 Dev: Does pressing `f` let users activate every clickable thing on the page?
 
-Domain expert: No. In the MVP, `f` exposes Hint Targets only: visible Link Targets, native Form Control Targets, and Semantic Action Targets in the current viewport.
+Domain expert: No. In the MVP, `f` exposes Hint Targets only: visible Link Targets, safe Menu Trigger Targets, native Form Control Targets, and Semantic Action Targets in the current viewport.
+
+Dev: How do navigation menus that reveal hidden links fit into Hint Targets?
+
+Domain expert: They use Menu Trigger Targets. A safe navigation/disclosure trigger can receive a Hint, but activation focuses it first and only clicks bounded disclosure-like candidates before rescanning visible links. This keeps menu exploration inside Hint Mode without turning `f` into an arbitrary click-anything command.
 
 Dev: If a link wraps across two lines, does it receive two Hints?
 

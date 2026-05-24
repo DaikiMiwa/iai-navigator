@@ -104,6 +104,32 @@
         cursor: pointer;
         font-weight: 600;
       }
+
+      .manual-menu-nav {
+        display: grid;
+        gap: 12px;
+        margin-block: 12px;
+        max-width: 420px;
+      }
+
+      .manual-menu-nav button {
+        justify-self: start;
+      }
+
+      .manual-menu-panel {
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid CanvasText;
+      }
+
+      .manual-focus-menu .manual-menu-panel {
+        display: none;
+      }
+
+      .manual-focus-menu:focus-within .manual-menu-panel {
+        display: flex;
+      }
     </style>
   </head>
   <body>
@@ -193,6 +219,34 @@
       </section>
 
       <section>
+        <h2>Navigation Menus</h2>
+        <nav class="manual-menu-nav manual-focus-menu" aria-label="Focus-revealed menu">
+          <button type="button" aria-haspopup="true" aria-controls="manual-focus-menu-panel">
+            Focus menu trigger should receive a hint
+          </button>
+          <div class="manual-menu-panel" id="manual-focus-menu-panel">
+            <a href="#focus-menu-link">Focus-revealed link should receive a hint after rescan</a>
+            <a href="#focus-menu-second-link">Second focus-revealed link</a>
+          </div>
+        </nav>
+        <nav class="manual-menu-nav" aria-label="Click-revealed menu">
+          <button
+            type="button"
+            id="manual-click-menu-trigger"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="manual-click-menu-panel"
+          >
+            Click menu trigger should receive a hint
+          </button>
+          <div class="manual-menu-panel" id="manual-click-menu-panel" hidden>
+            <a href="#click-menu-link">Click-revealed link should receive a hint after rescan</a>
+            <a href="#click-menu-second-link">Second click-revealed link</a>
+          </div>
+        </nav>
+      </section>
+
+      <section>
         <h2>Hidden Links Should Not Receive Hints</h2>
         <a class="hidden-area" href="#hidden-display">Hidden display link</a>
         <a class="transparent-link" href="#hidden-opacity">Transparent link</a>
@@ -255,6 +309,26 @@
         <a href="#top">Back to top</a>
       </section>
 
+      <section id="focus-menu-link">
+        <h2>Focus-Revealed Menu Target</h2>
+        <a href="#top">Back to top</a>
+      </section>
+
+      <section id="focus-menu-second-link">
+        <h2>Second Focus-Revealed Menu Target</h2>
+        <a href="#top">Back to top</a>
+      </section>
+
+      <section id="click-menu-link">
+        <h2>Click-Revealed Menu Target</h2>
+        <a href="#top">Back to top</a>
+      </section>
+
+      <section id="click-menu-second-link">
+        <h2>Second Click-Revealed Menu Target</h2>
+        <a href="#top">Back to top</a>
+      </section>
+
       <section id="bottom">
         <h2>Bottom</h2>
         <a href="#top">Back to top</a>
@@ -293,6 +367,14 @@
       document.getElementById("manual-semantic-inline-button").addEventListener("click", () => {
         window.__manualSemanticInlineButtonCount = (window.__manualSemanticInlineButtonCount || 0) + 1;
         document.getElementById("manual-semantic-inline-button-count").textContent = window.__manualSemanticInlineButtonCount;
+      });
+
+      document.getElementById("manual-click-menu-trigger").addEventListener("click", (event) => {
+        const trigger = event.currentTarget;
+        const menu = document.getElementById(trigger.getAttribute("aria-controls"));
+        const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+        trigger.setAttribute("aria-expanded", String(!isExpanded));
+        menu.hidden = isExpanded;
       });
     </script>
   </body>

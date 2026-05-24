@@ -4,8 +4,9 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows compact yellow, black-text hints for visible link targets, native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
+- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
+- Typing a complete navigation menu trigger hint focuses the trigger first, safely clicks only explicit disclosure-style triggers if focus does not reveal links, and then rescans visible targets.
 - Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
 - Typing a complete semantic custom control hint fires that element's normal click/focus behavior for controls such as ARIA tabs, buttons, links, and inline expanders.
 - `Shift+F` shows hints for visible `http` and `https` link targets and opens the chosen target in a new foreground tab.
@@ -73,7 +74,8 @@ Then open `http://localhost:8765/manual-test/` in Safari.
 
 Useful checks:
 
-- `f` shows hints only for visible links.
+- Visible links receive hints.
+- Safe visible navigation menu triggers receive hints and rescan newly revealed links after activation.
 - Visible native form controls receive hints.
 - Visible semantic custom controls, such as `role="tab"`, receive hints.
 - Inline semantic custom controls, such as `role="button"` expanders whose visible text provides the layout box, receive hints.
@@ -86,6 +88,7 @@ Useful checks:
 - Wrapped links receive one hint.
 - Hidden links do not receive hints.
 - `href="#"` and `javascript:` links activate through normal click behavior.
+- Focus-revealed navigation menus and click-revealed disclosure menus can be opened through a hint, then newly visible menu links receive normal hints.
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
 - `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys transition into continuous scrolling without a visible stutter, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
