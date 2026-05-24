@@ -11,6 +11,12 @@ test("loads content scripts early in every frame", () => {
 
   const [contentScript] = manifest.content_scripts;
 
+  assert.deepEqual(contentScript.js, [
+    "hints.js",
+    "help.js",
+    "scroll-surface.js",
+    "content.js",
+  ]);
   assert.equal(contentScript.run_at, "document_start");
   assert.equal(contentScript.all_frames, true);
 });

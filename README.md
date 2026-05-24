@@ -20,6 +20,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
+- `?` opens a keyboard shortcut help overlay, and `Esc` closes it.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.
 - PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
 
@@ -100,6 +101,9 @@ Useful checks:
 - Press `y`, wait briefly, then press `y` again and verify the URL is not copied.
 - Press `y`, then `Esc`, then `y` again and verify the URL is not copied.
 - Press `f`, then press `yy` while hint mode is active and verify hint mode consumes the keys instead of copying the URL.
+- Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
+- Press `?` while focused inside an input, textarea, or editable content and verify it types normally instead of opening help.
+- Press `f`, then press `?` while hint mode is active and verify hint mode consumes the key instead of opening help.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
 

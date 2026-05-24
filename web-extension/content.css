@@ -34,3 +34,159 @@
 #skne-hint-overlay .skne-hint[data-hidden="true"] {
   display: none;
 }
+
+#skne-help-overlay {
+  all: initial;
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px;
+  background: rgb(0 0 0 / 38%);
+  pointer-events: none;
+  contain: layout style paint;
+}
+
+#skne-help-overlay .skne-help-panel {
+  all: initial;
+  display: block;
+  box-sizing: border-box;
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  margin-top: min(8vh, 72px);
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  background: #1b1b1b;
+  color: #f7f7f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 36%);
+}
+
+#skne-help-overlay .skne-help-header {
+  all: initial;
+  display: flex;
+  box-sizing: border-box;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-help-overlay .skne-help-title {
+  all: initial;
+  display: block;
+  color: #fff;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#skne-help-overlay .skne-help-close-hint {
+  all: initial;
+  display: block;
+  color: #cfcfcf;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+#skne-help-overlay .skne-help-sections {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px 24px;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-help-overlay .skne-help-section,
+#skne-help-overlay .skne-help-shortcut-list {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  gap: 8px;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-help-overlay .skne-help-section-title {
+  all: initial;
+  display: block;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+#skne-help-overlay .skne-help-shortcut {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-help-overlay .skne-help-key {
+  all: initial;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 28px;
+  padding: 3px 6px;
+  border: 1px solid rgb(0 0 0 / 24%);
+  border-radius: 5px;
+  background: #ffd84d;
+  color: #111;
+  font-family:
+    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#skne-help-overlay .skne-help-description {
+  all: initial;
+  display: block;
+  min-width: 0;
+  color: #e8e8e8;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  #skne-help-overlay {
+    padding: 12px;
+  }
+
+  #skne-help-overlay .skne-help-panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    margin-top: 0;
+    padding: 16px;
+  }
+
+  #skne-help-overlay .skne-help-shortcut {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

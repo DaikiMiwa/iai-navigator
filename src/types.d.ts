@@ -4,6 +4,22 @@ interface SafariKeyboardNavigationHints {
   hasPrefixCollision(hints: string[]): boolean;
 }
 
+interface HelpShortcut {
+  key: string;
+  description: string;
+}
+
+interface HelpSection {
+  title: string;
+  shortcuts: readonly HelpShortcut[];
+}
+
+interface SafariKeyboardNavigationHelp {
+  HELP_SECTIONS: readonly HelpSection[];
+  isHelpCommandEvent(event: KeyboardEvent): boolean;
+  isHelpCloseCommandEvent(event: KeyboardEvent): boolean;
+}
+
 interface ScrollSurfaceCandidate {
   id: string;
   kind: "probe" | "window" | "visible";
