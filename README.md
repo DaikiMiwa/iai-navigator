@@ -30,6 +30,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `tests/`: Node tests for pure JavaScript logic.
 - `CONTEXT.md`: project glossary and domain language.
 - `docs/research/competitors.md`: competitor notes for Vimari, Vifari, and Vimlike.
+- `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
 
 ## Documentation Language
 
@@ -41,6 +42,7 @@ Start here for Japanese documentation:
 - `docs/ja/contributing.md`
 - `docs/ja/process/documentation-language.md`
 - `docs/ja/process/github-workflow.md`
+- `docs/ja/research/ipados-safari-support.md`
 - `docs/ja/strategy/why-use-this-app.md`
 
 ## Build And Test
