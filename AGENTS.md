@@ -12,6 +12,7 @@ This repository is intended to become a public GitHub project.
 ## Workflow
 
 - Follow GitHub Flow: branch from `main`, make a focused change, open a PR, review, merge, delete the branch.
+- Work in a dedicated git worktree for each task. Create the worktree from `main` with its own focused branch before editing files, and leave existing worktrees untouched unless the user explicitly asks otherwise.
 - Prefer one issue per user-visible bug, feature, or maintenance task.
 - Prefer small PRs linked to issues with `Closes #123` when the PR resolves the issue.
 - Keep English documentation canonical.
