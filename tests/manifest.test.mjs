@@ -14,3 +14,20 @@ test("loads content scripts early in every frame", () => {
   assert.equal(contentScript.run_at, "document_start");
   assert.equal(contentScript.all_frames, true);
 });
+
+test("registers browser-level tab switching fallback commands", () => {
+  assert.deepEqual(manifest.commands["switch-tab-previous"], {
+    suggested_key: {
+      default: "Alt+Shift+J",
+      mac: "Alt+Shift+J",
+    },
+    description: "Switch to the tab on the left",
+  });
+  assert.deepEqual(manifest.commands["switch-tab-next"], {
+    suggested_key: {
+      default: "Alt+Shift+K",
+      mac: "Alt+Shift+K",
+    },
+    description: "Switch to the tab on the right",
+  });
+});

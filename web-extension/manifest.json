@@ -6,6 +6,22 @@
   "background": {
     "service_worker": "background.js"
   },
+  "commands": {
+    "switch-tab-previous": {
+      "suggested_key": {
+        "default": "Alt+Shift+J",
+        "mac": "Alt+Shift+J"
+      },
+      "description": "Switch to the tab on the left"
+    },
+    "switch-tab-next": {
+      "suggested_key": {
+        "default": "Alt+Shift+K",
+        "mac": "Alt+Shift+K"
+      },
+      "description": "Switch to the tab on the right"
+    }
+  },
   "permissions": ["tabs"],
   "content_scripts": [
     {

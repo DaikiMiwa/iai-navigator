@@ -70,6 +70,12 @@ interface WebExtensionRuntime {
   };
 }
 
+interface WebExtensionCommands {
+  onCommand?: {
+    addListener(listener: (command: string) => void): void;
+  };
+}
+
 interface WebExtensionTabs {
   create(createProperties: WebExtensionTabCreate): Promise<WebExtensionTab>;
   query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
@@ -80,6 +86,7 @@ interface WebExtensionTabs {
 }
 
 interface WebExtensionApi {
+  commands?: WebExtensionCommands;
   runtime?: WebExtensionRuntime;
   tabs?: WebExtensionTabs;
 }
@@ -91,6 +98,7 @@ interface SafariKeyboardNavigationTabs {
     direction: TabSwitchDirection,
   ): number | null;
   isSupportedNewTabUrl(url: string): boolean;
+  tabSwitchDirectionForCommand(command: string): TabSwitchDirection | null;
 }
 
 declare const browser: WebExtensionApi | undefined;
