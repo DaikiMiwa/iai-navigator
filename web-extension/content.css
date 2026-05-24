@@ -20,9 +20,11 @@
   border-radius: 3px;
   background: #ffd84d;
   color: #111;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   text-align: center;
   text-transform: lowercase;
