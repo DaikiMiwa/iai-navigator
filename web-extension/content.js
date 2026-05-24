@@ -12,6 +12,8 @@
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const SEMANTIC_ACTION_TARGET_SELECTOR = '[role="button"], [role="link"], [role="tab"]';
     const TOP_SEQUENCE_WINDOW_MS = 800;
+    const URL_COPY_SEQUENCE_WINDOW_MS = 800;
+    const URL_COPY_TOAST_MS = 1200;
     const HOLD_DELAY_MS = 140;
     const VERTICAL_STEP_PX = 72;
     const HORIZONTAL_STEP_PX = 84;
@@ -29,6 +31,8 @@
     ]);
     let hintState = null;
     let lastGPressAt = 0;
+    let lastYPressAt = 0;
+    let urlCopyToastTimer = 0;
     let movementState = null;
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
@@ -50,6 +54,19 @@
             return;
         }
         const hintActivationMode = hintActivationModeForEvent(event);
+        if (isUrlCopyCancelCommand(event)) {
+            event.preventDefault();
+            event.stopPropagation();
+            clearUrlCopySequence();
+            return;
+        }
+        if (isUrlCopyCommand(event)) {
+            event.preventDefault();
+            event.stopPropagation();
+            handleUrlCopyCommand();
+            return;
+        }
+        clearUrlCopySequence();
         if (!event.repeat && hintActivationMode && isSupportedWebPage()) {
             event.preventDefault();
             event.stopPropagation();
@@ -683,6 +700,94 @@
                 lastGPressAt = 0;
             }
         }, TOP_SEQUENCE_WINDOW_MS);
+    }
+    function isUrlCopyCommand(event) {
+        return (!event.repeat &&
+            !event.altKey &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.shiftKey &&
+            event.key === "y");
+    }
+    function isUrlCopyCancelCommand(event) {
+        return lastYPressAt !== 0 && event.key === "Escape";
+    }
+    function handleUrlCopyCommand() {
+        const now = performance.now();
+        if (now - lastYPressAt <= URL_COPY_SEQUENCE_WINDOW_MS) {
+            clearUrlCopySequence();
+            void copyCurrentUrl();
+            return;
+        }
+        lastYPressAt = now;
+        window.setTimeout(() => {
+            if (performance.now() - lastYPressAt >= URL_COPY_SEQUENCE_WINDOW_MS) {
+                clearUrlCopySequence();
+            }
+        }, URL_COPY_SEQUENCE_WINDOW_MS);
+    }
+    function clearUrlCopySequence() {
+        lastYPressAt = 0;
+    }
+    async function copyCurrentUrl() {
+        stopMovement();
+        const didCopy = await writeTextToClipboard(location.href);
+        showUrlCopyToast(didCopy ? "Copied URL" : "Could not copy URL");
+    }
+    async function writeTextToClipboard(text) {
+        if (navigator.clipboard?.writeText && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+            catch {
+                // Fall back to the selection-based copy path below.
+            }
+        }
+        return copyTextWithTemporarySelection(text);
+    }
+    function copyTextWithTemporarySelection(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.readOnly = true;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        document.documentElement.appendChild(textarea);
+        textarea.select();
+        try {
+            return document.execCommand("copy");
+        }
+        finally {
+            textarea.remove();
+        }
+    }
+    function showUrlCopyToast(message) {
+        document.getElementById("skne-url-copy-toast")?.remove();
+        if (urlCopyToastTimer) {
+            window.clearTimeout(urlCopyToastTimer);
+        }
+        const toast = document.createElement("div");
+        toast.id = "skne-url-copy-toast";
+        toast.setAttribute("role", "status");
+        toast.textContent = message;
+        toast.style.position = "fixed";
+        toast.style.right = "16px";
+        toast.style.bottom = "16px";
+        toast.style.zIndex = "2147483647";
+        toast.style.padding = "6px 10px";
+        toast.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+        toast.style.borderRadius = "6px";
+        toast.style.background = "rgba(0, 0, 0, 0.86)";
+        toast.style.color = "white";
+        toast.style.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+        toast.style.lineHeight = "1.3";
+        toast.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.22)";
+        document.documentElement.appendChild(toast);
+        urlCopyToastTimer = window.setTimeout(() => {
+            toast.remove();
+            urlCopyToastTimer = 0;
+        }, URL_COPY_TOAST_MS);
     }
     function isBottomCommand(event) {
         return (!event.altKey &&
