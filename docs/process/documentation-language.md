@@ -24,4 +24,3 @@ When documentation changes:
 - Translate meaning, not word order.
 - Keep command names, file names, keyboard shortcuts, and code identifiers unchanged.
 - Use natural Japanese for user-facing explanations.
-- Keep competitive positioning fair and specific; describe fit differences rather than attacking alternatives.
