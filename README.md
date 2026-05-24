@@ -8,6 +8,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
 - Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
 - Typing a complete semantic custom control hint fires that element's normal click/focus behavior for controls such as ARIA tabs, buttons, links, and inline expanders.
+- `Shift+F` shows hints for visible `http` and `https` link targets and opens the chosen target in a new foreground tab.
 - `Esc` cancels hint mode.
 - `h`, `j`, `k`, and `l` scroll in smooth small steps and continue smoothly while held.
 - `u` and `d` smoothly move up and down by half a page.
@@ -70,6 +71,7 @@ Useful checks:
 - Visible semantic custom controls, such as `role="tab"`, receive hints.
 - Inline semantic custom controls, such as `role="button"` expanders whose visible text provides the layout box, receive hints.
 - Visible `aria-hidden` links, such as visual thumbnail links with a separate text link, receive hints.
+- `Shift+F` opens visible `http` and `https` links in a new foreground tab.
 - Completing hints for text inputs and textareas focuses the control with the caret at the end.
 - Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
 - Completing hints for semantic custom controls fires normal click/focus behavior.

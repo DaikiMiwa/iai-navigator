@@ -36,7 +36,10 @@
     label: HTMLSpanElement;
   }
 
+  type HintActivationMode = "current-tab" | "new-tab";
+
   interface HintState {
+    activationMode: HintActivationMode;
     entries: HintEntry[];
     input: string;
     overlay: HTMLDivElement;
@@ -84,6 +87,7 @@
   const scroll: SafariKeyboardNavigationScroll = maybeScroll;
 
   const HINT_TRIGGER = "f";
+  const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
   const NATIVE_HINT_TARGET_SELECTOR =
     "a[href], button, input, select, textarea";
   const SEMANTIC_ACTION_TARGET_SELECTOR =
@@ -132,10 +136,11 @@
       return;
     }
 
-    if (!event.repeat && isHintTrigger(event) && isSupportedWebPage()) {
+    const hintActivationMode = hintActivationModeForEvent(event);
+    if (!event.repeat && hintActivationMode && isSupportedWebPage()) {
       event.preventDefault();
       event.stopPropagation();
-      startHintMode();
+      startHintMode(hintActivationMode);
       return;
     }
 
@@ -219,14 +224,22 @@
     stopMovement();
   }
 
-  function isHintTrigger(event: KeyboardEvent): boolean {
-    return (
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === HINT_TRIGGER
-    );
+  function hintActivationModeForEvent(
+    event: KeyboardEvent,
+  ): HintActivationMode | null {
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      return null;
+    }
+
+    if (!event.shiftKey && event.key === HINT_TRIGGER) {
+      return "current-tab";
+    }
+
+    if (event.shiftKey && event.code === NEW_TAB_HINT_TRIGGER_CODE) {
+      return "new-tab";
+    }
+
+    return null;
   }
 
   function shouldIgnoreKeyboardCommand(event: KeyboardEvent): boolean {
@@ -332,8 +345,8 @@
     );
   }
 
-  function startHintMode(): void {
-    const targets = collectHintTargets();
+  function startHintMode(activationMode: HintActivationMode): void {
+    const targets = collectHintTargets(activationMode);
     if (targets.length === 0) {
       return;
     }
@@ -365,6 +378,7 @@
 
     document.documentElement.appendChild(overlay);
     hintState = {
+      activationMode,
       entries,
       input: "",
       overlay,
@@ -416,7 +430,7 @@
       (entry) => entry.hint === nextInput,
     );
     if (exactMatch) {
-      activateHintTarget(exactMatch.target);
+      activateHintTarget(exactMatch.target, hintState.activationMode);
     }
   }
 
@@ -431,11 +445,15 @@
     window.removeEventListener("resize", cancelHintMode, true);
   }
 
-  function collectHintTargets(): HintTarget[] {
+  function collectHintTargets(
+    activationMode: HintActivationMode,
+  ): HintTarget[] {
     const targets: HintTarget[] = [];
-    collectLinkTargetsInto(targets);
-    collectFormControlTargetsInto(targets);
-    collectSemanticActionTargetsInto(targets);
+    collectLinkTargetsInto(targets, activationMode);
+    if (activationMode === "current-tab") {
+      collectFormControlTargetsInto(targets);
+      collectSemanticActionTargetsInto(targets);
+    }
 
     targets.sort((a, b) => {
       if (a.rect.top !== b.rect.top) {
@@ -447,12 +465,19 @@
     return targets;
   }
 
-  function collectLinkTargetsInto(targets: HintTarget[]): void {
+  function collectLinkTargetsInto(
+    targets: HintTarget[],
+    activationMode: HintActivationMode,
+  ): void {
     const seen = new Set<HTMLAnchorElement>();
     for (const link of document.querySelectorAll<HTMLAnchorElement>(
       "a[href]",
     )) {
-      if (seen.has(link) || !isVisibleLink(link)) {
+      if (
+        seen.has(link) ||
+        !isVisibleLink(link) ||
+        !isActivatableLink(link, activationMode)
+      ) {
         continue;
       }
 
@@ -475,7 +500,7 @@
         continue;
       }
 
-      const rect = visibleRectForSemanticActionTarget(element);
+      const rect = visibleRectForElement(element);
       if (!rect) {
         continue;
       }
@@ -494,7 +519,7 @@
         continue;
       }
 
-      const rect = visibleRectForElement(element);
+      const rect = visibleRectForSemanticActionTarget(element);
       if (!rect) {
         continue;
       }
@@ -502,6 +527,17 @@
       seen.add(element);
       targets.push({ kind: "semantic-action", element, rect });
     }
+  }
+
+  function isActivatableLink(
+    link: HTMLAnchorElement,
+    activationMode: HintActivationMode,
+  ): boolean {
+    if (activationMode === "current-tab") {
+      return true;
+    }
+
+    return isSupportedNewTabUrl(link.href);
   }
 
   function isVisibleLink(link: HTMLAnchorElement): boolean {
@@ -615,9 +651,12 @@
     );
   }
 
-  function activateHintTarget(target: HintTarget): void {
+  function activateHintTarget(
+    target: HintTarget,
+    activationMode: HintActivationMode,
+  ): void {
     if (target.kind === "link") {
-      activateLinkTarget(target.element);
+      activateLinkTarget(target.element, activationMode);
       return;
     }
 
@@ -629,7 +668,15 @@
     activateFormControlTarget(target.element);
   }
 
-  function activateLinkTarget(element: HTMLAnchorElement): void {
+  function activateLinkTarget(
+    element: HTMLAnchorElement,
+    activationMode: HintActivationMode,
+  ): void {
+    if (activationMode === "new-tab") {
+      openLinkTargetInNewTab(element);
+      return;
+    }
+
     const link = element.closest<HTMLAnchorElement>("a[href]") || element;
     const previousTarget = link.getAttribute("target");
     const hadTarget = link.hasAttribute("target");
@@ -667,6 +714,34 @@
     cancelHintMode();
     focusElement(element);
     element.click();
+  }
+
+  function openLinkTargetInNewTab(element: HTMLAnchorElement): void {
+    const link = element.closest<HTMLAnchorElement>("a[href]") || element;
+    const url = link.href;
+
+    cancelHintMode();
+
+    if (!isSupportedNewTabUrl(url)) {
+      return;
+    }
+
+    if (typeof browser === "undefined" || !browser.runtime) {
+      return;
+    }
+
+    void browser.runtime
+      .sendMessage({ type: "open-tab", url, active: true })
+      .catch(() => undefined);
+  }
+
+  function isSupportedNewTabUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    } catch {
+      return false;
+    }
   }
 
   function focusElement(element: HTMLElement): void {

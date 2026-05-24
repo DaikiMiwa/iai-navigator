@@ -34,7 +34,13 @@ interface TabSwitchMessage {
   direction: TabSwitchDirection;
 }
 
-type SafariKeyboardNavigationMessage = TabSwitchMessage;
+interface OpenTabMessage {
+  type: "open-tab";
+  url: string;
+  active: boolean;
+}
+
+type SafariKeyboardNavigationMessage = TabSwitchMessage | OpenTabMessage;
 
 interface WebExtensionTab {
   id?: number;
@@ -50,6 +56,11 @@ interface WebExtensionTabUpdate {
   active?: boolean;
 }
 
+interface WebExtensionTabCreate {
+  active?: boolean;
+  url: string;
+}
+
 interface WebExtensionRuntime {
   sendMessage(message: SafariKeyboardNavigationMessage): Promise<unknown>;
   onMessage?: {
@@ -60,6 +71,7 @@ interface WebExtensionRuntime {
 }
 
 interface WebExtensionTabs {
+  create(createProperties: WebExtensionTabCreate): Promise<WebExtensionTab>;
   query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
   update(
     tabId: number,
@@ -78,6 +90,7 @@ interface SafariKeyboardNavigationTabs {
     activeTabId: number,
     direction: TabSwitchDirection,
   ): number | null;
+  isSupportedNewTabUrl(url: string): boolean;
 }
 
 declare const browser: WebExtensionApi | undefined;
