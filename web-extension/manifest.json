@@ -12,7 +12,8 @@
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "js": ["hints.js", "scroll-surface.js", "content.js"],
       "css": ["content.css"],
-      "run_at": "document_idle"
+      "run_at": "document_start",
+      "all_frames": true
     }
   ],
   "host_permissions": ["http://*/*", "https://*/*", "file:///*"]

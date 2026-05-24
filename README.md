@@ -81,6 +81,7 @@ Useful checks:
 - Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
 - Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
+- Open `manual-test/frame-host.html`, click inside the frame, then verify `Shift+J/K` still switch tabs and `f` still shows hints inside the frame.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
 

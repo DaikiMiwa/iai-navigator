@@ -85,6 +85,7 @@ python3 -m http.server 8765
 - `f` を押してから Hint mode 中に `r` を押し、再読み込みではなく Hint mode 側でキーが処理される。
 - text input、textarea、編集可能な要素にフォーカスした状態で `Esc` を押し、フォーカスが外れる。
 - 拡張を有効にした Safari タブを 3 つ以上開き、`Shift+J` で左のタブへ、`Shift+K` で右のタブへ移動できる。
+- `manual-test/frame-host.html` を開き、frame 内をクリックしたあと、`Shift+J/K` でタブ移動でき、`f` で frame 内の Hint が表示される。
 - `manual-test/nested-scroll.html` を開き、`j/k`、`u/d`、`gg`、`Shift+G` で内部 scroll container が動く。
 - `manual-test/body-scroll.html` を開き、`j/k`、`u/d`、`gg`、`Shift+G` で body scroll container が動く。
 

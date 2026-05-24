@@ -27,8 +27,8 @@
     let hintState = null;
     let lastGPressAt = 0;
     let movementState = null;
-    document.addEventListener("keydown", handleKeyDown, true);
-    document.addEventListener("keyup", handleKeyUp, true);
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopMovement, true);
     window.addEventListener("pagehide", stopMovement, true);
     function handleKeyDown(event) {

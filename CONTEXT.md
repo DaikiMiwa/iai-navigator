@@ -49,7 +49,7 @@ A keyboard command that activates a neighboring browser tab without choosing a L
 _Avoid_: Page Movement Command, full tab management command
 
 **Supported Web Page**:
-A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, and Tab Switching Commands may run.
+A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, and Tab Switching Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
 _Avoid_: Any browser page, local HTML page
 
 **Supported PDF**:
