@@ -28,8 +28,12 @@ _Avoid_: Click emulation, tab opening
 A keyboard command that moves the current page view without choosing a Link Target. In the MVP, Page Movement Commands are `h`, `j`, `k`, and `l` for small directional scroll steps that can repeat while held, `gg` for moving to the top after two quick `g` presses, and `G` for moving to the bottom of the page. Page Movement Commands do not run while the user is typing in text inputs, textareas, or editable page content.
 _Avoid_: Browser history command, link command
 
+**History Navigation Command**:
+A keyboard command that moves the current tab through browser history without choosing a Link Target. History Navigation Commands are `H` for back and `L` for forward. They do not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
+_Avoid_: Page Movement Command, horizontal scroll command
+
 **Supported Web Page**:
-A normal `http` or `https` web page where both Hint Mode and Page Movement Commands may run.
+A normal `http` or `https` web page where Hint Mode, Page Movement Commands, and History Navigation Commands may run.
 _Avoid_: Any browser page, local HTML page
 
 **Supported PDF**:
@@ -77,6 +81,10 @@ Domain expert: No. Hint Activation requires typing the complete Hint.
 Dev: Do `h` and `l` move browser history?
 
 Domain expert: No. They are Page Movement Commands for horizontal scrolling. Browser history commands are outside the MVP.
+
+Dev: How does the user move through browser history?
+
+Domain expert: Use History Navigation Commands: `H` moves back and `L` moves forward, as long as the user is not typing and Hint Mode is not active.
 
 Dev: Can Page Movement Commands fire while the user is typing?
 
