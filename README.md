@@ -10,6 +10,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `h`, `j`, `k`, and `l` scroll in small steps and continue smoothly while held.
 - Pressing `g` twice quickly moves to the top of the page.
 - `Shift+G` moves to the bottom of the page.
+- `Shift+H` navigates back and `Shift+L` navigates forward in the current tab history.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.
 - PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
 
@@ -65,6 +66,7 @@ Useful checks:
 - `Esc` cancels hint mode.
 - Typing in inputs, textareas, and editable content is not intercepted.
 - `j/k` scroll vertically, `h/l` scroll horizontally where possible, `gg` moves to the top, and `Shift+G` moves to the bottom.
+- Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
 
 ## Load In Safari
 

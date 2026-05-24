@@ -93,6 +93,20 @@
       return;
     }
 
+    if (isHistoryBackCommand(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      navigateHistory("back");
+      return;
+    }
+
+    if (isHistoryForwardCommand(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      navigateHistory("forward");
+      return;
+    }
+
     if (isTopCommand(event)) {
       event.preventDefault();
       event.stopPropagation();
@@ -495,6 +509,38 @@
       event.shiftKey &&
       event.code === "KeyG"
     );
+  }
+
+  function isHistoryBackCommand(event: KeyboardEvent): boolean {
+    return isShiftLetterCommand(event, "KeyH");
+  }
+
+  function isHistoryForwardCommand(event: KeyboardEvent): boolean {
+    return isShiftLetterCommand(event, "KeyL");
+  }
+
+  function isShiftLetterCommand(
+    event: KeyboardEvent,
+    code: KeyboardEvent["code"],
+  ): boolean {
+    return (
+      !event.repeat &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      event.shiftKey &&
+      event.code === code
+    );
+  }
+
+  function navigateHistory(direction: "back" | "forward"): void {
+    stopMovement();
+    if (direction === "back") {
+      window.history.back();
+      return;
+    }
+
+    window.history.forward();
   }
 
   function scrollToPosition(position: HintPosition): void {
