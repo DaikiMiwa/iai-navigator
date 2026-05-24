@@ -32,6 +32,10 @@ _Avoid_: Browser history command, link command
 A keyboard command that moves the current tab through browser history without choosing a Link Target. History Navigation Commands are `H` for back and `L` for forward. They do not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
 _Avoid_: Page Movement Command, horizontal scroll command
 
+**Reload Command**:
+A keyboard command that reloads the current page from normal page focus. The Reload Command is `r`. It does not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
+_Avoid_: Browser refresh shortcut, hard reload, cache bypass
+
 **Supported Web Page**:
 A normal `http` or `https` web page where Hint Mode, Page Movement Commands, and History Navigation Commands may run.
 _Avoid_: Any browser page, local HTML page

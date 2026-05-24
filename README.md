@@ -12,6 +12,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - Pressing `g` twice quickly moves to the top of the page.
 - `Shift+G` moves to the bottom of the page.
 - `Shift+H` navigates back and `Shift+L` navigates forward in the current tab history.
+- `r` reloads the current page from normal page focus.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.
 - PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
 
@@ -68,6 +69,9 @@ Useful checks:
 - Typing in inputs, textareas, and editable content is not intercepted.
 - `j/k` scroll vertically, `h/l` scroll horizontally where possible, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
 - Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
+- Press `r` from normal page focus and verify the Reload Command page load count increments.
+- Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
+- Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
 - Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
 - Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
 

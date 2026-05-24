@@ -131,6 +131,13 @@
       return;
     }
 
+    if (isReloadCommand(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      reloadPage();
+      return;
+    }
+
     if (isTopCommand(event)) {
       event.preventDefault();
       event.stopPropagation();
@@ -602,6 +609,17 @@
     return isShiftLetterCommand(event, "KeyL");
   }
 
+  function isReloadCommand(event: KeyboardEvent): boolean {
+    return (
+      !event.repeat &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      event.key === "r"
+    );
+  }
+
   function isShiftLetterCommand(
     event: KeyboardEvent,
     code: KeyboardEvent["code"],
@@ -624,6 +642,11 @@
     }
 
     window.history.forward();
+  }
+
+  function reloadPage(): void {
+    stopMovement();
+    location.reload();
   }
 
   function scrollToSurfacePosition(

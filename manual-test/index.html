@@ -119,6 +119,12 @@
       </section>
 
       <section>
+        <h2>Reload Command</h2>
+        <p>Page load count: <output id="reload-count">0</output></p>
+        <button type="button" id="reset-reload-count">Reset load count</button>
+      </section>
+
+      <section>
         <h2>Nested Scroll Container</h2>
         <a href="./nested-scroll.html">Open nested scroll container test page</a>
       </section>
@@ -145,6 +151,19 @@
     </main>
 
     <script>
+      const reloadCountKey = "skne-manual-reload-count";
+      const nextReloadCount =
+        Number(sessionStorage.getItem(reloadCountKey) || "0") + 1;
+      sessionStorage.setItem(reloadCountKey, String(nextReloadCount));
+      document.getElementById("reload-count").textContent =
+        String(nextReloadCount);
+      document
+        .getElementById("reset-reload-count")
+        .addEventListener("click", () => {
+          sessionStorage.removeItem(reloadCountKey);
+          document.getElementById("reload-count").textContent = "0";
+        });
+
       document.getElementById("hash-link").addEventListener("click", (event) => {
         event.preventDefault();
         event.currentTarget.textContent = "Hash action clicked";

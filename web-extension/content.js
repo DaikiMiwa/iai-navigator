@@ -65,6 +65,12 @@
             navigateHistory("forward");
             return;
         }
+        if (isReloadCommand(event)) {
+            event.preventDefault();
+            event.stopPropagation();
+            reloadPage();
+            return;
+        }
         if (isTopCommand(event)) {
             event.preventDefault();
             event.stopPropagation();
@@ -433,6 +439,14 @@
     function isHistoryForwardCommand(event) {
         return isShiftLetterCommand(event, "KeyL");
     }
+    function isReloadCommand(event) {
+        return (!event.repeat &&
+            !event.altKey &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.shiftKey &&
+            event.key === "r");
+    }
     function isShiftLetterCommand(event, code) {
         return (!event.repeat &&
             !event.altKey &&
@@ -448,6 +462,10 @@
             return;
         }
         window.history.forward();
+    }
+    function reloadPage() {
+        stopMovement();
+        location.reload();
     }
     function scrollToSurfacePosition(surface, position) {
         stopMovement();
