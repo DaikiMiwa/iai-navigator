@@ -4,7 +4,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows yellow, black-text hints for visible link targets in the current viewport on normal `http` and `https` pages.
+- `f` shows compact yellow, black-text hints for visible link targets in the current viewport on normal `http` and `https` pages.
 - Typing a complete hint fires that link's normal click behavior in the current tab.
 - `Esc` cancels hint mode.
 - `h`, `j`, `k`, and `l` scroll in small steps and continue smoothly while held.
