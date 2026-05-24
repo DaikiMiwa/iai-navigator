@@ -21,6 +21,7 @@
 		CD04C54C2FC2993800125208 /* hints.js in Resources */ = {isa = PBXBuildFile; fileRef = CD04C5482FC2993800125208 /* hints.js */; };
 		CD04C54D2FC2993800125208 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CD04C5492FC2993800125208 /* manifest.json */; };
 		CD04C54E2FC2993800125208 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = CD04C54A2FC2993800125208 /* content.js */; };
+		CD04C54F2FC2993800125208 /* scroll-surface.js in Resources */ = {isa = PBXBuildFile; fileRef = CD04C5502FC2993800125208 /* scroll-surface.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		CD04C5482FC2993800125208 /* hints.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = hints.js; path = "../../../web-extension/hints.js"; sourceTree = "<group>"; };
 		CD04C5492FC2993800125208 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = "../../../web-extension/manifest.json"; sourceTree = "<group>"; };
 		CD04C54A2FC2993800125208 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = "../../../web-extension/content.js"; sourceTree = "<group>"; };
+		CD04C5502FC2993800125208 /* scroll-surface.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "scroll-surface.js"; path = "../../../web-extension/scroll-surface.js"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 			children = (
 				CD04C5472FC2993800125208 /* content.css */,
 				CD04C5482FC2993800125208 /* hints.js */,
+				CD04C5502FC2993800125208 /* scroll-surface.js */,
 				CD04C5492FC2993800125208 /* manifest.json */,
 				CD04C54A2FC2993800125208 /* content.js */,
 			);
@@ -252,6 +255,7 @@
 				CD04C54B2FC2993800125208 /* content.css in Resources */,
 				CD04C54D2FC2993800125208 /* manifest.json in Resources */,
 				CD04C54C2FC2993800125208 /* hints.js in Resources */,
+				CD04C54F2FC2993800125208 /* scroll-surface.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

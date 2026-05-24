@@ -1,10 +1,12 @@
 "use strict";
 (() => {
     const maybeHints = globalThis.SafariKeyboardNavigationHints;
-    if (!maybeHints) {
+    const maybeScroll = globalThis.SafariKeyboardNavigationScroll;
+    if (!maybeHints || !maybeScroll) {
         return;
     }
     const hints = maybeHints;
+    const scroll = maybeScroll;
     const HINT_TRIGGER = "f";
     const TOP_SEQUENCE_WINDOW_MS = 800;
     const HOLD_DELAY_MS = 140;
@@ -64,7 +66,11 @@
         if (isBottomCommand(event)) {
             event.preventDefault();
             event.stopPropagation();
-            scrollToPosition({ top: documentHeight(), left: currentScrollX() });
+            const surface = findScrollSurface({ key: "G", dx: 0, dy: 1, speedX: 0, speedY: 0 }, { requireCanMove: false });
+            scrollToSurfacePosition(surface, {
+                top: maxScrollTop(surface),
+                left: currentScrollX(surface),
+            });
         }
     }
     function handleKeyUp(event) {
@@ -313,9 +319,15 @@
             return;
         }
         stopMovement();
-        window.scrollBy({ left: movement.dx, top: movement.dy, behavior: "auto" });
+        const surface = findScrollSurface(movement, { requireCanMove: true });
+        scrollSurfaceBy(surface, {
+            left: movement.dx,
+            top: movement.dy,
+            behavior: "auto",
+        });
         movementState = {
             ...movement,
+            surface,
             startedAt: performance.now(),
             lastFrameAt: performance.now(),
             frameId: 0,
@@ -330,7 +342,7 @@
         const deltaSeconds = Math.max(0, now - movementState.lastFrameAt) / 1000;
         movementState.lastFrameAt = now;
         if (elapsed >= HOLD_DELAY_MS) {
-            window.scrollBy({
+            scrollSurfaceBy(movementState.surface, {
                 left: movementState.speedX * deltaSeconds,
                 top: movementState.speedY * deltaSeconds,
                 behavior: "auto",
@@ -357,7 +369,11 @@
         const now = performance.now();
         if (now - lastGPressAt <= TOP_SEQUENCE_WINDOW_MS) {
             lastGPressAt = 0;
-            scrollToPosition({ top: 0, left: currentScrollX() });
+            const surface = findScrollSurface({ key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 }, { requireCanMove: false });
+            scrollToSurfacePosition(surface, {
+                top: 0,
+                left: currentScrollX(surface),
+            });
             return;
         }
         lastGPressAt = now;
@@ -396,17 +412,160 @@
         }
         window.history.forward();
     }
-    function scrollToPosition(position) {
+    function scrollToSurfacePosition(surface, position) {
         stopMovement();
-        window.scrollTo({ ...position, behavior: "auto" });
+        scrollSurfaceTo(surface, { ...position, behavior: "auto" });
+    }
+    function findScrollSurface(movement, options) {
+        const axis = movementAxis(movement);
+        const collection = collectScrollSurfaceCandidates(axis, movement);
+        const selectedId = scroll.chooseScrollSurface(collection.candidates, options);
+        return collection.surfaces.get(selectedId) ?? window;
+    }
+    function movementAxis(movement) {
+        return Math.abs(movement.dx) > Math.abs(movement.dy) ? "x" : "y";
+    }
+    function elementsFromViewportProbePoints() {
+        const points = [
+            { left: window.innerWidth * 0.5, top: window.innerHeight * 0.5 },
+            { left: window.innerWidth * 0.5, top: window.innerHeight * 0.35 },
+            { left: window.innerWidth * 0.5, top: window.innerHeight * 0.65 },
+            { left: window.innerWidth * 0.65, top: window.innerHeight * 0.5 },
+        ];
+        const elements = [];
+        const seen = new Set();
+        for (const point of points) {
+            const element = document.elementFromPoint(point.left, point.top);
+            if (element && !seen.has(element)) {
+                seen.add(element);
+                elements.push(element);
+            }
+        }
+        return elements;
+    }
+    function collectScrollSurfaceCandidates(axis, movement) {
+        const candidates = [];
+        const surfaces = new Map();
+        const elementIds = new WeakMap();
+        surfaces.set(scroll.WINDOW_SURFACE_ID, window);
+        for (const element of elementsFromViewportProbePoints()) {
+            let current = element;
+            while (current && current !== document.documentElement) {
+                if (current !== document.documentElement) {
+                    addElementCandidate(candidates, surfaces, elementIds, current, "probe", axis, movement);
+                }
+                current = current.parentElement;
+            }
+        }
+        candidates.push(windowScrollCandidate(axis, movement));
+        for (const element of document.querySelectorAll("*")) {
+            if (element === document.documentElement) {
+                continue;
+            }
+            addElementCandidate(candidates, surfaces, elementIds, element, "visible", axis, movement);
+        }
+        return { candidates, surfaces };
+    }
+    function addElementCandidate(candidates, surfaces, elementIds, element, kind, axis, movement) {
+        const id = surfaceIdForElement(element, elementIds, surfaces);
+        const candidate = elementScrollCandidate(id, element, kind, axis, movement);
+        if (!candidate.canScroll) {
+            return;
+        }
+        surfaces.set(candidate.id, element);
+        candidates.push(candidate);
+    }
+    function surfaceIdForElement(element, elementIds, surfaces) {
+        const existingId = elementIds.get(element);
+        if (existingId) {
+            return existingId;
+        }
+        const id = `element:${surfaces.size}`;
+        elementIds.set(element, id);
+        return id;
+    }
+    function viewportIntersectionArea(element) {
+        const rect = element.getBoundingClientRect();
+        const width = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
+        const height = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+        return width * height;
+    }
+    function elementScrollCandidate(id, element, kind, axis, movement) {
+        const style = getComputedStyle(element);
+        const overflow = axis === "y" ? style.overflowY : style.overflowX;
+        const scrollPosition = axis === "y" ? element.scrollTop : element.scrollLeft;
+        const maxScroll = maxElementScroll(element, axis);
+        const direction = axis === "y" ? movement.dy : movement.dx;
+        const canScroll = scroll.isScrollableOverflow(overflow) && maxScroll > 1;
+        return {
+            id,
+            kind,
+            canScroll,
+            canMove: canScroll &&
+                scroll.canMoveScrollPosition(scrollPosition, maxScroll, direction),
+            visibleArea: kind === "visible" ? viewportIntersectionArea(element) : 0,
+        };
+    }
+    function windowScrollCandidate(axis, movement) {
+        const maxScroll = axis === "y"
+            ? documentHeight() - window.innerHeight
+            : documentWidth() - window.innerWidth;
+        const scrollPosition = axis === "y" ? currentScrollY(window) : currentScrollX(window);
+        const direction = axis === "y" ? movement.dy : movement.dx;
+        return {
+            id: scroll.WINDOW_SURFACE_ID,
+            kind: "window",
+            canScroll: maxScroll > 1,
+            canMove: scroll.canMoveScrollPosition(scrollPosition, maxScroll, direction),
+            visibleArea: window.innerWidth * window.innerHeight,
+        };
+    }
+    function scrollSurfaceBy(surface, options) {
+        if (isWindowSurface(surface)) {
+            window.scrollBy(options);
+            return;
+        }
+        surface.scrollBy(options);
+    }
+    function scrollSurfaceTo(surface, options) {
+        if (isWindowSurface(surface)) {
+            window.scrollTo(options);
+            return;
+        }
+        surface.scrollTo(options);
+    }
+    function maxElementScroll(element, axis) {
+        return axis === "y"
+            ? scroll.maxScroll(element.scrollHeight, element.clientHeight)
+            : scroll.maxScroll(element.scrollWidth, element.clientWidth);
+    }
+    function maxScrollTop(surface) {
+        return isWindowSurface(surface)
+            ? Math.max(0, documentHeight() - window.innerHeight)
+            : maxElementScroll(surface, "y");
     }
     function documentHeight() {
         const body = document.body;
         const element = document.documentElement;
         return Math.max(body ? body.scrollHeight : 0, body ? body.offsetHeight : 0, element ? element.clientHeight : 0, element ? element.scrollHeight : 0, element ? element.offsetHeight : 0);
     }
-    function currentScrollX() {
-        return window.scrollX || window.pageXOffset || 0;
+    function documentWidth() {
+        const body = document.body;
+        const element = document.documentElement;
+        return Math.max(body ? body.scrollWidth : 0, body ? body.offsetWidth : 0, element ? element.clientWidth : 0, element ? element.scrollWidth : 0, element ? element.offsetWidth : 0);
+    }
+    function currentScrollX(surface) {
+        return isWindowSurface(surface)
+            ? window.scrollX || window.pageXOffset || 0
+            : surface.scrollLeft;
+    }
+    function currentScrollY(surface) {
+        return isWindowSurface(surface)
+            ? window.scrollY || window.pageYOffset || 0
+            : surface.scrollTop;
+    }
+    function isWindowSurface(surface) {
+        return surface === window;
     }
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
