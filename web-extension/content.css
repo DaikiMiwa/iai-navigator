@@ -35,6 +35,10 @@
   display: none;
 }
 
+#skne-hint-overlay .skne-hint-match {
+  color: #b00020;
+}
+
 #skne-help-overlay {
   all: initial;
   display: flex;
