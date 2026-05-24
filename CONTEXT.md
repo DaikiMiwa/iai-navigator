@@ -52,8 +52,12 @@ _Avoid_: Browser refresh shortcut, hard reload, cache bypass
 A keyboard command that activates a neighboring browser tab without choosing a Link Target. Tab Switching Commands are `Shift+J` for the tab on the left and `Shift+K` for the tab on the right. They do not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
 _Avoid_: Page Movement Command, full tab management command
 
+**URL Copy Command**:
+A two-key keyboard command that copies the current page URL from normal page focus. The URL Copy Command is `yy`: the first `y` starts a short sequence window, the second `y` copies `location.href`, and Escape cancels the pending sequence. It does not run while Hint Mode is active or while the user is typing in text inputs, textareas, selects, or editable page content.
+_Avoid_: Link copy command, hinted URL copy, clipboard manager
+
 **Supported Web Page**:
-A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, and Tab Switching Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
+A normal `http` or `https` web page where Hint Mode, Page Movement Commands, History Navigation Commands, Reload Commands, Tab Switching Commands, and URL Copy Commands may run. Content scripts run early and in all frames so page-level commands still work on pages that focus embedded frames or install their own keyboard handlers during load.
 _Avoid_: Any browser page, local HTML page
 
 **Supported PDF**:
