@@ -34,6 +34,8 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `docs/research/competitors.md`: competitor notes for Vimari, Vifari, and Vimlike.
 - `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
 - `docs/research/bookmark-history-open-command.md`: compatibility spike for bookmark/history-backed destination search.
+- `docs/strategy/why-use-this-app.md`: positioning notes for why users should choose this app.
+- `docs/strategy/paid-app-roadmap.md`: roadmap for turning the extension into a paid App Store product.
 
 ## Documentation Language
 
@@ -48,6 +50,7 @@ Start here for Japanese documentation:
 - `docs/ja/research/ipados-safari-support.md`
 - `docs/ja/research/bookmark-history-open-command.md`
 - `docs/ja/strategy/why-use-this-app.md`
+- `docs/ja/strategy/paid-app-roadmap.md`
 
 ## Build And Test
 
