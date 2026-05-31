@@ -1044,6 +1044,10 @@
     }
 
     if (candidate.key === "Enter") {
+      if (candidate.altKey) {
+        return "activate-background-tab";
+      }
+
       return candidate.shiftKey || candidate.metaKey || candidate.ctrlKey
         ? "activate-new-tab"
         : "activate-current-tab";
@@ -1070,6 +1074,9 @@
         return;
       case "activate-new-tab":
         activateCommandPaletteSelection("new-tab");
+        return;
+      case "activate-background-tab":
+        activateCommandPaletteSelection("background-tab");
         return;
     }
   }
@@ -1395,6 +1402,10 @@
     const disposition = dispositionOverride ?? commandPaletteState.disposition;
     closeCommandPalette();
     if (result.kind === "command") {
+      if (disposition === "background-tab") {
+        return;
+      }
+
       executeLocalPaletteCommand(result.command);
       return;
     }

@@ -58,6 +58,7 @@
     }
     global.SafariKeyboardNavigationTabs = {
         chooseNeighborTabId,
+        executePaletteResult,
         isSupportedNewTabUrl,
         recordLocalVisit,
         searchPaletteResults,
@@ -160,8 +161,12 @@
             return;
         }
         if (result.kind === "tab" && typeof result.tabId === "number") {
-            if (disposition === "new-tab" && result.url) {
-                await api.tabs.create({ url: result.url, active: true });
+            if ((disposition === "new-tab" || disposition === "background-tab") &&
+                result.url) {
+                await api.tabs.create({
+                    active: disposition === "new-tab",
+                    url: result.url,
+                });
                 return;
             }
             await api.tabs.update(result.tabId, { active: true });
@@ -170,8 +175,11 @@
         if (!result.url || !isSupportedNewTabUrl(result.url)) {
             return;
         }
-        if (disposition === "new-tab") {
-            await api.tabs.create({ url: result.url, active: true });
+        if (disposition === "new-tab" || disposition === "background-tab") {
+            await api.tabs.create({
+                active: disposition === "new-tab",
+                url: result.url,
+            });
             return;
         }
         const activeTabs = await api.tabs.query({
@@ -227,7 +235,8 @@
         const candidate = message;
         return (candidate.type === "palette-execute" &&
             (candidate.disposition === "current-tab" ||
-                candidate.disposition === "new-tab") &&
+                candidate.disposition === "new-tab" ||
+                candidate.disposition === "background-tab") &&
             !!candidate.result &&
             typeof candidate.result === "object");
     }

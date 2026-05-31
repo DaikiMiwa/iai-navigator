@@ -123,6 +123,7 @@ python3 -m http.server 8765
 - 通常のページフォーカスで `o` を押し、tab title、bookmark title、history URL、ローカルで観測した page、command name、URL、search term を入力して、`Enter` で選択結果が開くか実行されることを確認する。
 - palette 内で `ArrowDown`、`ArrowUp`、`Ctrl+n`、`Ctrl+p`、`Tab`、`Shift+Tab` を押し、palette から focus が外れずに選択 result が移動することを確認する。
 - palette 内で `Shift+Enter`、`Command+Enter`、`Control+Enter` を押し、browser destination が新しい前面 tab で開くことを確認する。
+- palette 内で `Alt+Enter` / `Option+Enter` を押し、browser destination が新しい background tab で開き、active にならないことを確認する。
 - `Shift+O` を押し、URL または destination を入力して、`Enter` で新しい前面 tab に開くことを確認する。
 - `b` / `Shift+B` を押し、bookmark だけが検索され、`Shift+B` では選択した bookmark が新しい前面 tab に開くことを確認する。
 - `Shift+T` を押し、開いている tab が検索され、選択した tab に focus することを確認する。
