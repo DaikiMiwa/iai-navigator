@@ -8,7 +8,7 @@ When a user grants website access in Safari, the content script can read the pag
 
 When the browser navigation palette is enabled, the extension also requests browser-level access to open tabs, bookmarks, and recent history so the user can search and open those destinations from the keyboard.
 
-The extension stores a bounded local list of pages it has observed while enabled and safe destinations the user explicitly opens from the command palette. Each entry contains only the page URL, page title, last observed or selected time, and visit count. This local index helps the command palette find destinations even when Safari does not expose bookmark or history APIs at runtime.
+The extension stores a bounded local list of pages it has observed while enabled and safe destinations the user explicitly opens from the command palette. Each entry contains only the page URL, page title, last observed or selected time, and visit count. This local index helps the command palette find destinations even when Safari does not expose bookmark or history APIs at runtime. The extension also stores a bounded local list of recent command palette queries so users can recall previous palette input from the keyboard.
 
 The extension uses this access to:
 
@@ -31,7 +31,7 @@ The extension does not:
 - record typed text from input fields;
 - sync settings to a developer-controlled backend.
 
-Settings and the local observed-page and selected-destination index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. User-entered web searches leave the device only when the user chooses the generated search result, and then only to the configured search engine. Generated web search results are not stored in the local destination index.
+Settings, recent command palette queries, and the local observed-page and selected-destination index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. User-entered web searches leave the device only when the user chooses the generated search result, and then only to the configured search engine. Generated web search results are not stored in the local destination index.
 
 ## Website Access Modes
 
@@ -50,4 +50,4 @@ For App Store distribution, local file support should either:
 
 ## App Review Note Draft
 
-This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The extension also uses Safari's tabs, bookmarks, and history APIs locally where available, and stores a bounded on-device list of observed or explicitly selected page URLs and titles, so users can search browser destinations from a command palette. The app does not send page content, browsing data, shortcut activity, or form values to any external server.
+This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The extension also uses Safari's tabs, bookmarks, and history APIs locally where available, and stores bounded on-device lists of recent command palette queries and observed or explicitly selected page URLs and titles, so users can search browser destinations from a command palette. The app does not send page content, browsing data, shortcut activity, or form values to any external server.

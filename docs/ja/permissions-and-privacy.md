@@ -8,7 +8,7 @@ Safari Keyboard Navigation は Safari 内でローカルに動作します。ana
 
 browser navigation palette が有効な場合、拡張機能は keyboard から destination を検索して開くために、開いている tab、bookmark、recent history への browser-level access も要求します。
 
-拡張機能は、有効な状態で観測した page と、ユーザーが command palette から明示的に開いた安全な destination の bounded な local list も保存します。各 entry に含まれるのは page URL、page title、最後に観測または選択した時刻、visit count だけです。この local index により、Safari が runtime で bookmark や history API を公開しない場合でも、command palette から destination を探しやすくします。
+拡張機能は、有効な状態で観測した page と、ユーザーが command palette から明示的に開いた安全な destination の bounded な local list も保存します。各 entry に含まれるのは page URL、page title、最後に観測または選択した時刻、visit count だけです。この local index により、Safari が runtime で bookmark や history API を公開しない場合でも、command palette から destination を探しやすくします。拡張機能は、keyboard から以前の palette 入力を呼び戻せるように、最近の command palette query の bounded な local list も保存します。
 
 このアクセスは次の目的で使います。
 
@@ -31,7 +31,7 @@ browser navigation palette が有効な場合、拡張機能は keyboard から 
 - input field に入力された text を記録する
 - settings を開発者管理の backend に同期する
 
-settings とローカルで観測した page / 選択した destination の index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出て、その送信先は設定した search engine だけです。生成された web search result は local destination index には保存しません。
+settings、最近の command palette query、ローカルで観測した page / 選択した destination の index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出て、その送信先は設定した search engine だけです。生成された web search result は local destination index には保存しません。
 
 ## Website access mode
 
@@ -50,4 +50,4 @@ App Store 配布では、local file support は次のどちらかにします。
 
 ## App Review note draft
 
-This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The extension also uses Safari's tabs, bookmarks, and history APIs locally where available, and stores a bounded on-device list of observed or explicitly selected page URLs and titles, so users can search browser destinations from a command palette. The app does not send page content, browsing data, shortcut activity, or form values to any external server.
+This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The extension also uses Safari's tabs, bookmarks, and history APIs locally where available, and stores bounded on-device lists of recent command palette queries and observed or explicitly selected page URLs and titles, so users can search browser destinations from a command palette. The app does not send page content, browsing data, shortcut activity, or form values to any external server.

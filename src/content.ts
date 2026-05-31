@@ -101,9 +101,12 @@
     activeIndex: number;
     disposition: PaletteDisposition;
     generatedKinds: PaletteGeneratedKind[];
+    history: string[];
+    historyCursor: number | null;
     includeCommands: boolean;
     includeGenerated: boolean;
     input: HTMLInputElement;
+    inputBeforeHistory: string;
     list: HTMLDivElement;
     overlay: HTMLDivElement;
     results: CommandPaletteResult[];
@@ -180,6 +183,8 @@
 
   const HELP_OVERLAY_ID = "skne-help-overlay";
   const COMMAND_PALETTE_OVERLAY_ID = "skne-command-palette-overlay";
+  const COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY = "paletteQueryHistory";
+  const COMMAND_PALETTE_QUERY_HISTORY_MAX_ITEMS = 50;
   const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
   const NATIVE_HINT_TARGET_SELECTOR =
     "a[href], button, input, select, textarea";
@@ -285,6 +290,7 @@
     "Shift+Enter new tab",
     "Option+Enter background",
     "Option+C copy URL",
+    "Option+↑/↓ query history",
     "tab: book: history: visit: search: url: cmd:",
   ] as const;
   const COMMAND_PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = [
@@ -323,6 +329,7 @@
     }
   ).SafariKeyboardNavigationCommandPalette = {
     COMMAND_PALETTE_FOOTER_HINTS,
+    commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
     commandPaletteQueryScope,
@@ -996,9 +1003,12 @@
       activeIndex: 0,
       disposition: options.disposition,
       generatedKinds: options.generatedKinds,
+      history: [],
+      historyCursor: null,
       includeCommands: options.includeCommands,
       includeGenerated: options.includeGenerated,
       input,
+      inputBeforeHistory: "",
       list,
       overlay,
       results: [],
@@ -1007,9 +1017,18 @@
     };
 
     input.addEventListener("input", () => {
+      if (commandPaletteState) {
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+      }
       void refreshCommandPaletteResults();
     });
     input.focus();
+    void loadCommandPaletteQueryHistory().then((history) => {
+      if (commandPaletteState?.input === input) {
+        commandPaletteState.history = history;
+      }
+    });
     void refreshCommandPaletteResults();
   }
 
@@ -1056,6 +1075,14 @@
   ): CommandPaletteKeyAction | null {
     if (candidate.key === "Escape") {
       return "close";
+    }
+
+    if (candidate.altKey && candidate.key === "ArrowUp") {
+      return "history-previous";
+    }
+
+    if (candidate.altKey && candidate.key === "ArrowDown") {
+      return "history-next";
     }
 
     if (
@@ -1116,7 +1143,83 @@
       case "copy-result-url":
         void copyCommandPaletteSelectionUrl();
         return;
+      case "history-previous":
+        navigateCommandPaletteQueryHistory("previous");
+        return;
+      case "history-next":
+        navigateCommandPaletteQueryHistory("next");
+        return;
     }
+  }
+
+  function navigateCommandPaletteQueryHistory(
+    direction: "previous" | "next",
+  ): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const next = commandPaletteHistoryNavigation({
+      cursor: commandPaletteState.historyCursor,
+      direction,
+      history: commandPaletteState.history,
+      inputBeforeHistory: commandPaletteState.inputBeforeHistory,
+      query: commandPaletteState.input.value,
+    });
+    commandPaletteState.historyCursor = next.cursor;
+    commandPaletteState.inputBeforeHistory = next.inputBeforeHistory;
+    commandPaletteState.input.value = next.query;
+    void refreshCommandPaletteResults();
+  }
+
+  function commandPaletteHistoryNavigation(
+    candidate: CommandPaletteHistoryNavigationCandidate,
+  ): CommandPaletteHistoryNavigationResult {
+    if (candidate.history.length === 0) {
+      return {
+        cursor: candidate.cursor,
+        inputBeforeHistory: candidate.inputBeforeHistory,
+        query: candidate.query,
+      };
+    }
+
+    if (candidate.direction === "previous") {
+      const cursor =
+        candidate.cursor === null
+          ? 0
+          : Math.min(candidate.cursor + 1, candidate.history.length - 1);
+      return {
+        cursor,
+        inputBeforeHistory:
+          candidate.cursor === null
+            ? candidate.query
+            : candidate.inputBeforeHistory,
+        query: candidate.history[cursor],
+      };
+    }
+
+    if (candidate.cursor === null) {
+      return {
+        cursor: null,
+        inputBeforeHistory: candidate.inputBeforeHistory,
+        query: candidate.query,
+      };
+    }
+
+    const cursor = candidate.cursor - 1;
+    if (cursor < 0) {
+      return {
+        cursor: null,
+        inputBeforeHistory: "",
+        query: candidate.inputBeforeHistory,
+      };
+    }
+
+    return {
+      cursor,
+      inputBeforeHistory: candidate.inputBeforeHistory,
+      query: candidate.history[cursor],
+    };
   }
 
   async function refreshCommandPaletteResults(): Promise<void> {
@@ -1477,7 +1580,9 @@
     }
 
     const disposition = dispositionOverride ?? commandPaletteState.disposition;
+    const query = commandPaletteState.input.value;
     closeCommandPalette();
+    void rememberCommandPaletteQuery(query);
     if (result.kind === "command") {
       if (disposition === "background-tab") {
         return;
@@ -1505,10 +1610,74 @@
       return;
     }
 
+    const query = commandPaletteState.input.value;
     const url = result.url;
     closeCommandPalette();
+    void rememberCommandPaletteQuery(query);
     const didCopy = await writeTextToClipboard(url);
     showUrlCopyToast(didCopy ? "Copied URL" : "Could not copy URL");
+  }
+
+  async function loadCommandPaletteQueryHistory(): Promise<string[]> {
+    const storage =
+      (globalThis as typeof globalThis & { browser?: WebExtensionApi }).browser
+        ?.storage?.local ?? null;
+    if (!storage) {
+      return [];
+    }
+
+    const result = await storage.get(COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY);
+    return normalizeCommandPaletteQueryHistory(
+      result[COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY],
+    );
+  }
+
+  async function rememberCommandPaletteQuery(query: string): Promise<void> {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return;
+    }
+
+    const storage =
+      (globalThis as typeof globalThis & { browser?: WebExtensionApi }).browser
+        ?.storage?.local ?? null;
+    if (!storage) {
+      return;
+    }
+
+    const history = await loadCommandPaletteQueryHistory();
+    const nextHistory = [
+      trimmedQuery,
+      ...history.filter((item) => item !== trimmedQuery),
+    ].slice(0, COMMAND_PALETTE_QUERY_HISTORY_MAX_ITEMS);
+    await storage.set({
+      [COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY]: nextHistory,
+    });
+  }
+
+  function normalizeCommandPaletteQueryHistory(input: unknown): string[] {
+    if (!Array.isArray(input)) {
+      return [];
+    }
+
+    const history: string[] = [];
+    for (const item of input) {
+      if (typeof item !== "string") {
+        continue;
+      }
+
+      const query = item.trim();
+      if (!query || history.includes(query)) {
+        continue;
+      }
+
+      history.push(query);
+      if (history.length >= COMMAND_PALETTE_QUERY_HISTORY_MAX_ITEMS) {
+        break;
+      }
+    }
+
+    return history;
   }
 
   function executeLocalPaletteCommand(command: LocalPaletteCommandId): void {

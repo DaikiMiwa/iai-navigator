@@ -187,7 +187,23 @@ type CommandPaletteKeyAction =
   | "activate-current-tab"
   | "activate-new-tab"
   | "activate-background-tab"
-  | "copy-result-url";
+  | "copy-result-url"
+  | "history-previous"
+  | "history-next";
+
+interface CommandPaletteHistoryNavigationCandidate {
+  cursor: number | null;
+  direction: "previous" | "next";
+  history: string[];
+  inputBeforeHistory: string;
+  query: string;
+}
+
+interface CommandPaletteHistoryNavigationResult {
+  cursor: number | null;
+  inputBeforeHistory: string;
+  query: string;
+}
 
 interface CommandPaletteKeyCandidate {
   altKey: boolean;
@@ -215,6 +231,9 @@ interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
 
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
+  commandPaletteHistoryNavigation(
+    candidate: CommandPaletteHistoryNavigationCandidate,
+  ): CommandPaletteHistoryNavigationResult;
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
