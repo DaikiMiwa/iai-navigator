@@ -1,5 +1,7 @@
 "use strict";
 ((global) => {
+    const LOCAL_VISITS_STORAGE_KEY = "paletteLocalVisits";
+    const LOCAL_VISITS_MAX_ITEMS = 500;
     function chooseNeighborTabId(tabs, activeTabId, direction) {
         const orderedTabs = tabs
             .filter((tab) => Number.isFinite(tab.id))
@@ -22,7 +24,7 @@
     }
     function searchPaletteResults(sources, query, options = {}) {
         const normalizedQuery = normalizePaletteQuery(query);
-        const sourceFilter = new Set(options.sources ?? ["tabs", "bookmarks", "history"]);
+        const sourceFilter = new Set(options.sources ?? ["tabs", "bookmarks", "history", "visits"]);
         const results = [
             ...(sourceFilter.has("tabs")
                 ? sources.tabs.flatMap((tab) => tabPaletteResult(tab, normalizedQuery))
@@ -32,6 +34,9 @@
                 : []),
             ...(sourceFilter.has("history")
                 ? sources.history.flatMap((historyItem) => historyPaletteResult(historyItem, normalizedQuery))
+                : []),
+            ...(sourceFilter.has("visits")
+                ? (sources.visits ?? []).flatMap((visit) => localVisitPaletteResult(visit, normalizedQuery))
                 : []),
             ...(options.includeGenerated
                 ? generatedPaletteResults(normalizedQuery)
@@ -52,6 +57,7 @@
     global.SafariKeyboardNavigationTabs = {
         chooseNeighborTabId,
         isSupportedNewTabUrl,
+        recordLocalVisit,
         searchPaletteResults,
         tabSwitchDirectionForCommand,
     };
@@ -72,6 +78,9 @@
             }
             if (isPaletteExecuteMessage(message)) {
                 return executePaletteResult(api, message.result, message.disposition);
+            }
+            if (isObservePageMessage(message)) {
+                return observePage(api, message);
             }
             if (isOpenOptionsMessage(message)) {
                 return api.runtime?.openOptionsPage?.();
@@ -119,7 +128,7 @@
         const trimmedQuery = message.query.trim();
         const since = Date.now() - 1000 * 60 * 60 * 24 * 30;
         const sources = new Set(message.sources);
-        const [tabs, bookmarks, history] = await Promise.all([
+        const [tabs, bookmarks, history, visits] = await Promise.all([
             sources.has("tabs") && api.tabs
                 ? api.tabs.query({ currentWindow: true })
                 : Promise.resolve([]),
@@ -133,9 +142,12 @@
                     maxResults: trimmedQuery ? 12 : 6,
                 })
                 : Promise.resolve([]),
+            sources.has("visits") && api.storage?.local
+                ? loadLocalVisits(api).then((items) => trimmedQuery ? items : items.slice(0, 12))
+                : Promise.resolve([]),
         ]);
         return {
-            results: searchPaletteResults({ bookmarks, history, tabs }, message.query, {
+            results: searchPaletteResults({ bookmarks, history, tabs, visits }, message.query, {
                 includeGenerated: message.includeGenerated,
                 sources: message.sources,
             }),
@@ -170,6 +182,14 @@
             return;
         }
         await api.tabs.create({ url: result.url, active: true });
+    }
+    async function observePage(api, message) {
+        if (!api.storage?.local || !isSupportedNewTabUrl(message.url)) {
+            return;
+        }
+        const visits = await loadLocalVisits(api);
+        const nextVisits = recordLocalVisit(visits, message, Date.now());
+        await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
     }
     function isTabSwitchMessage(message) {
         if (!message || typeof message !== "object") {
@@ -214,6 +234,15 @@
             return false;
         }
         return message.type === "open-options";
+    }
+    function isObservePageMessage(message) {
+        if (!message || typeof message !== "object") {
+            return false;
+        }
+        const candidate = message;
+        return (candidate.type === "observe-page" &&
+            typeof candidate.url === "string" &&
+            typeof candidate.title === "string");
     }
     function tabPaletteResult(tab, query) {
         if (typeof tab.id !== "number") {
@@ -276,6 +305,28 @@
                 subtitle: historyItem.url,
                 title,
                 url: historyItem.url,
+            },
+        ];
+    }
+    function localVisitPaletteResult(visit, query) {
+        if (!isSupportedNewTabUrl(visit.url)) {
+            return [];
+        }
+        const title = displayTitle(visit.title, visit.url);
+        const score = paletteMatchScore(query, title, visit.url);
+        if (score === null) {
+            return [];
+        }
+        const recencyBoost = Math.min(8, Math.max(0, visit.lastVisitTime / Date.now()) * 8);
+        const frequencyBoost = Math.min(6, Math.max(0, visit.visitCount));
+        return [
+            {
+                id: `visit:${visit.url}`,
+                kind: "visit",
+                score: score + recencyBoost + frequencyBoost,
+                subtitle: visit.url,
+                title,
+                url: visit.url,
             },
         ];
     }
@@ -359,6 +410,60 @@
     }
     function normalizePaletteQuery(query) {
         return query.trim().toLowerCase();
+    }
+    async function loadLocalVisits(api) {
+        const result = await api.storage?.local?.get(LOCAL_VISITS_STORAGE_KEY);
+        const value = result?.[LOCAL_VISITS_STORAGE_KEY];
+        if (!Array.isArray(value)) {
+            return [];
+        }
+        return value.flatMap((item) => {
+            if (!item || typeof item !== "object") {
+                return [];
+            }
+            const candidate = item;
+            if (typeof candidate.url !== "string" ||
+                !isSupportedNewTabUrl(candidate.url)) {
+                return [];
+            }
+            return [
+                {
+                    lastVisitTime: typeof candidate.lastVisitTime === "number" &&
+                        Number.isFinite(candidate.lastVisitTime)
+                        ? candidate.lastVisitTime
+                        : 0,
+                    title: typeof candidate.title === "string"
+                        ? candidate.title
+                        : displayTitle(undefined, candidate.url),
+                    url: canonicalVisitUrl(candidate.url),
+                    visitCount: typeof candidate.visitCount === "number" &&
+                        Number.isFinite(candidate.visitCount)
+                        ? Math.max(1, Math.floor(candidate.visitCount))
+                        : 1,
+                },
+            ];
+        });
+    }
+    function recordLocalVisit(visits, page, now, maxItems = LOCAL_VISITS_MAX_ITEMS) {
+        if (!isSupportedNewTabUrl(page.url)) {
+            return visits.slice(0, maxItems);
+        }
+        const url = canonicalVisitUrl(page.url);
+        const existing = visits.find((visit) => visit.url === url);
+        const nextVisit = {
+            lastVisitTime: now,
+            title: displayTitle(page.title, url),
+            url,
+            visitCount: (existing?.visitCount ?? 0) + 1,
+        };
+        return [nextVisit, ...visits.filter((visit) => visit.url !== url)]
+            .sort((a, b) => b.lastVisitTime - a.lastVisitTime)
+            .slice(0, maxItems);
+    }
+    function canonicalVisitUrl(url) {
+        const parsedUrl = new URL(url);
+        parsedUrl.hash = "";
+        return parsedUrl.toString();
     }
     function displayTitle(title, url) {
         const trimmedTitle = title?.trim();

@@ -205,8 +205,14 @@ interface OpenTabMessage {
   active: boolean;
 }
 
-type PaletteResultKind = "tab" | "bookmark" | "history" | "url" | "search";
-type PaletteSource = "tabs" | "bookmarks" | "history";
+type PaletteResultKind =
+  | "tab"
+  | "bookmark"
+  | "history"
+  | "visit"
+  | "url"
+  | "search";
+type PaletteSource = "tabs" | "bookmarks" | "history" | "visits";
 type PaletteDisposition = "current-tab" | "new-tab";
 
 interface PaletteResult {
@@ -236,6 +242,12 @@ interface OpenOptionsMessage {
   type: "open-options";
 }
 
+interface ObservePageMessage {
+  type: "observe-page";
+  title: string;
+  url: string;
+}
+
 interface PaletteSearchResponse {
   results: PaletteResult[];
 }
@@ -245,7 +257,8 @@ type SafariKeyboardNavigationMessage =
   | OpenTabMessage
   | PaletteSearchMessage
   | PaletteExecuteMessage
-  | OpenOptionsMessage;
+  | OpenOptionsMessage
+  | ObservePageMessage;
 
 interface WebExtensionTab {
   active?: boolean;
@@ -307,6 +320,13 @@ interface WebExtensionHistory {
   search(query: WebExtensionHistoryQuery): Promise<WebExtensionHistoryItem[]>;
 }
 
+interface LocalVisitItem {
+  lastVisitTime: number;
+  title: string;
+  url: string;
+  visitCount: number;
+}
+
 interface WebExtensionCommands {
   onCommand?: {
     addListener(listener: (command: string) => void): void;
@@ -360,11 +380,18 @@ interface SafariKeyboardNavigationTabs {
     direction: TabSwitchDirection,
   ): number | null;
   isSupportedNewTabUrl(url: string): boolean;
+  recordLocalVisit(
+    visits: LocalVisitItem[],
+    page: { title: string; url: string },
+    now: number,
+    maxItems?: number,
+  ): LocalVisitItem[];
   searchPaletteResults(
     sources: {
       bookmarks: WebExtensionBookmarkTreeNode[];
       history: WebExtensionHistoryItem[];
       tabs: WebExtensionTab[];
+      visits?: LocalVisitItem[];
     },
     query: string,
     options?: { includeGenerated?: boolean; sources?: PaletteSource[] },

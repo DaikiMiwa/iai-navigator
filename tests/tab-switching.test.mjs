@@ -6,6 +6,7 @@ await import("../web-extension/background.js");
 const {
   chooseNeighborTabId,
   isSupportedNewTabUrl,
+  recordLocalVisit,
   searchPaletteResults,
   tabSwitchDirectionForCommand,
 } = globalThis.SafariKeyboardNavigationTabs;
@@ -93,7 +94,7 @@ test("maps browser-level tab switch commands to directions", () => {
   assert.equal(tabSwitchDirectionForCommand("unknown-command"), null);
 });
 
-test("combines matching tabs, bookmarks, and recent history for palette search", () => {
+test("combines matching tabs, bookmarks, recent history, and local visits for palette search", () => {
   const results = searchPaletteResults(
     {
       bookmarks: [
@@ -119,14 +120,22 @@ test("combines matching tabs, bookmarks, and recent history for palette search",
           url: "https://example.com/tab",
         },
       ],
+      visits: [
+        {
+          lastVisitTime: Date.now(),
+          title: "Docs Local Visit",
+          url: "https://example.com/local",
+          visitCount: 3,
+        },
+      ],
     },
     "docs",
-    { sources: ["tabs", "bookmarks", "history"] },
+    { sources: ["tabs", "bookmarks", "history", "visits"] },
   );
 
   assert.deepEqual(
     new Set(results.map((result) => result.kind)),
-    new Set(["tab", "bookmark", "history"]),
+    new Set(["tab", "bookmark", "history", "visit"]),
   );
   assert.equal(results[0].tabId, 10);
 });
@@ -196,6 +205,47 @@ test("adds direct URL and search results for open palette queries", () => {
   );
 });
 
+test("records local visits with canonical URLs, deduping, and a bounded list", () => {
+  const first = recordLocalVisit(
+    [],
+    { title: "Docs", url: "https://example.com/docs#intro" },
+    100,
+  );
+
+  assert.deepEqual(first, [
+    {
+      lastVisitTime: 100,
+      title: "Docs",
+      url: "https://example.com/docs",
+      visitCount: 1,
+    },
+  ]);
+
+  const next = recordLocalVisit(
+    [
+      ...first,
+      {
+        lastVisitTime: 90,
+        title: "Older",
+        url: "https://example.com/older",
+        visitCount: 1,
+      },
+    ],
+    { title: "Updated Docs", url: "https://example.com/docs#later" },
+    200,
+    1,
+  );
+
+  assert.deepEqual(next, [
+    {
+      lastVisitTime: 200,
+      title: "Updated Docs",
+      url: "https://example.com/docs",
+      visitCount: 2,
+    },
+  ]);
+});
+
 test("filters unsafe palette destinations", () => {
   const results = searchPaletteResults(
     {
@@ -214,6 +264,14 @@ test("filters unsafe palette destinations", () => {
         },
       ],
       tabs: [{ id: 10, index: 0, title: "Safe", url: "https://example.com" }],
+      visits: [
+        {
+          lastVisitTime: Date.now(),
+          title: "Bad visit",
+          url: "javascript:alert(1)",
+          visitCount: 1,
+        },
+      ],
     },
     "",
   );

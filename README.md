@@ -22,7 +22,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
-- `o` opens a browser navigation palette that searches open tabs, bookmarks, recent history, extension commands, direct URLs, and web searches.
+- `o` opens a browser navigation palette that searches open tabs, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches.
 - `Shift+O` opens palette results in a new foreground tab.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs.
@@ -116,7 +116,8 @@ Useful checks:
 - Press `y`, then `Esc`, then `y` again and verify the URL is not copied.
 - Press `f`, then press `yy` while hint mode is active and verify hint mode consumes the keys instead of copying the URL.
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
-- Press `o` from normal page focus, type a tab title, bookmark title, history URL, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
+- Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify only bookmarks are searched, with `Shift+B` opening the selected bookmark in a new foreground tab.
 - Press `Shift+T` and verify open tabs are searched and selected tabs are focused.

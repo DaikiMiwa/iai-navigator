@@ -133,14 +133,31 @@
     let movementState = null;
     let menuRevealTimer = 0;
     let extensionSettings = settingsApi.DEFAULT_EXTENSION_SETTINGS;
+    let lastObservedPageKey = "";
     const revealedMediaControlSurfaces = new Set();
     initializeExtensionSettings();
+    observeCurrentPageSoon();
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopMovement, true);
+    window.addEventListener("hashchange", observeCurrentPageSoon, true);
+    window.addEventListener("pageshow", observeCurrentPageSoon, true);
     window.addEventListener("pagehide", closeHelpOverlay, true);
     window.addEventListener("pagehide", closeCommandPalette, true);
     window.addEventListener("pagehide", stopMovement, true);
+    window.addEventListener("popstate", observeCurrentPageSoon, true);
+    observeSinglePageAppNavigations();
+    if (typeof document !== "undefined") {
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                observeCurrentPageSoon();
+            }
+        });
+        document.addEventListener("DOMContentLoaded", observeCurrentPageSoon, {
+            once: true,
+        });
+        observeTitleChanges();
+    }
     function initializeExtensionSettings() {
         void settingsApi
             .loadExtensionSettings()
@@ -1818,7 +1835,7 @@
                 includeCommands: true,
                 includeGenerated: true,
                 placeholder: "Search tabs, bookmarks, history, commands, URLs",
-                sources: ["tabs", "bookmarks", "history"],
+                sources: ["tabs", "bookmarks", "history", "visits"],
             };
         }
         if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.commandPaletteNewTab)) {
@@ -1827,7 +1844,7 @@
                 includeCommands: true,
                 includeGenerated: true,
                 placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
-                sources: ["tabs", "bookmarks", "history"],
+                sources: ["tabs", "bookmarks", "history", "visits"],
             };
         }
         if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.bookmarkPalette)) {
@@ -1870,6 +1887,64 @@
     function reloadPage() {
         stopMovement();
         location.reload();
+    }
+    function observeCurrentPageSoon() {
+        window.setTimeout(observeCurrentPage, 250);
+    }
+    function observeSinglePageAppNavigations() {
+        if (typeof history === "undefined") {
+            return;
+        }
+        const originalPushState = history.pushState;
+        const originalReplaceState = history.replaceState;
+        try {
+            history.pushState = function pushState(data, unused, url) {
+                originalPushState.call(this, data, unused, url);
+                observeCurrentPageSoon();
+            };
+            history.replaceState = function replaceState(data, unused, url) {
+                originalReplaceState.call(this, data, unused, url);
+                observeCurrentPageSoon();
+            };
+        }
+        catch {
+            return;
+        }
+    }
+    function observeTitleChanges() {
+        if (typeof MutationObserver === "undefined") {
+            return;
+        }
+        const target = document.head || document.documentElement;
+        if (!target) {
+            return;
+        }
+        const observer = new MutationObserver(observeCurrentPageSoon);
+        observer.observe(target, {
+            characterData: true,
+            childList: true,
+            subtree: true,
+        });
+    }
+    function observeCurrentPage() {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        if (!isSupportedWebPage()) {
+            return;
+        }
+        const key = `${location.href}\n${document.title}`;
+        if (key === lastObservedPageKey) {
+            return;
+        }
+        lastObservedPageKey = key;
+        void browser.runtime
+            .sendMessage({
+            type: "observe-page",
+            title: document.title,
+            url: location.href,
+        })
+            .catch(() => undefined);
     }
     function scrollToSurfacePosition(surface, position) {
         stopMovement();

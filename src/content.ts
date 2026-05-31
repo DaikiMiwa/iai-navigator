@@ -315,15 +315,32 @@
   let movementState: MovementState | null = null;
   let menuRevealTimer = 0;
   let extensionSettings = settingsApi.DEFAULT_EXTENSION_SETTINGS;
+  let lastObservedPageKey = "";
   const revealedMediaControlSurfaces = new Set<HTMLElement>();
 
   initializeExtensionSettings();
+  observeCurrentPageSoon();
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("keyup", handleKeyUp, true);
   window.addEventListener("blur", stopMovement, true);
+  window.addEventListener("hashchange", observeCurrentPageSoon, true);
+  window.addEventListener("pageshow", observeCurrentPageSoon, true);
   window.addEventListener("pagehide", closeHelpOverlay, true);
   window.addEventListener("pagehide", closeCommandPalette, true);
   window.addEventListener("pagehide", stopMovement, true);
+  window.addEventListener("popstate", observeCurrentPageSoon, true);
+  observeSinglePageAppNavigations();
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        observeCurrentPageSoon();
+      }
+    });
+    document.addEventListener("DOMContentLoaded", observeCurrentPageSoon, {
+      once: true,
+    });
+    observeTitleChanges();
+  }
 
   function initializeExtensionSettings(): void {
     void settingsApi
@@ -2642,7 +2659,7 @@
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Search tabs, bookmarks, history, commands, URLs",
-        sources: ["tabs", "bookmarks", "history"],
+        sources: ["tabs", "bookmarks", "history", "visits"],
       };
     }
 
@@ -2657,7 +2674,7 @@
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
-        sources: ["tabs", "bookmarks", "history"],
+        sources: ["tabs", "bookmarks", "history", "visits"],
       };
     }
 
@@ -2719,6 +2736,83 @@
   function reloadPage(): void {
     stopMovement();
     location.reload();
+  }
+
+  function observeCurrentPageSoon(): void {
+    window.setTimeout(observeCurrentPage, 250);
+  }
+
+  function observeSinglePageAppNavigations(): void {
+    if (typeof history === "undefined") {
+      return;
+    }
+
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    try {
+      history.pushState = function pushState(
+        data: unknown,
+        unused: string,
+        url?: string | URL | null,
+      ): void {
+        originalPushState.call(this, data, unused, url);
+        observeCurrentPageSoon();
+      };
+
+      history.replaceState = function replaceState(
+        data: unknown,
+        unused: string,
+        url?: string | URL | null,
+      ): void {
+        originalReplaceState.call(this, data, unused, url);
+        observeCurrentPageSoon();
+      };
+    } catch {
+      return;
+    }
+  }
+
+  function observeTitleChanges(): void {
+    if (typeof MutationObserver === "undefined") {
+      return;
+    }
+
+    const target = document.head || document.documentElement;
+    if (!target) {
+      return;
+    }
+
+    const observer = new MutationObserver(observeCurrentPageSoon);
+    observer.observe(target, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  function observeCurrentPage(): void {
+    if (typeof browser === "undefined" || !browser.runtime) {
+      return;
+    }
+
+    if (!isSupportedWebPage()) {
+      return;
+    }
+
+    const key = `${location.href}\n${document.title}`;
+    if (key === lastObservedPageKey) {
+      return;
+    }
+
+    lastObservedPageKey = key;
+    void browser.runtime
+      .sendMessage({
+        type: "observe-page",
+        title: document.title,
+        url: location.href,
+      })
+      .catch(() => undefined);
   }
 
   function scrollToSurfacePosition(
