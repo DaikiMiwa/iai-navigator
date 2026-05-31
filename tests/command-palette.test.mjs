@@ -45,6 +45,8 @@ const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteCommandIds } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteCommandSearchIds } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteShouldCloseAfterActivation } =
@@ -272,6 +274,20 @@ test("lists tab operation commands in the command palette", () => {
   assert.equal(commandIds.includes("new-tab"), true);
   assert.equal(commandIds.includes("duplicate-current-tab"), true);
   assert.equal(commandIds.includes("close-current-tab"), true);
+});
+
+test("matches command palette command aliases", () => {
+  assert.equal(commandPaletteCommandSearchIds("nt")[0], "new-tab");
+  assert.equal(
+    commandPaletteCommandSearchIds("dup")[0],
+    "duplicate-current-tab",
+  );
+  assert.equal(
+    commandPaletteCommandSearchIds("close tab")[0],
+    "close-current-tab",
+  );
+  assert.equal(commandPaletteCommandSearchIds("options")[0], "open-settings");
+  assert.equal(commandPaletteCommandSearchIds("gg")[0], "scroll-top");
 });
 
 test("applies command palette source prefixes while preserving query text", () => {
