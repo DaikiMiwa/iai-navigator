@@ -94,6 +94,7 @@ interface SafariKeyboardNavigationShortcutSettings {
   commandPalette: string;
   commandPaletteNewTab: string;
   editCurrentUrlPalette: string;
+  editCurrentUrlPaletteNewTab: string;
   bookmarkPalette: string;
   bookmarkPaletteNewTab: string;
   historyPalette: string;
@@ -146,7 +147,13 @@ interface ParsedShortcut {
   altKey: boolean;
   ctrlKey: boolean;
   metaKey: boolean;
+  keySequence: ShortcutSequenceKey[];
   sequence: string[];
+  shiftKey: boolean;
+}
+
+interface ShortcutSequenceKey {
+  key: string;
   shiftKey: boolean;
 }
 
@@ -169,6 +176,7 @@ interface SafariKeyboardNavigationSettingsApi {
   saveExtensionSettings(
     settings: SafariKeyboardNavigationExtensionSettings,
   ): Promise<void>;
+  shortcutKeySequence(shortcut: string): ShortcutSequenceKey[] | null;
   shortcutSequence(shortcut: string): string[] | null;
 }
 

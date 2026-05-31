@@ -22,6 +22,7 @@
             commandPalette: "o",
             commandPaletteNewTab: "Shift+O",
             editCurrentUrlPalette: "ge",
+            editCurrentUrlPaletteNewTab: "gE",
             bookmarkPalette: "b",
             bookmarkPaletteNewTab: "Shift+B",
             historyPalette: "v",
@@ -68,6 +69,7 @@
         "commandPalette",
         "commandPaletteNewTab",
         "editCurrentUrlPalette",
+        "editCurrentUrlPaletteNewTab",
         "bookmarkPalette",
         "bookmarkPaletteNewTab",
         "historyPalette",
@@ -85,6 +87,7 @@
         loadExtensionSettings,
         normalizeExtensionSettings,
         saveExtensionSettings,
+        shortcutKeySequence,
         shortcutSequence,
     };
     function normalizeExtensionSettings(input) {
@@ -180,6 +183,16 @@
         }
         return parsed.sequence;
     }
+    function shortcutKeySequence(shortcut) {
+        const parsed = parseShortcut(shortcut);
+        if (!parsed || parsed.altKey || parsed.ctrlKey || parsed.metaKey) {
+            return null;
+        }
+        if (parsed.shiftKey && parsed.sequence.length === 1) {
+            return null;
+        }
+        return parsed.keySequence;
+    }
     function parseShortcut(shortcut) {
         const parts = shortcut
             .split("+")
@@ -198,12 +211,17 @@
         if (!/^[a-z?]{1,2}$/.test(sequence)) {
             return null;
         }
+        const keySequence = Array.from(keyPart).map((key) => ({
+            key: key.toLowerCase(),
+            shiftKey: key.length === 1 && key !== key.toLowerCase(),
+        }));
         return {
             altKey: modifiers.has("alt") || modifiers.has("option"),
             ctrlKey: modifiers.has("ctrl") || modifiers.has("control"),
             metaKey: modifiers.has("cmd") ||
                 modifiers.has("command") ||
                 modifiers.has("meta"),
+            keySequence,
             sequence: Array.from(sequence),
             shiftKey: modifiers.has("shift") || inferredShift,
         };

@@ -2007,14 +2007,14 @@
         commandPaletteState.inputBeforeHistory = "";
         void refreshCommandPaletteResults();
     }
-    function openCurrentUrlEditPalette() {
+    function openCurrentUrlEditPalette(disposition) {
         const initialQuery = commandPaletteCurrentUrlEditValue(location.href);
         if (!initialQuery) {
             showUrlCopyToast("Current URL cannot be edited");
             return;
         }
         openCommandPalette({
-            disposition: "current-tab",
+            disposition,
             generatedKinds: ["url"],
             includeCommands: false,
             includeGenerated: true,
@@ -2847,32 +2847,32 @@
         movementState = null;
     }
     function pageSequenceActionForEvent(event) {
-        if (event.repeat ||
-            event.altKey ||
-            event.ctrlKey ||
-            event.metaKey ||
-            event.shiftKey) {
+        if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
             pendingPageSequence = null;
             return null;
         }
         const now = performance.now();
-        const key = event.key.toLowerCase();
+        const key = {
+            key: event.key.toLowerCase(),
+            shiftKey: event.shiftKey,
+        };
         const candidates = pageSequenceCandidates();
         if (pendingPageSequence &&
             now - pendingPageSequence.startedAt < TOP_SEQUENCE_WINDOW_MS) {
-            const match = candidates.find((candidate) => candidate.sequence[0] === pendingPageSequence?.key &&
-                candidate.sequence[1] === key);
+            const match = candidates.find((candidate) => pendingPageSequence &&
+                shortcutSequenceKeyMatches(candidate.sequence[0], pendingPageSequence) &&
+                shortcutSequenceKeyMatches(candidate.sequence[1], key));
             pendingPageSequence = null;
             if (match) {
                 return match.action;
             }
         }
-        const startsSequence = candidates.some((candidate) => candidate.sequence[0] === key);
+        const startsSequence = candidates.some((candidate) => shortcutSequenceKeyMatches(candidate.sequence[0], key));
         if (!startsSequence) {
             pendingPageSequence = null;
             return null;
         }
-        pendingPageSequence = { key, startedAt: now };
+        pendingPageSequence = { ...key, startedAt: now };
         window.setTimeout(() => {
             if (pendingPageSequence &&
                 performance.now() - pendingPageSequence.startedAt >=
@@ -2886,16 +2886,23 @@
         const candidates = [
             {
                 action: "top",
-                sequence: settingsApi.shortcutSequence(extensionSettings.shortcuts.top),
+                sequence: settingsApi.shortcutKeySequence(extensionSettings.shortcuts.top),
             },
             {
                 action: "edit-current-url-palette",
-                sequence: settingsApi.shortcutSequence(extensionSettings.shortcuts.editCurrentUrlPalette),
+                sequence: settingsApi.shortcutKeySequence(extensionSettings.shortcuts.editCurrentUrlPalette),
+            },
+            {
+                action: "edit-current-url-palette-new-tab",
+                sequence: settingsApi.shortcutKeySequence(extensionSettings.shortcuts.editCurrentUrlPaletteNewTab),
             },
         ];
         return candidates.flatMap((candidate) => candidate.sequence?.length === 2
             ? [{ action: candidate.action, sequence: candidate.sequence }]
             : []);
+    }
+    function shortcutSequenceKeyMatches(expected, actual) {
+        return expected.key === actual.key && expected.shiftKey === actual.shiftKey;
     }
     function handlePageSequenceAction(action) {
         switch (action) {
@@ -2905,7 +2912,10 @@
                 scrollToTop();
                 return;
             case "edit-current-url-palette":
-                openCurrentUrlEditPalette();
+                openCurrentUrlEditPalette("current-tab");
+                return;
+            case "edit-current-url-palette-new-tab":
+                openCurrentUrlEditPalette("new-tab");
                 return;
         }
     }

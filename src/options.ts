@@ -30,6 +30,7 @@
     ["commandPalette", "Command palette"],
     ["commandPaletteNewTab", "Command palette in new tab"],
     ["editCurrentUrlPalette", "Edit current URL palette"],
+    ["editCurrentUrlPaletteNewTab", "Edit current URL palette in new tab"],
     ["bookmarkPalette", "Bookmark palette"],
     ["bookmarkPaletteNewTab", "Bookmark palette in new tab"],
     ["historyPalette", "History palette"],

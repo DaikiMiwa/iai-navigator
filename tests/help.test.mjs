@@ -91,6 +91,7 @@ test("lists the supported shortcut groups in the help overlay", () => {
     "r",
     "yy",
     "ge",
+    "gE",
     "?",
     "Esc",
   ]) {

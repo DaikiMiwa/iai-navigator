@@ -84,6 +84,10 @@
                     description: "Edit the current page URL in the command palette",
                 },
                 {
+                    key: "gE",
+                    description: "Edit the current page URL and open it in a new tab",
+                },
+                {
                     key: "b / Shift+B",
                     description: "Search bookmarks in current or new tab",
                 },
