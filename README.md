@@ -141,7 +141,7 @@ Useful checks:
 - In the palette, type `title:"project docs" domain:github.com -url:archive` to verify destination results can be narrowed by title, URL, and domain fields.
 - In the palette, type `u: example.com` and verify only a direct URL result appears; type `s: example.com` and verify only a web search result appears. Repeat with the long `url:` and `search:` prefixes.
 - In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, and `k:`.
-- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette, and that the selected row stays visible while moving through a long result list.
+- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette. Verify `PageDown` / `PageUp` move by a larger step, `Home` / `End` jump to the first and last result, and the selected row stays visible while moving through a long result list.
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it, keeps the palette open, and moves selection to the next result.
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.

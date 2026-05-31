@@ -64,6 +64,7 @@
     const HOLD_DELAY_MS = 140;
     const VERTICAL_STEP_PX = 72;
     const HORIZONTAL_STEP_PX = 84;
+    const COMMAND_PALETTE_PAGE_STEP = 8;
     const HALF_PAGE_RATIO = 0.5;
     const VERTICAL_HOLD_SPEED_PX_PER_SECOND = 720;
     const HORIZONTAL_HOLD_SPEED_PX_PER_SECOND = 720;
@@ -786,6 +787,18 @@
             (candidate.key === "Tab" && candidate.shiftKey)) {
             return "previous";
         }
+        if (candidate.key === "PageDown") {
+            return "page-next";
+        }
+        if (candidate.key === "PageUp") {
+            return "page-previous";
+        }
+        if (candidate.key === "Home") {
+            return "first";
+        }
+        if (candidate.key === "End") {
+            return "last";
+        }
         if (candidate.key === "Enter") {
             if (candidate.altKey) {
                 return "activate-background-tab";
@@ -841,6 +854,18 @@
                 return;
             case "previous":
                 moveCommandPaletteSelection(-1);
+                return;
+            case "page-next":
+                moveCommandPaletteSelection(COMMAND_PALETTE_PAGE_STEP);
+                return;
+            case "page-previous":
+                moveCommandPaletteSelection(-COMMAND_PALETTE_PAGE_STEP);
+                return;
+            case "first":
+                setCommandPaletteSelection(0);
+                return;
+            case "last":
+                setCommandPaletteSelectionToLast();
                 return;
             case "activate-current-tab":
                 activateCommandPaletteSelection();
@@ -1160,6 +1185,19 @@
         commandPaletteState.activeIndex =
             (commandPaletteState.activeIndex + delta + length) % length;
         renderCommandPaletteResults();
+    }
+    function setCommandPaletteSelection(index) {
+        if (!commandPaletteState || commandPaletteState.results.length === 0) {
+            return;
+        }
+        commandPaletteState.activeIndex = clamp(index, 0, commandPaletteState.results.length - 1);
+        renderCommandPaletteResults();
+    }
+    function setCommandPaletteSelectionToLast() {
+        if (!commandPaletteState) {
+            return;
+        }
+        setCommandPaletteSelection(commandPaletteState.results.length - 1);
     }
     function appendCommandPaletteHighlightedText(element, value, query) {
         const ranges = commandPaletteHighlightRanges(value, query);
