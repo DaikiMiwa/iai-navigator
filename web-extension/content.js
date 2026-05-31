@@ -122,7 +122,7 @@
         "Option+W close tab",
         "Option+1-9 open result",
         "Option+↑/↓ query history",
-        "tab: book: history: visit: search: url: cmd:",
+        "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
     ];
     const COMMAND_PALETTE_GENERATED_KINDS = [
         "url",
@@ -891,6 +891,7 @@
                 generatedKinds: scope.generatedKinds,
                 includeGenerated: scope.includeGenerated,
                 query: scope.query,
+                searchEngine: scope.searchEngine,
                 sources: scope.sources,
             }));
             return Array.isArray(response?.results) ? response.results : [];
@@ -1044,13 +1045,17 @@
         if (!sources) {
             return { ...options, query };
         }
-        return {
+        const scope = {
             generatedKinds: sources.generatedKinds,
             includeCommands: sources.includeCommands,
             includeGenerated: sources.generatedKinds.length > 0,
             query: match[2],
             sources: sources.sources,
         };
+        if (sources.searchEngine) {
+            scope.searchEngine = sources.searchEngine;
+        }
+        return scope;
     }
     function paletteSourcesForPrefix(prefix) {
         switch (prefix) {
@@ -1097,6 +1102,38 @@
                 return {
                     generatedKinds: ["search"],
                     includeCommands: false,
+                    sources: [],
+                };
+            case "g":
+            case "google":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "google",
+                    sources: [],
+                };
+            case "ddg":
+            case "duckduckgo":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "duckduckgo",
+                    sources: [],
+                };
+            case "br":
+            case "brave":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "brave",
+                    sources: [],
+                };
+            case "k":
+            case "kagi":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "kagi",
                     sources: [],
                 };
             case "cmd":

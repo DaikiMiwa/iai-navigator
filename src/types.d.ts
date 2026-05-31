@@ -236,6 +236,7 @@ interface CommandPaletteQueryOptions {
   generatedKinds: PaletteGeneratedKind[];
   includeCommands: boolean;
   includeGenerated: boolean;
+  searchEngine?: SafariKeyboardNavigationSearchEngine;
   sources: PaletteSource[];
 }
 
@@ -322,6 +323,7 @@ interface PaletteSearchMessage {
   sources: PaletteSource[];
   generatedKinds?: PaletteGeneratedKind[];
   includeGenerated: boolean;
+  searchEngine?: SafariKeyboardNavigationSearchEngine;
 }
 
 interface PaletteExecuteMessage {
