@@ -37,6 +37,14 @@ const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteQueryScope } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
+
+const defaultPaletteOptions = {
+  includeCommands: true,
+  includeGenerated: true,
+  sources: ["tabs", "bookmarks", "history", "visits"],
+};
 
 function key(overrides) {
   return {
@@ -110,4 +118,71 @@ test("highlights fuzzy command palette query matches", () => {
 
 test("does not highlight empty command palette queries", () => {
   assert.deepEqual(commandPaletteHighlightRanges("Google Docs", " "), []);
+});
+
+test("keeps unprefixed command palette queries unchanged", () => {
+  assert.deepEqual(commandPaletteQueryScope("docs", defaultPaletteOptions), {
+    ...defaultPaletteOptions,
+    query: "docs",
+  });
+});
+
+test("scopes command palette queries to open tabs", () => {
+  assert.deepEqual(
+    commandPaletteQueryScope("tab: docs", defaultPaletteOptions),
+    {
+      includeCommands: false,
+      includeGenerated: false,
+      query: "docs",
+      sources: ["tabs"],
+    },
+  );
+});
+
+test("scopes command palette queries to bookmarks", () => {
+  assert.deepEqual(
+    commandPaletteQueryScope("book: docs", defaultPaletteOptions),
+    {
+      includeCommands: false,
+      includeGenerated: false,
+      query: "docs",
+      sources: ["bookmarks"],
+    },
+  );
+});
+
+test("scopes command palette queries to history", () => {
+  assert.deepEqual(
+    commandPaletteQueryScope("history: docs", defaultPaletteOptions),
+    {
+      includeCommands: false,
+      includeGenerated: false,
+      query: "docs",
+      sources: ["history"],
+    },
+  );
+});
+
+test("scopes command palette queries to local visits", () => {
+  assert.deepEqual(
+    commandPaletteQueryScope("visit: docs", defaultPaletteOptions),
+    {
+      includeCommands: false,
+      includeGenerated: false,
+      query: "docs",
+      sources: ["visits"],
+    },
+  );
+});
+
+test("scopes command palette queries to extension commands", () => {
+  assert.deepEqual(
+    commandPaletteQueryScope("cmd: settings", defaultPaletteOptions),
+    {
+      includeCommands: true,
+      includeGenerated: false,
+      query: "settings",
+      sources: [],
+    },
+  );
 });

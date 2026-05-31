@@ -188,11 +188,25 @@ interface TextRange {
   end: number;
 }
 
+interface CommandPaletteQueryOptions {
+  includeCommands: boolean;
+  includeGenerated: boolean;
+  sources: PaletteSource[];
+}
+
+interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
+  query: string;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
+  commandPaletteQueryScope(
+    query: string,
+    options: CommandPaletteQueryOptions,
+  ): CommandPaletteQueryScope;
 }
 
 interface ScrollSurfaceCandidate {
