@@ -555,6 +555,10 @@ test("loads bookmarks for empty bookmark-only palette queries", () => {
   assert.equal(shouldLoadPaletteBookmarks(["bookmarks"], ""), true);
   assert.equal(shouldLoadPaletteBookmarks(["bookmarks"], "  "), true);
   assert.equal(shouldLoadPaletteBookmarks(["tabs", "bookmarks"], ""), false);
+  assert.equal(
+    shouldLoadPaletteBookmarks(["tabs", "bookmarks", "history", "visits"], ""),
+    true,
+  );
   assert.equal(shouldLoadPaletteBookmarks(["tabs", "bookmarks"], "docs"), true);
   assert.equal(shouldLoadPaletteBookmarks(["tabs"], "docs"), false);
 });
@@ -586,6 +590,48 @@ test("shows bookmark results for empty bookmark-only palette queries", () => {
   assert.deepEqual(
     results.map((result) => result.title),
     ["Project Docs"],
+  );
+});
+
+test("shows recent bookmark suggestions for empty all-source palette queries", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          children: Array.from({ length: 10 }, (_, index) => ({
+            dateAdded: 100 + index,
+            id: `bookmark-${index}`,
+            title: `Bookmark ${index}`,
+            url: `https://example.com/bookmark-${index}`,
+          })),
+          id: "folder-work",
+          title: "Work",
+        },
+      ],
+      history: [],
+      tabs: [],
+      visits: [],
+    },
+    "",
+    { sources: ["tabs", "bookmarks", "history", "visits"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.title),
+    [
+      "Bookmark 9",
+      "Bookmark 8",
+      "Bookmark 7",
+      "Bookmark 6",
+      "Bookmark 5",
+      "Bookmark 4",
+      "Bookmark 3",
+      "Bookmark 2",
+    ],
+  );
+  assert.equal(
+    results.every((result) => result.kind === "bookmark"),
+    true,
   );
 });
 
