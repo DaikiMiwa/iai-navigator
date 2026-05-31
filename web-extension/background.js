@@ -91,6 +91,7 @@
         recordLocalVisit,
         removeLocalVisitByUrl,
         searchPaletteResults,
+        shouldLoadPaletteBookmarks,
         tabSwitchDirectionForCommand,
     };
     const api = global.browser;
@@ -176,7 +177,8 @@
             sources.has("tabs") && api.tabs
                 ? api.tabs.query(paletteTabQueryInfo())
                 : Promise.resolve([]),
-            sources.has("bookmarks") && trimmedQuery && api.bookmarks
+            shouldLoadPaletteBookmarks(message.sources, trimmedQuery) &&
+                api.bookmarks
                 ? loadPaletteBookmarks(api.bookmarks, trimmedQuery)
                 : Promise.resolve([]),
             sources.has("history") && api.history
@@ -478,6 +480,12 @@
             return bookmarks.getTree();
         }
         return bookmarks.search(query);
+    }
+    function shouldLoadPaletteBookmarks(sources, query) {
+        if (!sources.includes("bookmarks")) {
+            return false;
+        }
+        return query.trim().length > 0 || sources.length === 1;
     }
     function bookmarkPaletteResults(bookmark, query, folders = []) {
         if (!bookmark.url) {

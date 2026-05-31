@@ -14,6 +14,7 @@ const {
   recordLocalVisit,
   removeLocalVisitByUrl,
   searchPaletteResults,
+  shouldLoadPaletteBookmarks,
   tabSwitchDirectionForCommand,
 } = globalThis.SafariKeyboardNavigationTabs;
 
@@ -547,6 +548,44 @@ test("can restrict palette search to bookmarks only", () => {
   assert.deepEqual(
     results.map((result) => result.kind),
     ["bookmark"],
+  );
+});
+
+test("loads bookmarks for empty bookmark-only palette queries", () => {
+  assert.equal(shouldLoadPaletteBookmarks(["bookmarks"], ""), true);
+  assert.equal(shouldLoadPaletteBookmarks(["bookmarks"], "  "), true);
+  assert.equal(shouldLoadPaletteBookmarks(["tabs", "bookmarks"], ""), false);
+  assert.equal(shouldLoadPaletteBookmarks(["tabs", "bookmarks"], "docs"), true);
+  assert.equal(shouldLoadPaletteBookmarks(["tabs"], "docs"), false);
+});
+
+test("shows bookmark results for empty bookmark-only palette queries", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          children: [
+            {
+              id: "bookmark-docs",
+              title: "Project Docs",
+              url: "https://example.com/docs",
+            },
+          ],
+          id: "folder-work",
+          title: "Work",
+        },
+      ],
+      history: [],
+      tabs: [],
+      visits: [],
+    },
+    "",
+    { sources: ["bookmarks"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.title),
+    ["Project Docs"],
   );
 });
 

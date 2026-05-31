@@ -622,6 +622,7 @@ interface SafariKeyboardNavigationTabs {
       sources?: PaletteSource[];
     },
   ): PaletteResult[];
+  shouldLoadPaletteBookmarks(sources: PaletteSource[], query: string): boolean;
   tabSwitchDirectionForCommand(command: string): TabSwitchDirection | null;
 }
 
