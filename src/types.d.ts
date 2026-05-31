@@ -190,6 +190,7 @@ type CommandPaletteNamedKeyAction =
   | "activate-new-tab"
   | "activate-background-tab"
   | "copy-result-url"
+  | "edit-result-url"
   | "forget-palette-entry"
   | "close-tab"
   | "history-previous"
@@ -259,12 +260,20 @@ interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
   query: string;
 }
 
+interface CommandPaletteEditableResultCandidate {
+  kind: string;
+  url?: string;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
   commandPaletteApplyPrefixValue(
     value: string,
     prefix: CommandPaletteSourcePrefix,
   ): string;
+  commandPaletteEditableResultValue(
+    result: CommandPaletteEditableResultCandidate,
+  ): string | null;
   commandPaletteHistoryNavigation(
     candidate: CommandPaletteHistoryNavigationCandidate,
   ): CommandPaletteHistoryNavigationResult;

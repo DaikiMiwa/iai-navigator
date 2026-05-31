@@ -290,6 +290,7 @@
     "Shift+Enter new tab",
     "Option+Enter background",
     "Option+C copy URL",
+    "Option+E edit URL",
     "Option+⌫ forget local/query",
     "Option+W close tab",
     "Option+1-9 open result",
@@ -334,6 +335,7 @@
   ).SafariKeyboardNavigationCommandPalette = {
     COMMAND_PALETTE_FOOTER_HINTS,
     commandPaletteApplyPrefixValue,
+    commandPaletteEditableResultValue,
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
@@ -1120,6 +1122,10 @@
       return "copy-result-url";
     }
 
+    if (candidate.altKey && candidate.key.toLowerCase() === "e") {
+      return "edit-result-url";
+    }
+
     if (candidate.altKey && candidate.key.toLowerCase() === "w") {
       return "close-tab";
     }
@@ -1180,6 +1186,9 @@
         return;
       case "copy-result-url":
         void copyCommandPaletteSelectionUrl();
+        return;
+      case "edit-result-url":
+        editCommandPaletteSelectionUrl();
         return;
       case "forget-palette-entry":
         void forgetCommandPaletteEntry();
@@ -1590,6 +1599,14 @@
     return match[2];
   }
 
+  function commandPaletteEditableResultValue(
+    result: CommandPaletteEditableResultCandidate,
+  ): string | null {
+    return result.kind !== "command" && result.url
+      ? `url: ${result.url}`
+      : null;
+  }
+
   function paletteSourcesForPrefix(
     prefix: string,
   ): Pick<
@@ -1773,6 +1790,32 @@
       commandPaletteState.input.value,
       prefix,
     );
+    commandPaletteState.input.setSelectionRange(
+      commandPaletteState.input.value.length,
+      commandPaletteState.input.value.length,
+    );
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
+  }
+
+  function editCommandPaletteSelectionUrl(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const result = commandPaletteState.results[commandPaletteState.activeIndex];
+    if (!result) {
+      return;
+    }
+
+    const editableValue = commandPaletteEditableResultValue(result);
+    if (!editableValue) {
+      showUrlCopyToast("No URL to edit");
+      return;
+    }
+
+    commandPaletteState.input.value = editableValue;
     commandPaletteState.input.setSelectionRange(
       commandPaletteState.input.value.length,
       commandPaletteState.input.value.length,
