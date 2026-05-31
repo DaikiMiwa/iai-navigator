@@ -201,6 +201,14 @@ test("maps command palette activation keys", () => {
     "narrow-to-title",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "r" })),
+    "refresh-results",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "R" })),
+    "refresh-results",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "w" })),
     "close-tab",
   );
@@ -311,6 +319,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
   assert.match(hints, /Ctrl\+U\/W/);
+  assert.match(hints, /Option\+R/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/U\/M/);
   assert.match(hints, /tab:/);

@@ -177,6 +177,7 @@
         "Option+1-9 open result",
         "Ctrl+J/K move",
         "Ctrl+U/W edit",
+        "Option+R refresh",
         "Option+↑/↓ query history",
         "Option+A/T/B/H/V/S/U/M source",
         "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
@@ -839,6 +840,9 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "f") {
             return "narrow-to-title";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "r") {
+            return "refresh-results";
+        }
         if (candidate.altKey && candidate.key.toLowerCase() === "w") {
             return "close-tab";
         }
@@ -895,6 +899,9 @@
                 return;
             case "delete-previous-word":
                 deleteCommandPalettePreviousWord();
+                return;
+            case "refresh-results":
+                refreshCommandPaletteLiveQuery();
                 return;
             case "activate-current-tab":
                 activateCommandPaletteSelection();
@@ -1259,6 +1266,14 @@
         });
         input.value = next.value;
         input.setSelectionRange(next.selectionStart, next.selectionEnd);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
+    }
+    function refreshCommandPaletteLiveQuery() {
+        if (!commandPaletteState) {
+            return;
+        }
         commandPaletteState.historyCursor = null;
         commandPaletteState.inputBeforeHistory = "";
         void refreshCommandPaletteResults();
