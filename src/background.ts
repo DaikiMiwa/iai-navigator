@@ -96,7 +96,7 @@
         : []),
       ...(sourceFilter.has("bookmarks")
         ? sources.bookmarks.flatMap((bookmark) =>
-            bookmarkPaletteResult(bookmark, normalizedQuery),
+            bookmarkPaletteResults(bookmark, normalizedQuery),
           )
         : []),
       ...(sourceFilter.has("history")
@@ -264,7 +264,7 @@
           ? api.tabs.query(paletteTabQueryInfo())
           : Promise.resolve([]),
         sources.has("bookmarks") && trimmedQuery && api.bookmarks
-          ? api.bookmarks.search(trimmedQuery)
+          ? loadPaletteBookmarks(api.bookmarks, trimmedQuery)
           : Promise.resolve([]),
         sources.has("history") && api.history
           ? api.history.search({
@@ -695,26 +695,52 @@
     return [result];
   }
 
-  function bookmarkPaletteResult(
+  async function loadPaletteBookmarks(
+    bookmarks: WebExtensionBookmarks,
+    query: string,
+  ): Promise<WebExtensionBookmarkTreeNode[]> {
+    if (bookmarks.getTree) {
+      return bookmarks.getTree();
+    }
+
+    return bookmarks.search(query);
+  }
+
+  function bookmarkPaletteResults(
     bookmark: WebExtensionBookmarkTreeNode,
     query: string,
+    folders: string[] = [],
   ): PaletteResult[] {
-    if (!bookmark.url || !isSupportedNewTabUrl(bookmark.url)) {
+    if (!bookmark.url) {
+      const nextFolders = bookmark.title
+        ? [...folders, bookmark.title]
+        : folders;
+      return (bookmark.children ?? []).flatMap((child) =>
+        bookmarkPaletteResults(child, query, nextFolders),
+      );
+    }
+
+    if (!isSupportedNewTabUrl(bookmark.url)) {
       return [];
     }
 
+    const folderPath = folders.join(" / ");
     const title = displayTitle(bookmark.title, bookmark.url);
-    const score = paletteMatchScore(query, title, bookmark.url);
+    const searchableTitle = folderPath ? `${title} ${folderPath}` : title;
+    const score = paletteMatchScore(query, searchableTitle, bookmark.url);
     if (score === null) {
       return [];
     }
+    const subtitle = folderPath
+      ? `${folderPath} • ${bookmark.url}`
+      : bookmark.url;
 
     return [
       {
         id: `bookmark:${bookmark.id}`,
         kind: "bookmark",
         score: score + 10,
-        subtitle: bookmark.url,
+        subtitle,
         title,
         url: bookmark.url,
       },

@@ -550,6 +550,76 @@ test("can restrict palette search to bookmarks only", () => {
   );
 });
 
+test("matches bookmark folder paths in palette search", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          children: [
+            {
+              children: [
+                {
+                  id: "bookmark-api",
+                  title: "Reference",
+                  url: "https://example.com/api",
+                },
+              ],
+              id: "folder-docs",
+              title: "Docs",
+            },
+          ],
+          id: "folder-work",
+          title: "Work",
+        },
+        {
+          id: "bookmark-other",
+          title: "Reference",
+          url: "https://example.com/other",
+        },
+      ],
+      history: [],
+      tabs: [],
+      visits: [],
+    },
+    "work docs",
+    { sources: ["bookmarks"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.url),
+    ["https://example.com/api"],
+  );
+  assert.equal(results[0]?.subtitle, "Work / Docs • https://example.com/api");
+});
+
+test("preserves bookmark title and URL matching with folder paths", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          children: [
+            {
+              id: "bookmark-design",
+              title: "Design System",
+              url: "https://example.com/design",
+            },
+          ],
+          id: "folder-product",
+          title: "Product",
+        },
+      ],
+      history: [],
+      tabs: [],
+      visits: [],
+    },
+    "design",
+    { sources: ["bookmarks"] },
+  );
+
+  assert.equal(results[0]?.title, "Design System");
+  assert.equal(results[0]?.subtitle, "Product • https://example.com/design");
+});
+
 test("can restrict palette search to history only", () => {
   const results = searchPaletteResults(
     {

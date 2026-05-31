@@ -475,12 +475,14 @@ interface WebExtensionRuntime {
 }
 
 interface WebExtensionBookmarkTreeNode {
+  children?: WebExtensionBookmarkTreeNode[];
   id: string;
   title: string;
   url?: string;
 }
 
 interface WebExtensionBookmarks {
+  getTree?(): Promise<WebExtensionBookmarkTreeNode[]>;
   search(query: string): Promise<WebExtensionBookmarkTreeNode[]>;
 }
 
