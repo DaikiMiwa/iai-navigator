@@ -1188,6 +1188,10 @@
       return "last";
     }
 
+    if (candidate.ctrlKey && candidate.key.toLowerCase() === "u") {
+      return "clear-query";
+    }
+
     if (candidate.key === "Enter") {
       if (candidate.altKey) {
         return "activate-background-tab";
@@ -1270,6 +1274,9 @@
         return;
       case "last":
         setCommandPaletteSelectionToLast();
+        return;
+      case "clear-query":
+        clearCommandPaletteQuery();
         return;
       case "activate-current-tab":
         activateCommandPaletteSelection();
@@ -1699,6 +1706,17 @@
     }
 
     setCommandPaletteSelection(commandPaletteState.results.length - 1);
+  }
+
+  function clearCommandPaletteQuery(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    commandPaletteState.input.value = "";
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
   }
 
   function appendCommandPaletteHighlightedText(
