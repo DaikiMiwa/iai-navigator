@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteNextIndexAfterActivation } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteEditableResultValue } =
@@ -266,6 +268,45 @@ test("keeps the command palette open after background activation", () => {
       resultKind: "command",
     }),
     false,
+  );
+});
+
+test("advances the command palette selection after background browser activation", () => {
+  assert.equal(
+    commandPaletteNextIndexAfterActivation({
+      activeIndex: 0,
+      disposition: "background-tab",
+      resultCount: 4,
+      resultKind: "bookmark",
+    }),
+    1,
+  );
+  assert.equal(
+    commandPaletteNextIndexAfterActivation({
+      activeIndex: 3,
+      disposition: "background-tab",
+      resultCount: 4,
+      resultKind: "history",
+    }),
+    0,
+  );
+  assert.equal(
+    commandPaletteNextIndexAfterActivation({
+      activeIndex: 2,
+      disposition: "background-tab",
+      resultCount: 4,
+      resultKind: "command",
+    }),
+    2,
+  );
+  assert.equal(
+    commandPaletteNextIndexAfterActivation({
+      activeIndex: 2,
+      disposition: "new-tab",
+      resultCount: 4,
+      resultKind: "bookmark",
+    }),
+    2,
   );
 });
 
