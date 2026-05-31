@@ -31,7 +31,7 @@ browser navigation palette が有効な場合、拡張機能は keyboard から 
 - input field に入力された text を記録する
 - settings を開発者管理の backend に同期する
 
-settings、最近の command palette query、ローカルで観測した page / 選択した destination の index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出て、その送信先は設定した search engine だけです。生成された web search result は local destination index には保存しません。
+settings、最近の command palette query、ローカルで観測した page / 選択した destination の index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーは command palette から、呼び戻し中の個別 palette query と、extension が所有する local visit result を忘れさせることができます。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出て、その送信先は設定した search engine だけです。生成された web search result は local destination index には保存しません。
 
 ## Website access mode
 

@@ -290,6 +290,7 @@
     "Shift+Enter new tab",
     "Option+Enter background",
     "Option+C copy URL",
+    "Option+⌫ forget local/query",
     "Option+↑/↓ query history",
     "tab: book: history: visit: search: url: cmd:",
   ] as const;
@@ -1115,6 +1116,13 @@
       return "copy-result-url";
     }
 
+    if (
+      candidate.altKey &&
+      (candidate.key === "Backspace" || candidate.key === "Delete")
+    ) {
+      return "forget-palette-entry";
+    }
+
     return null;
   }
 
@@ -1142,6 +1150,9 @@
         return;
       case "copy-result-url":
         void copyCommandPaletteSelectionUrl();
+        return;
+      case "forget-palette-entry":
+        void forgetCommandPaletteEntry();
         return;
       case "history-previous":
         navigateCommandPaletteQueryHistory("previous");
@@ -1652,6 +1663,86 @@
     ].slice(0, COMMAND_PALETTE_QUERY_HISTORY_MAX_ITEMS);
     await storage.set({
       [COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY]: nextHistory,
+    });
+  }
+
+  async function forgetCommandPaletteEntry(): Promise<void> {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    if (commandPaletteState.historyCursor !== null) {
+      const removed = await forgetRecalledCommandPaletteQuery();
+      if (removed) {
+        showUrlCopyToast("Forgot palette query");
+        return;
+      }
+    }
+
+    const result = commandPaletteState.results[commandPaletteState.activeIndex];
+    if (!result || result.kind !== "visit" || !result.url) {
+      showUrlCopyToast("Nothing local to forget");
+      return;
+    }
+
+    const removed = await removeCommandPaletteLocalVisit(result.url);
+    showUrlCopyToast(removed ? "Forgot local visit" : "Could not forget visit");
+    if (removed) {
+      await refreshCommandPaletteResults();
+    }
+  }
+
+  async function forgetRecalledCommandPaletteQuery(): Promise<boolean> {
+    if (!commandPaletteState || commandPaletteState.historyCursor === null) {
+      return false;
+    }
+
+    const query =
+      commandPaletteState.history[commandPaletteState.historyCursor];
+    if (!query) {
+      return false;
+    }
+
+    const nextHistory = commandPaletteState.history.filter(
+      (item) => item !== query,
+    );
+    const restoredQuery = commandPaletteState.inputBeforeHistory;
+    commandPaletteState.history = nextHistory;
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    commandPaletteState.input.value = restoredQuery;
+    await storeCommandPaletteQueryHistory(nextHistory);
+    await refreshCommandPaletteResults();
+    return true;
+  }
+
+  async function removeCommandPaletteLocalVisit(url: string): Promise<boolean> {
+    if (typeof browser === "undefined" || !browser.runtime) {
+      return false;
+    }
+
+    const response = (await browser.runtime
+      .sendMessage({
+        type: "palette-remove-local-visit",
+        url,
+      })
+      .catch(() => undefined)) as { removed?: unknown } | undefined;
+    return response?.removed === true;
+  }
+
+  async function storeCommandPaletteQueryHistory(
+    history: string[],
+  ): Promise<void> {
+    const storage =
+      (globalThis as typeof globalThis & { browser?: WebExtensionApi }).browser
+        ?.storage?.local ?? null;
+    if (!storage) {
+      return;
+    }
+
+    await storage.set({
+      [COMMAND_PALETTE_QUERY_HISTORY_STORAGE_KEY]:
+        normalizeCommandPaletteQueryHistory(history),
     });
   }
 

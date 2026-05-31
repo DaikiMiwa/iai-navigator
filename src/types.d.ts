@@ -188,6 +188,7 @@ type CommandPaletteKeyAction =
   | "activate-new-tab"
   | "activate-background-tab"
   | "copy-result-url"
+  | "forget-palette-entry"
   | "history-previous"
   | "history-next";
 
@@ -316,6 +317,11 @@ interface PaletteExecuteMessage {
   result: PaletteResult;
 }
 
+interface PaletteRemoveLocalVisitMessage {
+  type: "palette-remove-local-visit";
+  url: string;
+}
+
 interface OpenOptionsMessage {
   type: "open-options";
 }
@@ -335,6 +341,7 @@ type SafariKeyboardNavigationMessage =
   | OpenTabMessage
   | PaletteSearchMessage
   | PaletteExecuteMessage
+  | PaletteRemoveLocalVisitMessage
   | OpenOptionsMessage
   | ObservePageMessage;
 
@@ -482,6 +489,10 @@ interface SafariKeyboardNavigationTabs {
     page: { title: string; url: string },
     now: number,
     maxItems?: number,
+  ): LocalVisitItem[];
+  removeLocalVisitByUrl(
+    visits: LocalVisitItem[],
+    url: string,
   ): LocalVisitItem[];
   searchPaletteResults(
     sources: {
