@@ -1143,6 +1143,14 @@
             row.appendChild(text);
             state.list.appendChild(row);
         });
+        revealCommandPaletteSelection();
+    }
+    function revealCommandPaletteSelection() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const activeRow = commandPaletteState.list.querySelector('.skne-command-palette-result[data-active="true"]');
+        activeRow?.scrollIntoView({ block: "nearest" });
     }
     function moveCommandPaletteSelection(delta) {
         if (!commandPaletteState || commandPaletteState.results.length === 0) {
