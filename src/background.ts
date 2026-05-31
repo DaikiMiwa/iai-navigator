@@ -148,6 +148,7 @@
     recordLocalVisit,
     removeLocalVisitByUrl,
     searchPaletteResults,
+    shouldLoadPaletteBookmarks,
     tabSwitchDirectionForCommand,
   };
 
@@ -263,7 +264,8 @@
         sources.has("tabs") && api.tabs
           ? api.tabs.query(paletteTabQueryInfo())
           : Promise.resolve([]),
-        sources.has("bookmarks") && trimmedQuery && api.bookmarks
+        shouldLoadPaletteBookmarks(message.sources, trimmedQuery) &&
+        api.bookmarks
           ? loadPaletteBookmarks(api.bookmarks, trimmedQuery)
           : Promise.resolve([]),
         sources.has("history") && api.history
@@ -704,6 +706,17 @@
     }
 
     return bookmarks.search(query);
+  }
+
+  function shouldLoadPaletteBookmarks(
+    sources: PaletteSource[],
+    query: string,
+  ): boolean {
+    if (!sources.includes("bookmarks")) {
+      return false;
+    }
+
+    return query.trim().length > 0 || sources.length === 1;
   }
 
   function bookmarkPaletteResults(
