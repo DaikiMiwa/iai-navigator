@@ -79,7 +79,9 @@ function key(overrides) {
   return {
     altKey: false,
     ctrlKey: false,
+    isComposing: false,
     key: "",
+    keyCode: 0,
     metaKey: false,
     shiftKey: false,
     ...overrides,
@@ -163,6 +165,18 @@ test("maps command palette activation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ key: "Enter", altKey: true })),
     "activate-background-tab",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ isComposing: true, key: "Enter" })),
+    null,
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ key: "Enter", keyCode: 229 })),
+    null,
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ isComposing: true, key: "a" })),
+    null,
   );
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "c" })),

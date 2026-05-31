@@ -1183,6 +1183,10 @@
   function commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null {
+    if (candidate.isComposing || candidate.keyCode === 229) {
+      return null;
+    }
+
     if (candidate.key === "Escape") {
       return "close";
     }
