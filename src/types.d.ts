@@ -200,6 +200,7 @@ type CommandPaletteNamedKeyAction =
   | "copy-result-url"
   | "edit-result-url"
   | "narrow-to-domain"
+  | "narrow-to-title"
   | "forget-palette-entry"
   | "close-tab"
   | "history-previous"
@@ -294,7 +295,14 @@ interface CommandPaletteMarkdownResultCandidate {
 }
 
 interface CommandPaletteDomainFilterCandidate {
+  kind?: string;
+  title?: string;
   url?: string;
+}
+
+interface CommandPaletteTitleFilterCandidate {
+  kind?: string;
+  title?: string;
 }
 
 interface SafariKeyboardNavigationCommandPalette {
@@ -321,6 +329,10 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteDomainFilterValue(
     value: string,
     result: CommandPaletteDomainFilterCandidate,
+  ): string | null;
+  commandPaletteTitleFilterValue(
+    value: string,
+    result: CommandPaletteTitleFilterCandidate,
   ): string | null;
   commandPaletteQueryScope(
     query: string,
