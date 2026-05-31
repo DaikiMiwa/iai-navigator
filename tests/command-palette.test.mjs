@@ -84,10 +84,26 @@ test("maps command palette navigation keys", () => {
     commandPaletteKeyAction(key({ ctrlKey: true, key: "n" })),
     "next",
   );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "j" })),
+    "next",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "J" })),
+    "next",
+  );
   assert.equal(commandPaletteKeyAction(key({ key: "Tab" })), "next");
   assert.equal(commandPaletteKeyAction(key({ key: "ArrowUp" })), "previous");
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "p" })),
+    "previous",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "k" })),
+    "previous",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "K" })),
     "previous",
   );
   assert.equal(
@@ -241,6 +257,8 @@ test("maps command palette activation keys", () => {
 test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
+  assert.equal(commandPaletteKeyAction(key({ key: "j" })), null);
+  assert.equal(commandPaletteKeyAction(key({ key: "k" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "1" })), null);
   assert.deepEqual(
     commandPaletteKeyAction(
@@ -262,6 +280,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
+  assert.match(hints, /Ctrl\+J\/K/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /Option\+T\/B\/H\/V\/S\/U\/M/);
   assert.match(hints, /tab:/);

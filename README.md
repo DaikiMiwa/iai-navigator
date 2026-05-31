@@ -36,6 +36,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
+- `Ctrl+j` and `Ctrl+k` move the command palette selection down and up while plain `j` and `k` keep typing into the input.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - `Ctrl+u` clears the current command palette query without closing the palette.
 - `Option+T/B/H/V/S/U/M` changes the command palette source to tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
@@ -153,6 +154,7 @@ Useful checks:
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
+- In the palette, verify `Ctrl+j` and `Ctrl+k` move the selected result down and up, while plain `j` and `k` type into the input.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - In the palette, type a query, press `Ctrl+u`, and verify the input clears while the palette stays open.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`.

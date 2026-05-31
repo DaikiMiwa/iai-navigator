@@ -354,6 +354,7 @@
     "Option+⌫ forget local/query",
     "Option+W close tab",
     "Option+1-9 open result",
+    "Ctrl+J/K move",
     "Option+↑/↓ query history",
     "Option+T/B/H/V/S/U/M source",
     "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
@@ -1161,6 +1162,7 @@
     if (
       candidate.key === "ArrowDown" ||
       (candidate.ctrlKey && candidate.key.toLowerCase() === "n") ||
+      (candidate.ctrlKey && candidate.key.toLowerCase() === "j") ||
       (candidate.key === "Tab" && !candidate.shiftKey)
     ) {
       return "next";
@@ -1169,6 +1171,7 @@
     if (
       candidate.key === "ArrowUp" ||
       (candidate.ctrlKey && candidate.key.toLowerCase() === "p") ||
+      (candidate.ctrlKey && candidate.key.toLowerCase() === "k") ||
       (candidate.key === "Tab" && candidate.shiftKey)
     ) {
       return "previous";
