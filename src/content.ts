@@ -294,6 +294,7 @@
     "Option+W close tab",
     "Option+1-9 open result",
     "Option+↑/↓ query history",
+    "Option+T/B/H/V/S/U/M source",
     "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
   ] as const;
   const COMMAND_PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = [
@@ -332,6 +333,7 @@
     }
   ).SafariKeyboardNavigationCommandPalette = {
     COMMAND_PALETTE_FOOTER_HINTS,
+    commandPaletteApplyPrefixValue,
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
@@ -1127,6 +1129,11 @@
       return { kind: "activate-index", index: resultIndex };
     }
 
+    const prefix = commandPaletteSourcePrefixForKey(candidate);
+    if (prefix) {
+      return { kind: "apply-prefix", prefix };
+    }
+
     if (
       candidate.altKey &&
       (candidate.key === "Backspace" || candidate.key === "Delete")
@@ -1141,7 +1148,14 @@
     action: CommandPaletteKeyAction,
   ): void {
     if (typeof action === "object") {
-      activateCommandPaletteIndex(action.index);
+      switch (action.kind) {
+        case "activate-index":
+          activateCommandPaletteIndex(action.index);
+          return;
+        case "apply-prefix":
+          applyCommandPaletteSourcePrefix(action.prefix);
+          return;
+      }
       return;
     }
 
@@ -1197,6 +1211,42 @@
     const digit = candidate.code?.match(/^Digit([1-9])$/)?.[1] ?? "";
     const key = digit || (/^[1-9]$/.test(candidate.key) ? candidate.key : "");
     return key ? Number(key) - 1 : null;
+  }
+
+  function commandPaletteSourcePrefixForKey(
+    candidate: CommandPaletteKeyCandidate,
+  ): CommandPaletteSourcePrefix | null {
+    if (
+      !candidate.altKey ||
+      candidate.ctrlKey ||
+      candidate.metaKey ||
+      candidate.shiftKey
+    ) {
+      return null;
+    }
+
+    const key =
+      candidate.code?.match(/^Key([A-Z])$/)?.[1]?.toLowerCase() ??
+      candidate.key.toLowerCase();
+
+    switch (key) {
+      case "t":
+        return "tab";
+      case "b":
+        return "book";
+      case "h":
+        return "history";
+      case "v":
+        return "visit";
+      case "s":
+        return "search";
+      case "u":
+        return "url";
+      case "m":
+        return "cmd";
+      default:
+        return null;
+    }
   }
 
   function navigateCommandPaletteQueryHistory(
@@ -1523,6 +1573,23 @@
     return scope;
   }
 
+  function commandPaletteApplyPrefixValue(
+    value: string,
+    prefix: CommandPaletteSourcePrefix,
+  ): string {
+    const query = commandPaletteUnprefixedQuery(value);
+    return `${prefix}: ${query}`;
+  }
+
+  function commandPaletteUnprefixedQuery(value: string): string {
+    const match = value.trimStart().match(/^([a-z]+):\s*(.*)$/i);
+    if (!match || !paletteSourcesForPrefix(match[1].toLowerCase())) {
+      return value;
+    }
+
+    return match[2];
+  }
+
   function paletteSourcesForPrefix(
     prefix: string,
   ): Pick<
@@ -1693,6 +1760,26 @@
 
     commandPaletteState.activeIndex = index;
     activateCommandPaletteSelection();
+  }
+
+  function applyCommandPaletteSourcePrefix(
+    prefix: CommandPaletteSourcePrefix,
+  ): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    commandPaletteState.input.value = commandPaletteApplyPrefixValue(
+      commandPaletteState.input.value,
+      prefix,
+    );
+    commandPaletteState.input.setSelectionRange(
+      commandPaletteState.input.value.length,
+      commandPaletteState.input.value.length,
+    );
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
   }
 
   async function copyCommandPaletteSelectionUrl(): Promise<void> {

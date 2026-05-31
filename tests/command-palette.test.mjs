@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteApplyPrefixValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHistoryNavigation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
@@ -129,6 +131,18 @@ test("maps command palette activation keys", () => {
     commandPaletteKeyAction(key({ altKey: true, code: "Digit3", key: "£" })),
     { kind: "activate-index", index: 2 },
   );
+  assert.deepEqual(
+    commandPaletteKeyAction(key({ altKey: true, code: "KeyB", key: "∫" })),
+    { kind: "apply-prefix", prefix: "book" },
+  );
+  assert.deepEqual(commandPaletteKeyAction(key({ altKey: true, key: "H" })), {
+    kind: "apply-prefix",
+    prefix: "history",
+  });
+  assert.deepEqual(commandPaletteKeyAction(key({ altKey: true, key: "m" })), {
+    kind: "apply-prefix",
+    prefix: "cmd",
+  });
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "Backspace" })),
     "forget-palette-entry",
@@ -169,6 +183,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Option\+↑\/↓/);
+  assert.match(hints, /Option\+T\/B\/H\/V\/S\/U\/M/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
   assert.match(hints, /history:/);
@@ -180,6 +195,23 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /k:/);
   assert.match(hints, /url:/);
   assert.match(hints, /cmd:/);
+});
+
+test("applies command palette source prefixes while preserving query text", () => {
+  assert.equal(commandPaletteApplyPrefixValue("docs", "book"), "book: docs");
+  assert.equal(
+    commandPaletteApplyPrefixValue("tab: docs", "history"),
+    "history: docs",
+  );
+  assert.equal(
+    commandPaletteApplyPrefixValue("  ddg: safari keyboard", "search"),
+    "search: safari keyboard",
+  );
+  assert.equal(
+    commandPaletteApplyPrefixValue("unknown: docs", "tab"),
+    "tab: unknown: docs",
+  );
+  assert.equal(commandPaletteApplyPrefixValue("", "cmd"), "cmd: ");
 });
 
 test("navigates command palette query history", () => {
