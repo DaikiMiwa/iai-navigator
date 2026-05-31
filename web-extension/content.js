@@ -127,6 +127,7 @@
     globalThis.SafariKeyboardNavigationCommandPalette = {
         commandPaletteHighlightRanges,
         commandPaletteKeyAction,
+        commandPaletteQueryScope,
     };
     let hintState = null;
     let helpState = null;
@@ -707,12 +708,12 @@
         if (!state) {
             return;
         }
-        const query = state.input.value;
+        const scope = commandPaletteQueryScope(state.input.value, state);
         const searchId = state.searchId + 1;
         state.searchId = searchId;
         const [localResults, browserResults] = await Promise.all([
-            Promise.resolve(state.includeCommands ? searchLocalPaletteCommands(query) : []),
-            searchBrowserPaletteResults(query),
+            Promise.resolve(scope.includeCommands ? searchLocalPaletteCommands(scope.query) : []),
+            searchBrowserPaletteResults(scope),
         ]);
         if (!commandPaletteState || commandPaletteState.searchId !== searchId) {
             return;
@@ -723,20 +724,16 @@
         commandPaletteState.activeIndex = 0;
         renderCommandPaletteResults();
     }
-    async function searchBrowserPaletteResults(query) {
+    async function searchBrowserPaletteResults(scope) {
         if (typeof browser === "undefined" || !browser.runtime) {
-            return [];
-        }
-        const state = commandPaletteState;
-        if (!state) {
             return [];
         }
         try {
             const response = (await browser.runtime.sendMessage({
                 type: "palette-search",
-                includeGenerated: state.includeGenerated,
-                query,
-                sources: state.sources,
+                includeGenerated: scope.includeGenerated,
+                query: scope.query,
+                sources: scope.sources,
             }));
             return Array.isArray(response?.results) ? response.results : [];
         }
@@ -788,6 +785,7 @@
             return;
         }
         const state = commandPaletteState;
+        const query = commandPaletteQueryScope(state.input.value, state).query;
         state.list.replaceChildren();
         if (state.results.length === 0) {
             const empty = document.createElement("div");
@@ -818,11 +816,11 @@
             text.className = "skne-command-palette-text";
             const title = document.createElement("span");
             title.className = "skne-command-palette-title";
-            appendCommandPaletteHighlightedText(title, result.title, state.input.value);
+            appendCommandPaletteHighlightedText(title, result.title, query);
             text.appendChild(title);
             const subtitle = document.createElement("span");
             subtitle.className = "skne-command-palette-subtitle";
-            appendCommandPaletteHighlightedText(subtitle, result.subtitle, state.input.value);
+            appendCommandPaletteHighlightedText(subtitle, result.subtitle, query);
             text.appendChild(subtitle);
             row.appendChild(text);
             state.list.appendChild(row);
@@ -873,6 +871,47 @@
             return fuzzyHighlightRanges(term, normalizedValue);
         });
         return mergeTextRanges(ranges);
+    }
+    function commandPaletteQueryScope(query, options) {
+        const match = query.trimStart().match(/^([a-z]+):\s*(.*)$/i);
+        if (!match) {
+            return { ...options, query };
+        }
+        const sources = paletteSourcesForPrefix(match[1].toLowerCase());
+        if (!sources) {
+            return { ...options, query };
+        }
+        return {
+            includeCommands: sources.includeCommands,
+            includeGenerated: false,
+            query: match[2],
+            sources: sources.sources,
+        };
+    }
+    function paletteSourcesForPrefix(prefix) {
+        switch (prefix) {
+            case "t":
+            case "tab":
+            case "tabs":
+                return { includeCommands: false, sources: ["tabs"] };
+            case "b":
+            case "book":
+            case "bookmark":
+            case "bookmarks":
+                return { includeCommands: false, sources: ["bookmarks"] };
+            case "hist":
+            case "history":
+                return { includeCommands: false, sources: ["history"] };
+            case "visit":
+            case "visits":
+                return { includeCommands: false, sources: ["visits"] };
+            case "cmd":
+            case "command":
+            case "commands":
+                return { includeCommands: true, sources: [] };
+            default:
+                return null;
+        }
     }
     function fuzzyHighlightRanges(term, value) {
         let termIndex = 0;
