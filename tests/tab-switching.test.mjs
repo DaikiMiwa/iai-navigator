@@ -570,6 +570,74 @@ test("matches compact fuzzy destination queries", () => {
   );
 });
 
+test("matches quoted command palette query phrases as single terms", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Project Docs",
+          url: "https://example.com/project-docs",
+        },
+        {
+          id: 11,
+          index: 1,
+          title: "Project Archive Docs",
+          url: "https://example.com/project-archive-docs",
+        },
+      ],
+      visits: [],
+    },
+    '"project docs"',
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.title),
+    ["Project Docs"],
+  );
+});
+
+test("excludes negative command palette query terms", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Project Docs",
+          url: "https://example.com/docs",
+        },
+        {
+          id: 11,
+          index: 1,
+          title: "Project Docs Archive",
+          url: "https://example.com/docs/archive",
+        },
+        {
+          id: 12,
+          index: 2,
+          title: "Project Docs Old Archive",
+          url: "https://example.com/docs/old-archive",
+        },
+      ],
+      visits: [],
+    },
+    'docs -archive -"old archive"',
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.title),
+    ["Project Docs"],
+  );
+});
+
 test("ranks exact and prefix palette matches before fuzzy matches", () => {
   const results = searchPaletteResults(
     {

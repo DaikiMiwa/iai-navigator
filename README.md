@@ -24,6 +24,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - Palette prefixes can narrow intent: `tab:`, `book:`, `history:`, `visit:`, `cmd:`, `url:`, and `search:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
+- Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
 - `Option+C` copies the selected command palette browser destination URL without opening it.
 - `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
 - `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
@@ -129,6 +130,7 @@ Useful checks:
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- In the palette, type `"project docs"` to verify the phrase is matched as one term, and type `docs -archive` to verify matching archive destinations are excluded.
 - In the palette, type `url: example.com` and verify only a direct URL result appears; type `search: example.com` and verify only a web search result appears.
 - In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, and `k:`.
 - In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette.
