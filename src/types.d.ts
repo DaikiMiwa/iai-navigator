@@ -169,6 +169,26 @@ interface SafariKeyboardNavigationMediaReveal {
   ): boolean;
 }
 
+type CommandPaletteKeyAction =
+  | "close"
+  | "next"
+  | "previous"
+  | "activate-current-tab"
+  | "activate-new-tab";
+
+interface CommandPaletteKeyCandidate {
+  ctrlKey: boolean;
+  key: string;
+  metaKey: boolean;
+  shiftKey: boolean;
+}
+
+interface SafariKeyboardNavigationCommandPalette {
+  commandPaletteKeyAction(
+    candidate: CommandPaletteKeyCandidate,
+  ): CommandPaletteKeyAction | null;
+}
+
 interface ScrollSurfaceCandidate {
   id: string;
   kind: "probe" | "window" | "visible";
