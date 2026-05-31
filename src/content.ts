@@ -279,6 +279,12 @@
       subtitle: "Configure shortcuts, sites, and hint appearance",
     },
   ];
+  const COMMAND_PALETTE_FOOTER_HINTS = [
+    "Enter open",
+    "Shift+Enter new tab",
+    "Option+Enter background",
+    "tab: book: history: cmd:",
+  ] as const;
 
   (
     globalThis as typeof globalThis & {
@@ -310,6 +316,7 @@
       SafariKeyboardNavigationCommandPalette?: SafariKeyboardNavigationCommandPalette;
     }
   ).SafariKeyboardNavigationCommandPalette = {
+    COMMAND_PALETTE_FOOTER_HINTS,
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
     commandPaletteQueryScope,
@@ -973,6 +980,8 @@
     list.setAttribute("role", "listbox");
     panel.appendChild(list);
 
+    panel.appendChild(createCommandPaletteFooter());
+
     overlay.appendChild(panel);
     document.documentElement.appendChild(overlay);
 
@@ -1003,6 +1012,20 @@
 
     commandPaletteState.overlay.remove();
     commandPaletteState = null;
+  }
+
+  function createCommandPaletteFooter(): HTMLDivElement {
+    const footer = document.createElement("div");
+    footer.className = "skne-command-palette-footer";
+
+    for (const hint of COMMAND_PALETTE_FOOTER_HINTS) {
+      const item = document.createElement("span");
+      item.className = "skne-command-palette-footer-item";
+      item.textContent = hint;
+      footer.appendChild(item);
+    }
+
+    return footer;
   }
 
   function handleCommandPaletteKeyDown(event: KeyboardEvent): void {

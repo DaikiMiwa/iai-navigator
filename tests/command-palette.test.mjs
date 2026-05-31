@@ -39,6 +39,8 @@ const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { COMMAND_PALETTE_FOOTER_HINTS } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 
 const defaultPaletteOptions = {
   includeCommands: true,
@@ -101,6 +103,17 @@ test("maps command palette activation keys", () => {
 test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
+});
+
+test("describes command palette activation and source-prefix hints", () => {
+  const hints = COMMAND_PALETTE_FOOTER_HINTS.join(" ");
+  assert.match(hints, /Enter/);
+  assert.match(hints, /Shift\+Enter/);
+  assert.match(hints, /Option\+Enter/);
+  assert.match(hints, /tab:/);
+  assert.match(hints, /book:/);
+  assert.match(hints, /history:/);
+  assert.match(hints, /cmd:/);
 });
 
 test("highlights contiguous command palette query matches", () => {
