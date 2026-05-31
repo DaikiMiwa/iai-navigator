@@ -124,6 +124,9 @@
         isRevealableMediaControlsCandidate,
         shouldPreRevealMediaControlsCandidate,
     };
+    globalThis.SafariKeyboardNavigationCommandPalette = {
+        commandPaletteKeyAction,
+    };
     let hintState = null;
     let helpState = null;
     let commandPaletteState = null;
@@ -650,28 +653,52 @@
         if (!commandPaletteState) {
             return;
         }
-        if (event.key === "Escape") {
-            event.preventDefault();
-            event.stopPropagation();
-            closeCommandPalette();
+        const action = commandPaletteKeyAction(event);
+        if (!action) {
             return;
         }
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            event.stopPropagation();
-            moveCommandPaletteSelection(1);
-            return;
+        event.preventDefault();
+        event.stopPropagation();
+        handleCommandPaletteKeyAction(action);
+    }
+    function commandPaletteKeyAction(candidate) {
+        if (candidate.key === "Escape") {
+            return "close";
         }
-        if (event.key === "ArrowUp") {
-            event.preventDefault();
-            event.stopPropagation();
-            moveCommandPaletteSelection(-1);
-            return;
+        if (candidate.key === "ArrowDown" ||
+            (candidate.ctrlKey && candidate.key.toLowerCase() === "n") ||
+            (candidate.key === "Tab" && !candidate.shiftKey)) {
+            return "next";
         }
-        if (event.key === "Enter") {
-            event.preventDefault();
-            event.stopPropagation();
-            activateCommandPaletteSelection();
+        if (candidate.key === "ArrowUp" ||
+            (candidate.ctrlKey && candidate.key.toLowerCase() === "p") ||
+            (candidate.key === "Tab" && candidate.shiftKey)) {
+            return "previous";
+        }
+        if (candidate.key === "Enter") {
+            return candidate.shiftKey || candidate.metaKey || candidate.ctrlKey
+                ? "activate-new-tab"
+                : "activate-current-tab";
+        }
+        return null;
+    }
+    function handleCommandPaletteKeyAction(action) {
+        switch (action) {
+            case "close":
+                closeCommandPalette();
+                return;
+            case "next":
+                moveCommandPaletteSelection(1);
+                return;
+            case "previous":
+                moveCommandPaletteSelection(-1);
+                return;
+            case "activate-current-tab":
+                activateCommandPaletteSelection();
+                return;
+            case "activate-new-tab":
+                activateCommandPaletteSelection("new-tab");
+                return;
         }
     }
     async function refreshCommandPaletteResults() {
@@ -809,7 +836,7 @@
             (commandPaletteState.activeIndex + delta + length) % length;
         renderCommandPaletteResults();
     }
-    function activateCommandPaletteSelection() {
+    function activateCommandPaletteSelection(dispositionOverride) {
         if (!commandPaletteState) {
             return;
         }
@@ -817,7 +844,7 @@
         if (!result) {
             return;
         }
-        const { disposition } = commandPaletteState;
+        const disposition = dispositionOverride ?? commandPaletteState.disposition;
         closeCommandPalette();
         if (result.kind === "command") {
             executeLocalPaletteCommand(result.command);

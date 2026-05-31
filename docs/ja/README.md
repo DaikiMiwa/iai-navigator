@@ -121,6 +121,8 @@ python3 -m http.server 8765
 - 通常のページフォーカスで `?` を押し、ショートカットヘルプ overlay が読みやすく、現在のコマンドを一覧でき、`Esc` で閉じられることを確認する。
 - 拡張機能を有効にした状態で `http` または `https` page を開き、別の page へ移動したあと、`o` を押して前の page title または URL を入力し、ローカルで観測した page result を開けることを確認する。
 - 通常のページフォーカスで `o` を押し、tab title、bookmark title、history URL、ローカルで観測した page、command name、URL、search term を入力して、`Enter` で選択結果が開くか実行されることを確認する。
+- palette 内で `ArrowDown`、`ArrowUp`、`Ctrl+n`、`Ctrl+p`、`Tab`、`Shift+Tab` を押し、palette から focus が外れずに選択 result が移動することを確認する。
+- palette 内で `Shift+Enter`、`Command+Enter`、`Control+Enter` を押し、browser destination が新しい前面 tab で開くことを確認する。
 - `Shift+O` を押し、URL または destination を入力して、`Enter` で新しい前面 tab に開くことを確認する。
 - `b` / `Shift+B` を押し、bookmark だけが検索され、`Shift+B` では選択した bookmark が新しい前面 tab に開くことを確認する。
 - `Shift+T` を押し、開いている tab が検索され、選択した tab に focus することを確認する。

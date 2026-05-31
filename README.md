@@ -118,6 +118,8 @@ Useful checks:
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette.
+- In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify only bookmarks are searched, with `Shift+B` opening the selected bookmark in a new foreground tab.
 - Press `Shift+T` and verify open tabs are searched and selected tabs are focused.
