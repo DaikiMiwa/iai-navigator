@@ -176,6 +176,70 @@ test("can restrict palette search to bookmarks only", () => {
   );
 });
 
+test("deduplicates matching palette destinations by URL with open tabs first", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          id: "bookmark-docs",
+          title: "Bookmarked Docs",
+          url: "https://example.com/docs#bookmark",
+        },
+      ],
+      history: [
+        {
+          id: "history-docs",
+          lastVisitTime: Date.now(),
+          title: "History Docs",
+          url: "https://example.com/docs#history",
+        },
+      ],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Open Docs",
+          url: "https://example.com/docs#tab",
+        },
+      ],
+      visits: [
+        {
+          lastVisitTime: Date.now(),
+          title: "Observed Docs",
+          url: "https://example.com/docs#visit",
+          visitCount: 3,
+        },
+      ],
+    },
+    "docs",
+    {
+      includeGenerated: true,
+      sources: ["tabs", "bookmarks", "history", "visits"],
+    },
+  );
+
+  assert.deepEqual(
+    results.filter((result) => result.url === "https://example.com/docs#tab"),
+    [
+      {
+        id: "tab:10",
+        kind: "tab",
+        score: 60,
+        subtitle: "https://example.com/docs#tab",
+        tabId: 10,
+        title: "Open Docs",
+        url: "https://example.com/docs#tab",
+      },
+    ],
+  );
+  assert.equal(
+    results.filter((result) =>
+      result.url?.startsWith("https://example.com/docs"),
+    ).length,
+    1,
+  );
+});
+
 test("adds direct URL and search results for open palette queries", () => {
   const urlResults = searchPaletteResults(
     { bookmarks: [], history: [], tabs: [] },
