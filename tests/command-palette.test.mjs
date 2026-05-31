@@ -39,6 +39,8 @@ const { commandPaletteMarkdownLinkValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteDomainFilterValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteTitleFilterValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteNextIndexAfterActivation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
@@ -181,6 +183,14 @@ test("maps command palette activation keys", () => {
     "narrow-to-domain",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "f" })),
+    "narrow-to-title",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "F" })),
+    "narrow-to-title",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "w" })),
     "close-tab",
   );
@@ -285,6 +295,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+Y/);
   assert.match(hints, /Option\+E/);
   assert.match(hints, /Option\+D/);
+  assert.match(hints, /Option\+F/);
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
@@ -468,6 +479,45 @@ test("formats command palette domain filter values", () => {
     null,
   );
   assert.equal(commandPaletteDomainFilterValue("docs", {}), null);
+});
+
+test("formats command palette title filter values", () => {
+  assert.equal(
+    commandPaletteTitleFilterValue("docs", {
+      kind: "bookmark",
+      title: "Project Docs",
+    }),
+    'title:"Project Docs"',
+  );
+  assert.equal(
+    commandPaletteTitleFilterValue("book: docs", {
+      kind: "bookmark",
+      title: "Project Docs",
+    }),
+    'book: title:"Project Docs"',
+  );
+  assert.equal(
+    commandPaletteTitleFilterValue("url: https://example.com", {
+      kind: "url",
+      title: "Open https://example.com",
+    }),
+    'title:"Open https://example.com"',
+  );
+  assert.equal(
+    commandPaletteTitleFilterValue("docs", {
+      kind: "history",
+      title: 'Project "Docs"',
+    }),
+    'title:"Project Docs"',
+  );
+  assert.equal(
+    commandPaletteTitleFilterValue("docs", {
+      kind: "command",
+      title: "Open settings",
+    }),
+    null,
+  );
+  assert.equal(commandPaletteTitleFilterValue("docs", { title: "  " }), null);
 });
 
 test("formats command palette results as Markdown links", () => {

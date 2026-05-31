@@ -171,6 +171,7 @@
         "Option+Y copy Markdown",
         "Option+E edit URL",
         "Option+D same domain",
+        "Option+F title filter",
         "Option+⌫ forget local/query",
         "Option+W close tab",
         "Option+1-9 open result",
@@ -210,6 +211,7 @@
         commandPaletteNextIndexAfterActivation,
         commandPaletteQueryScope,
         commandPaletteShouldCloseAfterActivation,
+        commandPaletteTitleFilterValue,
     };
     let hintState = null;
     let helpState = null;
@@ -827,6 +829,9 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "d") {
             return "narrow-to-domain";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "f") {
+            return "narrow-to-title";
+        }
         if (candidate.altKey && candidate.key.toLowerCase() === "w") {
             return "close-tab";
         }
@@ -901,6 +906,9 @@
                 return;
             case "narrow-to-domain":
                 narrowCommandPaletteSelectionToDomain();
+                return;
+            case "narrow-to-title":
+                narrowCommandPaletteSelectionToTitle();
                 return;
             case "forget-palette-entry":
                 void forgetCommandPaletteEntry();
@@ -1313,6 +1321,21 @@
         const nextQuery = `domain:${hostname}`;
         return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
     }
+    function commandPaletteTitleFilterValue(value, result) {
+        if (result.kind === "command") {
+            return null;
+        }
+        const title = commandPaletteFilterPhraseValue(result.title);
+        if (!title) {
+            return null;
+        }
+        const prefix = commandPaletteSourcePrefixForValue(value);
+        const nextQuery = `title:"${title}"`;
+        return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
+    }
+    function commandPaletteFilterPhraseValue(value) {
+        return (value ?? "").replace(/"/g, " ").replace(/\s+/g, " ").trim();
+    }
     function commandPaletteResultHostname(result) {
         const url = result.url?.trim();
         if (!url) {
@@ -1565,6 +1588,25 @@
         const nextValue = commandPaletteDomainFilterValue(commandPaletteState.input.value, { url: "url" in result ? result.url : undefined });
         if (!nextValue) {
             showUrlCopyToast("No domain to filter");
+            return;
+        }
+        commandPaletteState.input.value = nextValue;
+        commandPaletteState.input.setSelectionRange(commandPaletteState.input.value.length, commandPaletteState.input.value.length);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
+    }
+    function narrowCommandPaletteSelectionToTitle() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result) {
+            return;
+        }
+        const nextValue = commandPaletteTitleFilterValue(commandPaletteState.input.value, { kind: result.kind, title: result.title });
+        if (!nextValue) {
+            showUrlCopyToast("No title to filter");
             return;
         }
         commandPaletteState.input.value = nextValue;
