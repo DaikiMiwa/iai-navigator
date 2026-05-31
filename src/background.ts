@@ -29,6 +29,14 @@
       label: "Kagi",
       urlPrefix: "https://kagi.com/search?q=",
     },
+    wikipedia: {
+      label: "Wikipedia",
+      urlPrefix: "https://en.wikipedia.org/w/index.php?search=",
+    },
+    youtube: {
+      label: "YouTube",
+      urlPrefix: "https://www.youtube.com/results?search_query=",
+    },
   };
   const PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = ["url", "search"];
 
@@ -572,7 +580,9 @@
       value === "custom" ||
       value === "duckduckgo" ||
       value === "google" ||
-      value === "kagi"
+      value === "kagi" ||
+      value === "wikipedia" ||
+      value === "youtube"
     );
   }
 

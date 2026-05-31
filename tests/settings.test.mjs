@@ -73,6 +73,18 @@ test("normalizes command palette search engine settings", () => {
     }).commandPalette.searchEngine,
     "duckduckgo",
   );
+  assert.equal(
+    normalizeExtensionSettings({
+      commandPalette: { searchEngine: "youtube" },
+    }).commandPalette.searchEngine,
+    "youtube",
+  );
+  assert.equal(
+    normalizeExtensionSettings({
+      commandPalette: { searchEngine: "wikipedia" },
+    }).commandPalette.searchEngine,
+    "wikipedia",
+  );
 
   assert.equal(
     normalizeExtensionSettings({

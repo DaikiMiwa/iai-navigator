@@ -27,7 +27,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
 - Command palette extension commands include page history actions plus tab operations such as New tab, Duplicate current tab, Previous/Next tab, and Close current tab.
 - Command palette commands also match aliases such as `nt`, `dup`, `close tab`, `options`, `gg`, and `ge`.
-- Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
+- Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, `k:`, `yt:`, and `w:` force Google, DuckDuckGo, Brave Search, Kagi, YouTube, and Wikipedia for a single query.
 - Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
 - Palette destination queries can target fields with `title:<term>`, `url:<term>`, and `domain:<term>` / `host:<term>`, including phrases and negative filters such as `title:"project docs" domain:github.com -url:archive`.
 - `Option+C` copies the selected command palette browser destination URL without opening it.
@@ -50,7 +50,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
-- The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, or a custom URL template with `{query}`.
+- The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, YouTube, Wikipedia, or a custom URL template with `{query}`.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs across browser windows.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
@@ -152,7 +152,7 @@ Useful checks:
 - In the palette, type `"project docs"` to verify the phrase is matched as one term, and type `docs -archive` to verify matching archive destinations are excluded.
 - In the palette, type `title:"project docs" domain:github.com -url:archive` to verify destination results can be narrowed by title, URL, and domain fields.
 - In the palette, type `u: example.com` and verify only a direct URL result appears; type `s: example.com` and verify only a web search result appears. Repeat with the long `url:` and `search:` prefixes.
-- In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, and `k:`.
+- In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, `k:`, `yt:`, and `w:`.
 - In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette. Verify `PageDown` / `PageUp` move by a larger step, `Home` / `End` jump to the first and last result, and the selected row stays visible while moving through a long result list.
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it, keeps the palette open, and moves selection to the next result.

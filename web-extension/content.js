@@ -186,7 +186,7 @@
         "Option+R refresh",
         "Option+↑/↓ query history",
         "Option+A/T/B/H/V/S/U/M source",
-        "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
+        "tab: book: history: visit: search: g: ddg: br: k: yt: w: url: cmd:",
     ];
     const COMMAND_PALETTE_GENERATED_KINDS = [
         "url",
@@ -1533,6 +1533,23 @@
                     generatedKinds: ["search"],
                     includeCommands: false,
                     searchEngine: "kagi",
+                    sources: [],
+                };
+            case "yt":
+            case "youtube":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "youtube",
+                    sources: [],
+                };
+            case "w":
+            case "wiki":
+            case "wikipedia":
+                return {
+                    generatedKinds: ["search"],
+                    includeCommands: false,
+                    searchEngine: "wikipedia",
                     sources: [],
                 };
             case "cmd":

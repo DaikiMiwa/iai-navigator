@@ -1120,6 +1120,30 @@ test("adds direct URL and search results for open palette queries", () => {
     "https://duckduckgo.com/?q=private%20search",
   );
 
+  const youtubeResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "safari keyboard",
+    { includeGenerated: true, searchEngine: "youtube" },
+  );
+
+  assert.equal(youtubeResults[0].subtitle, "YouTube");
+  assert.equal(
+    youtubeResults[0].url,
+    "https://www.youtube.com/results?search_query=safari%20keyboard",
+  );
+
+  const wikipediaResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "safari keyboard",
+    { includeGenerated: true, searchEngine: "wikipedia" },
+  );
+
+  assert.equal(wikipediaResults[0].subtitle, "Wikipedia");
+  assert.equal(
+    wikipediaResults[0].url,
+    "https://en.wikipedia.org/w/index.php?search=safari%20keyboard",
+  );
+
   const customResults = searchPaletteResults(
     { bookmarks: [], history: [], tabs: [] },
     "private search",

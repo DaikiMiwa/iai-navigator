@@ -333,6 +333,8 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /ddg:/);
   assert.match(hints, /br:/);
   assert.match(hints, /k:/);
+  assert.match(hints, /yt:/);
+  assert.match(hints, /w:/);
   assert.match(hints, /url:/);
   assert.match(hints, /cmd:/);
 });
@@ -894,4 +896,62 @@ test("scopes command palette queries to explicit search engines", () => {
     searchEngine: "kagi",
     sources: [],
   });
+  assert.deepEqual(
+    commandPaletteQueryScope("yt: safari keyboard", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "safari keyboard",
+      searchEngine: "youtube",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("youtube: safari keyboard", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "safari keyboard",
+      searchEngine: "youtube",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("w: safari keyboard", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "safari keyboard",
+      searchEngine: "wikipedia",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("wiki: safari keyboard", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "safari keyboard",
+      searchEngine: "wikipedia",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope(
+      "wikipedia: safari keyboard",
+      defaultPaletteOptions,
+    ),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "safari keyboard",
+      searchEngine: "wikipedia",
+      sources: [],
+    },
+  );
 });
