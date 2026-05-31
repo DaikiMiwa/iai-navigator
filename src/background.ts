@@ -58,6 +58,10 @@
     }
   }
 
+  function paletteTabQueryInfo(): WebExtensionTabQuery {
+    return {};
+  }
+
   function searchPaletteResults(
     sources: {
       bookmarks: WebExtensionBookmarkTreeNode[];
@@ -122,6 +126,7 @@
     chooseNeighborTabId,
     executePaletteResult,
     isSupportedNewTabUrl,
+    paletteTabQueryInfo,
     recordLocalVisit,
     searchPaletteResults,
     tabSwitchDirectionForCommand,
@@ -220,7 +225,7 @@
     const sources = new Set(message.sources);
     const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
       sources.has("tabs") && api.tabs
-        ? api.tabs.query({ currentWindow: true })
+        ? api.tabs.query(paletteTabQueryInfo())
         : Promise.resolve([]),
       sources.has("bookmarks") && trimmedQuery && api.bookmarks
         ? api.bookmarks.search(trimmedQuery)
@@ -275,6 +280,11 @@
       }
 
       await api.tabs.update(result.tabId, { active: true });
+      if (typeof result.windowId === "number") {
+        await api.windows
+          ?.update(result.windowId, { focused: true })
+          .catch(() => undefined);
+      }
       return;
     }
 
@@ -415,17 +425,20 @@
       return [];
     }
 
-    return [
-      {
-        id: `tab:${tab.id}`,
-        kind: "tab",
-        score: score + 20 + (tab.active ? 2 : 0),
-        subtitle: tab.url ?? "Open tab",
-        tabId: tab.id,
-        title,
-        url: tab.url,
-      },
-    ];
+    const result: PaletteResult = {
+      id: `tab:${tab.id}`,
+      kind: "tab",
+      score: score + 20 + (tab.active ? 2 : 0),
+      subtitle: tab.url ?? "Open tab",
+      tabId: tab.id,
+      title,
+      url: tab.url,
+    };
+    if (typeof tab.windowId === "number") {
+      result.windowId = tab.windowId;
+    }
+
+    return [result];
   }
 
   function bookmarkPaletteResult(

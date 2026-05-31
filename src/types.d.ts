@@ -276,6 +276,7 @@ interface PaletteResult {
   subtitle: string;
   url?: string;
   tabId?: number;
+  windowId?: number;
   score: number;
 }
 
@@ -320,6 +321,7 @@ interface WebExtensionTab {
   index: number;
   title?: string;
   url?: string;
+  windowId?: number;
 }
 
 interface WebExtensionTabQuery {
@@ -418,6 +420,17 @@ interface WebExtensionTabs {
   ): Promise<WebExtensionTab>;
 }
 
+interface WebExtensionWindowUpdate {
+  focused?: boolean;
+}
+
+interface WebExtensionWindows {
+  update(
+    windowId: number,
+    updateInfo: WebExtensionWindowUpdate,
+  ): Promise<unknown>;
+}
+
 interface WebExtensionApi {
   bookmarks?: WebExtensionBookmarks;
   commands?: WebExtensionCommands;
@@ -425,6 +438,7 @@ interface WebExtensionApi {
   runtime?: WebExtensionRuntime;
   storage?: WebExtensionStorage;
   tabs?: WebExtensionTabs;
+  windows?: WebExtensionWindows;
 }
 
 interface SafariKeyboardNavigationTabs {
@@ -439,6 +453,7 @@ interface SafariKeyboardNavigationTabs {
     disposition: PaletteDisposition,
   ): Promise<void>;
   isSupportedNewTabUrl(url: string): boolean;
+  paletteTabQueryInfo(): WebExtensionTabQuery;
   recordLocalVisit(
     visits: LocalVisitItem[],
     page: { title: string; url: string },
