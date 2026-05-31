@@ -173,6 +173,7 @@
     searchPaletteResults,
     shouldLoadPaletteBookmarks,
     tabSwitchDirectionForCommand,
+    localVisitsAsHistoryItems,
   };
 
   const api = global.browser;
@@ -305,10 +306,20 @@
           : Promise.resolve([]),
         loadConfiguredSearchSettings(api),
       ]);
+    const historyResults =
+      sources.has("history") && !trimmedQuery && history.length === 0
+        ? localVisitsAsHistoryItems(
+            visits.length > 0
+              ? visits
+              : api.storage?.local
+                ? await loadLocalVisits(api).then((items) => items.slice(0, 12))
+                : [],
+          )
+        : history;
 
     return {
       results: searchPaletteResults(
-        { bookmarks, history, tabs, visits },
+        { bookmarks, history: historyResults, tabs, visits },
         message.query,
         {
           customSearchUrlTemplate: searchSettings.customSearchUrlTemplate,
@@ -902,6 +913,18 @@
         url: visit.url,
       },
     ];
+  }
+
+  function localVisitsAsHistoryItems(
+    visits: LocalVisitItem[],
+  ): WebExtensionHistoryItem[] {
+    return visits.map((visit) => ({
+      id: `local-visit:${visit.url}`,
+      lastVisitTime: visit.lastVisitTime,
+      title: visit.title,
+      url: visit.url,
+      visitCount: visit.visitCount,
+    }));
   }
 
   function comparePaletteResults(a: PaletteResult, b: PaletteResult): number {

@@ -10,6 +10,7 @@ const {
   executeTabCommand,
   executePaletteResult,
   isSupportedNewTabUrl,
+  localVisitsAsHistoryItems,
   paletteTabQueryInfo,
   recordLocalVisit,
   removeLocalVisitByUrl,
@@ -635,6 +636,40 @@ test("shows recent bookmark suggestions for empty all-source palette queries", (
   );
 });
 
+test("shows open tabs and recent history for empty all-source palette queries", () => {
+  const now = Date.now();
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [
+        {
+          id: "history-recent",
+          lastVisitTime: now,
+          title: "Recent History",
+          url: "https://example.com/history",
+        },
+      ],
+      tabs: [
+        {
+          active: true,
+          id: 10,
+          index: 0,
+          title: "Current Tab",
+          url: "https://example.com/tab",
+        },
+      ],
+      visits: [],
+    },
+    "",
+    { sources: ["tabs", "bookmarks", "history", "visits"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.kind),
+    ["tab", "history"],
+  );
+});
+
 test("matches bookmark folder paths in palette search", () => {
   const results = searchPaletteResults(
     {
@@ -739,6 +774,65 @@ test("can restrict palette search to history only", () => {
     results.map((result) => result.kind),
     ["history"],
   );
+});
+
+test("shows recent history for empty history-only palette queries", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [
+        {
+          id: "history-recent",
+          lastVisitTime: Date.now(),
+          title: "Recent History",
+          url: "https://example.com/history",
+        },
+      ],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Open Tab",
+          url: "https://example.com/tab",
+        },
+      ],
+    },
+    "",
+    { sources: ["history"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.kind),
+    ["history"],
+  );
+  assert.equal(results[0]?.title, "Recent History");
+});
+
+test("can use local visits as recent history fallback items", () => {
+  const historyItems = localVisitsAsHistoryItems([
+    {
+      lastVisitTime: Date.now(),
+      title: "Observed Page",
+      url: "https://example.com/observed",
+      visitCount: 2,
+    },
+  ]);
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: historyItems,
+      tabs: [],
+      visits: [],
+    },
+    "",
+    { sources: ["history"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.kind),
+    ["history"],
+  );
+  assert.equal(results[0]?.title, "Observed Page");
 });
 
 test("deduplicates matching palette destinations by URL with open tabs first", () => {
