@@ -200,8 +200,23 @@ interface CommandPaletteResultIndexAction {
   index: number;
 }
 
+type CommandPaletteSourcePrefix =
+  | "tab"
+  | "book"
+  | "history"
+  | "visit"
+  | "search"
+  | "url"
+  | "cmd";
+
+interface CommandPaletteApplyPrefixAction {
+  kind: "apply-prefix";
+  prefix: CommandPaletteSourcePrefix;
+}
+
 type CommandPaletteKeyAction =
   | CommandPaletteNamedKeyAction
+  | CommandPaletteApplyPrefixAction
   | CommandPaletteResultIndexAction;
 
 interface CommandPaletteHistoryNavigationCandidate {
@@ -246,6 +261,10 @@ interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
 
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
+  commandPaletteApplyPrefixValue(
+    value: string,
+    prefix: CommandPaletteSourcePrefix,
+  ): string;
   commandPaletteHistoryNavigation(
     candidate: CommandPaletteHistoryNavigationCandidate,
   ): CommandPaletteHistoryNavigationResult;

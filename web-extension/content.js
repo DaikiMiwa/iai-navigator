@@ -122,6 +122,7 @@
         "Option+W close tab",
         "Option+1-9 open result",
         "Option+↑/↓ query history",
+        "Option+T/B/H/V/S/U/M source",
         "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
     ];
     const COMMAND_PALETTE_GENERATED_KINDS = [
@@ -143,6 +144,7 @@
     };
     globalThis.SafariKeyboardNavigationCommandPalette = {
         COMMAND_PALETTE_FOOTER_HINTS,
+        commandPaletteApplyPrefixValue,
         commandPaletteHistoryNavigation,
         commandPaletteHighlightRanges,
         commandPaletteKeyAction,
@@ -745,6 +747,10 @@
         if (resultIndex !== null) {
             return { kind: "activate-index", index: resultIndex };
         }
+        const prefix = commandPaletteSourcePrefixForKey(candidate);
+        if (prefix) {
+            return { kind: "apply-prefix", prefix };
+        }
         if (candidate.altKey &&
             (candidate.key === "Backspace" || candidate.key === "Delete")) {
             return "forget-palette-entry";
@@ -753,7 +759,14 @@
     }
     function handleCommandPaletteKeyAction(action) {
         if (typeof action === "object") {
-            activateCommandPaletteIndex(action.index);
+            switch (action.kind) {
+                case "activate-index":
+                    activateCommandPaletteIndex(action.index);
+                    return;
+                case "apply-prefix":
+                    applyCommandPaletteSourcePrefix(action.prefix);
+                    return;
+            }
             return;
         }
         switch (action) {
@@ -802,6 +815,34 @@
         const digit = candidate.code?.match(/^Digit([1-9])$/)?.[1] ?? "";
         const key = digit || (/^[1-9]$/.test(candidate.key) ? candidate.key : "");
         return key ? Number(key) - 1 : null;
+    }
+    function commandPaletteSourcePrefixForKey(candidate) {
+        if (!candidate.altKey ||
+            candidate.ctrlKey ||
+            candidate.metaKey ||
+            candidate.shiftKey) {
+            return null;
+        }
+        const key = candidate.code?.match(/^Key([A-Z])$/)?.[1]?.toLowerCase() ??
+            candidate.key.toLowerCase();
+        switch (key) {
+            case "t":
+                return "tab";
+            case "b":
+                return "book";
+            case "h":
+                return "history";
+            case "v":
+                return "visit";
+            case "s":
+                return "search";
+            case "u":
+                return "url";
+            case "m":
+                return "cmd";
+            default:
+                return null;
+        }
     }
     function navigateCommandPaletteQueryHistory(direction) {
         if (!commandPaletteState) {
@@ -1057,6 +1098,17 @@
         }
         return scope;
     }
+    function commandPaletteApplyPrefixValue(value, prefix) {
+        const query = commandPaletteUnprefixedQuery(value);
+        return `${prefix}: ${query}`;
+    }
+    function commandPaletteUnprefixedQuery(value) {
+        const match = value.trimStart().match(/^([a-z]+):\s*(.*)$/i);
+        if (!match || !paletteSourcesForPrefix(match[1].toLowerCase())) {
+            return value;
+        }
+        return match[2];
+    }
     function paletteSourcesForPrefix(prefix) {
         switch (prefix) {
             case "t":
@@ -1205,6 +1257,16 @@
         }
         commandPaletteState.activeIndex = index;
         activateCommandPaletteSelection();
+    }
+    function applyCommandPaletteSourcePrefix(prefix) {
+        if (!commandPaletteState) {
+            return;
+        }
+        commandPaletteState.input.value = commandPaletteApplyPrefixValue(commandPaletteState.input.value, prefix);
+        commandPaletteState.input.setSelectionRange(commandPaletteState.input.value.length, commandPaletteState.input.value.length);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
     }
     async function copyCommandPaletteSelectionUrl() {
         if (!commandPaletteState) {

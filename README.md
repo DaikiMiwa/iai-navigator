@@ -29,6 +29,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
+- `Option+T/B/H/V/S/U/M` changes the command palette source to tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
 - The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, or a custom URL template with `{query}`.
@@ -136,6 +137,7 @@ Useful checks:
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
+- In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify only bookmarks are searched, with `Shift+B` opening the selected bookmark in a new foreground tab.
 - Press `Shift+T` and verify open tabs across browser windows are searched and selected tabs are focused.
