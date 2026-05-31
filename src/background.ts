@@ -73,7 +73,9 @@
         : []),
     ];
 
-    return results.sort(comparePaletteResults).slice(0, 24);
+    return dedupePaletteResults(results)
+      .sort(comparePaletteResults)
+      .slice(0, 24);
   }
 
   function tabSwitchDirectionForCommand(
@@ -482,6 +484,78 @@
     return a.title.localeCompare(b.title);
   }
 
+  function dedupePaletteResults(results: PaletteResult[]): PaletteResult[] {
+    const seen = new Map<string, PaletteResult>();
+    const deduped: PaletteResult[] = [];
+
+    for (const result of results) {
+      const key = paletteResultDedupeKey(result);
+      if (!key) {
+        deduped.push(result);
+        continue;
+      }
+
+      const existing = seen.get(key);
+      if (!existing) {
+        seen.set(key, result);
+        deduped.push(result);
+        continue;
+      }
+
+      if (comparePaletteResultPreference(result, existing) < 0) {
+        seen.set(key, result);
+        const index = deduped.indexOf(existing);
+        if (index >= 0) {
+          deduped[index] = result;
+        }
+      }
+    }
+
+    return deduped;
+  }
+
+  function comparePaletteResultPreference(
+    a: PaletteResult,
+    b: PaletteResult,
+  ): number {
+    const rankDifference =
+      paletteResultKindRank(a.kind) - paletteResultKindRank(b.kind);
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    return comparePaletteResults(a, b);
+  }
+
+  function paletteResultKindRank(kind: PaletteResultKind): number {
+    switch (kind) {
+      case "tab":
+        return 0;
+      case "bookmark":
+        return 1;
+      case "history":
+        return 2;
+      case "visit":
+        return 3;
+      case "url":
+        return 4;
+      case "search":
+        return 5;
+    }
+  }
+
+  function paletteResultDedupeKey(result: PaletteResult): string | null {
+    if (!result.url || result.kind === "search") {
+      return null;
+    }
+
+    try {
+      return canonicalDestinationUrl(result.url);
+    } catch {
+      return null;
+    }
+  }
+
   function generatedPaletteResults(query: string): PaletteResult[] {
     if (!query) {
       return [];
@@ -608,7 +682,7 @@
             typeof candidate.title === "string"
               ? candidate.title
               : displayTitle(undefined, candidate.url),
-          url: canonicalVisitUrl(candidate.url),
+          url: canonicalDestinationUrl(candidate.url),
           visitCount:
             typeof candidate.visitCount === "number" &&
             Number.isFinite(candidate.visitCount)
@@ -629,7 +703,7 @@
       return visits.slice(0, maxItems);
     }
 
-    const url = canonicalVisitUrl(page.url);
+    const url = canonicalDestinationUrl(page.url);
     const existing = visits.find((visit) => visit.url === url);
     const nextVisit: LocalVisitItem = {
       lastVisitTime: now,
@@ -643,7 +717,7 @@
       .slice(0, maxItems);
   }
 
-  function canonicalVisitUrl(url: string): string {
+  function canonicalDestinationUrl(url: string): string {
     const parsedUrl = new URL(url);
     parsedUrl.hash = "";
     return parsedUrl.toString();
