@@ -132,6 +132,7 @@
 
   global.SafariKeyboardNavigationTabs = {
     chooseNeighborTabId,
+    closePaletteTab,
     executePaletteResult,
     isSupportedNewTabUrl,
     paletteTabQueryInfo,
@@ -166,6 +167,10 @@
 
       if (isPaletteRemoveLocalVisitMessage(message)) {
         return removeLocalVisit(api, message.url);
+      }
+
+      if (isPaletteCloseTabMessage(message)) {
+        return closePaletteTab(api, message.tabId);
       }
 
       if (isObservePageMessage(message)) {
@@ -366,6 +371,22 @@
     return { removed: true };
   }
 
+  async function closePaletteTab(
+    api: WebExtensionApi,
+    tabId: number,
+  ): Promise<{ closed: boolean }> {
+    if (!api.tabs || !Number.isFinite(tabId)) {
+      return { closed: false };
+    }
+
+    try {
+      await api.tabs.remove(tabId);
+      return { closed: true };
+    } catch {
+      return { closed: false };
+    }
+  }
+
   async function recordPaletteActivation(
     api: WebExtensionApi,
     result: PaletteResult,
@@ -468,6 +489,21 @@
     return (
       candidate.type === "palette-remove-local-visit" &&
       typeof candidate.url === "string"
+    );
+  }
+
+  function isPaletteCloseTabMessage(
+    message: unknown,
+  ): message is PaletteCloseTabMessage {
+    if (!message || typeof message !== "object") {
+      return false;
+    }
+
+    const candidate = message as Partial<PaletteCloseTabMessage>;
+    return (
+      candidate.type === "palette-close-tab" &&
+      typeof candidate.tabId === "number" &&
+      Number.isFinite(candidate.tabId)
     );
   }
 
