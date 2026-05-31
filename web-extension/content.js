@@ -143,6 +143,7 @@
         "Shift+Enter new tab",
         "Option+Enter background",
         "Option+C copy URL",
+        "Option+Y copy Markdown",
         "Option+E edit URL",
         "Option+⌫ forget local/query",
         "Option+W close tab",
@@ -177,6 +178,7 @@
         commandPaletteHistoryNavigation,
         commandPaletteHighlightRanges,
         commandPaletteKeyAction,
+        commandPaletteMarkdownLinkValue,
         commandPaletteNextIndexAfterActivation,
         commandPaletteQueryScope,
         commandPaletteShouldCloseAfterActivation,
@@ -771,6 +773,9 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "c") {
             return "copy-result-url";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "y") {
+            return "copy-result-markdown";
+        }
         if (candidate.altKey && candidate.key.toLowerCase() === "e") {
             return "edit-result-url";
         }
@@ -821,6 +826,9 @@
                 return;
             case "activate-background-tab":
                 activateCommandPaletteSelection("background-tab");
+                return;
+            case "copy-result-markdown":
+                void copyCommandPaletteSelectionMarkdown();
                 return;
             case "copy-result-url":
                 void copyCommandPaletteSelectionUrl();
@@ -1428,6 +1436,42 @@
         void rememberCommandPaletteQuery(query);
         const didCopy = await writeTextToClipboard(url);
         showUrlCopyToast(didCopy ? "Copied URL" : "Could not copy URL");
+    }
+    async function copyCommandPaletteSelectionMarkdown() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result) {
+            return;
+        }
+        const markdown = commandPaletteMarkdownLinkValue(result);
+        if (!markdown) {
+            showUrlCopyToast("No URL to copy");
+            return;
+        }
+        const query = commandPaletteState.input.value;
+        closeCommandPalette();
+        void rememberCommandPaletteQuery(query);
+        const didCopy = await writeTextToClipboard(markdown);
+        showUrlCopyToast(didCopy ? "Copied Markdown link" : "Could not copy Markdown link");
+    }
+    function commandPaletteMarkdownLinkValue(result) {
+        const url = result.url?.trim();
+        if (!url) {
+            return null;
+        }
+        const title = normalizeMarkdownLinkTitle(result.title) || url;
+        return `[${escapeMarkdownLinkText(title)}](${escapeMarkdownLinkUrl(url)})`;
+    }
+    function normalizeMarkdownLinkTitle(value) {
+        return (value ?? "").replace(/\s+/g, " ").trim();
+    }
+    function escapeMarkdownLinkText(value) {
+        return value.replace(/([\\[\]])/g, "\\$1");
+    }
+    function escapeMarkdownLinkUrl(value) {
+        return value.replace(/([\\)])/g, "\\$1");
     }
     async function loadCommandPaletteQueryHistory() {
         const storage = globalThis.browser
