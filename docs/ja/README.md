@@ -89,7 +89,7 @@ python3 -m http.server 8765
 - checkbox、radio、button、select の Hint を最後まで入力すると通常の click/focus 挙動が実行される。
 - semantic custom control の Hint を最後まで入力すると通常の click/focus 挙動が実行される。
 - 見えている media control の Hint を最後まで入力すると通常の click/focus 挙動が実行される。
-- YouTube watch page で、見えている play/pause、mute、captions、settings、theater/miniplayer、fullscreen control に Hint が表示される。control が隠れているときは、Safari と YouTube が synthetic reveal event を受け付ける範囲で、player surface の Hint を選ぶと control が表示され再スキャンされる。
+- YouTube watch page では、Safari と YouTube が synthetic reveal event を受け付ける範囲で、`f` を押すと隠れている player control を表示してから Hint を収集する。見えている play/pause、mute、captions、settings、theater/miniplayer、fullscreen control に Hint が表示される。
 - disabled、hidden、offscreen の control には Hint が付かない。
 - 複数行に折り返されたリンクにも Hint は 1 つだけ付く。
 - hidden link には Hint が付かない。

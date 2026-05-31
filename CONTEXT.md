@@ -29,7 +29,7 @@ A Hint Target backed by a visible, enabled control inside recognized media playe
 _Avoid_: Arbitrary video click target, global media shortcut, click-anything target
 
 **Media Surface Target**:
-A Hint Target backed by a visible recognized media player surface, currently YouTube player surfaces and explicit `data-skne-media-player` containers. Media Surface Targets are only collected when no visible Media Control Targets are available. Activating a Media Surface Target focuses the player, dispatches a best-effort pointer reveal event, and rescans visible Hint Targets. It does not directly play, pause, seek, or activate arbitrary player actions.
+A Hint Target backed by a visible recognized media player surface, currently YouTube player surfaces and explicit `data-skne-media-player` containers. When current-tab Hint Mode starts and no visible Media Control Targets are available, recognized media player surfaces receive a best-effort pointer reveal event before Hint Targets are collected. Media Surface Targets are only collected when no visible Media Control Targets are available after that reveal attempt. Activating a Media Surface Target focuses the player, dispatches the same pointer reveal event, and rescans visible Hint Targets. It does not directly play, pause, seek, or activate arbitrary player actions.
 _Avoid_: Video action target, hidden control target, direct playback command
 
 **Semantic Action Target**:
