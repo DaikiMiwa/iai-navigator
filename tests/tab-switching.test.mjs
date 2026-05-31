@@ -6,6 +6,7 @@ await import("../web-extension/background.js");
 const {
   chooseNeighborTabId,
   closePaletteTab,
+  deletePaletteHistoryUrl,
   executeTabCommand,
   executePaletteResult,
   isSupportedNewTabUrl,
@@ -401,6 +402,46 @@ test("closes command palette open tab results", async () => {
   );
 
   assert.deepEqual(removedTabs, [10]);
+});
+
+test("deletes command palette history results", async () => {
+  const deletedUrls = [];
+  assert.deepEqual(
+    await deletePaletteHistoryUrl(
+      {
+        history: {
+          deleteUrl: async ({ url }) => {
+            deletedUrls.push(url);
+          },
+          search: async () => [],
+        },
+      },
+      "https://example.com/history",
+    ),
+    { removed: true },
+  );
+
+  assert.deepEqual(deletedUrls, ["https://example.com/history"]);
+});
+
+test("does not delete unsafe command palette history URLs", async () => {
+  const deletedUrls = [];
+  assert.deepEqual(
+    await deletePaletteHistoryUrl(
+      {
+        history: {
+          deleteUrl: async ({ url }) => {
+            deletedUrls.push(url);
+          },
+          search: async () => [],
+        },
+      },
+      "javascript:alert(1)",
+    ),
+    { removed: false },
+  );
+
+  assert.deepEqual(deletedUrls, []);
 });
 
 test("combines matching tabs, bookmarks, recent history, and local visits for palette search", () => {

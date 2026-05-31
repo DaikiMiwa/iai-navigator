@@ -31,7 +31,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+C` copies the selected command palette browser destination URL without opening it.
 - `Option+Y` copies the selected command palette browser destination as a Markdown link without opening it.
 - `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
-- `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
+- `Option+Backspace` forgets the selected local visit result, removes the selected history result, or forgets the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
@@ -145,7 +145,7 @@ Useful checks:
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
 - In the palette, verify `Alt+Y` / `Option+Y` copies the selected browser destination as a Markdown link without opening it.
 - In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
-- In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, or the currently recalled palette query.
+- In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.

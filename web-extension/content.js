@@ -1513,12 +1513,24 @@
             }
         }
         const result = commandPaletteState.results[commandPaletteState.activeIndex];
-        if (!result || result.kind !== "visit" || !result.url) {
-            showUrlCopyToast("Nothing local to forget");
+        if (!result || result.kind === "command" || !result.url) {
+            showUrlCopyToast("Nothing to forget");
             return;
         }
-        const removed = await removeCommandPaletteLocalVisit(result.url);
-        showUrlCopyToast(removed ? "Forgot local visit" : "Could not forget visit");
+        if (result.kind === "visit") {
+            const removed = await removeCommandPaletteLocalVisit(result.url);
+            showUrlCopyToast(removed ? "Forgot local visit" : "Could not forget visit");
+            if (removed) {
+                await refreshCommandPaletteResults();
+            }
+            return;
+        }
+        if (result.kind !== "history") {
+            showUrlCopyToast("Nothing to forget");
+            return;
+        }
+        const removed = await removeCommandPaletteHistory(result.url);
+        showUrlCopyToast(removed ? "Removed history result" : "Could not remove history");
         if (removed) {
             await refreshCommandPaletteResults();
         }
@@ -1575,6 +1587,18 @@
         const response = (await browser.runtime
             .sendMessage({
             type: "palette-remove-local-visit",
+            url,
+        })
+            .catch(() => undefined));
+        return response?.removed === true;
+    }
+    async function removeCommandPaletteHistory(url) {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return false;
+        }
+        const response = (await browser.runtime
+            .sendMessage({
+            type: "palette-remove-history",
             url,
         })
             .catch(() => undefined));
