@@ -1143,6 +1143,7 @@
                 };
             case "hist":
             case "history":
+            case "h":
                 return {
                     generatedKinds: [],
                     includeCommands: false,
@@ -1150,6 +1151,7 @@
                 };
             case "visit":
             case "visits":
+            case "v":
                 return {
                     generatedKinds: [],
                     includeCommands: false,
@@ -1157,6 +1159,7 @@
                 };
             case "url":
             case "open":
+            case "u":
                 return {
                     generatedKinds: ["url"],
                     includeCommands: false,
@@ -1204,6 +1207,7 @@
             case "cmd":
             case "command":
             case "commands":
+            case "m":
                 return {
                     generatedKinds: [],
                     includeCommands: true,

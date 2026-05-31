@@ -332,6 +332,13 @@ test("scopes command palette queries to open tabs", () => {
       sources: ["tabs"],
     },
   );
+  assert.deepEqual(commandPaletteQueryScope("t: docs", defaultPaletteOptions), {
+    generatedKinds: [],
+    includeCommands: false,
+    includeGenerated: false,
+    query: "docs",
+    sources: ["tabs"],
+  });
 });
 
 test("scopes command palette queries to bookmarks", () => {
@@ -345,6 +352,13 @@ test("scopes command palette queries to bookmarks", () => {
       sources: ["bookmarks"],
     },
   );
+  assert.deepEqual(commandPaletteQueryScope("b: docs", defaultPaletteOptions), {
+    generatedKinds: [],
+    includeCommands: false,
+    includeGenerated: false,
+    query: "docs",
+    sources: ["bookmarks"],
+  });
 });
 
 test("scopes command palette queries to history", () => {
@@ -358,6 +372,13 @@ test("scopes command palette queries to history", () => {
       sources: ["history"],
     },
   );
+  assert.deepEqual(commandPaletteQueryScope("h: docs", defaultPaletteOptions), {
+    generatedKinds: [],
+    includeCommands: false,
+    includeGenerated: false,
+    query: "docs",
+    sources: ["history"],
+  });
 });
 
 test("scopes command palette queries to local visits", () => {
@@ -371,11 +392,28 @@ test("scopes command palette queries to local visits", () => {
       sources: ["visits"],
     },
   );
+  assert.deepEqual(commandPaletteQueryScope("v: docs", defaultPaletteOptions), {
+    generatedKinds: [],
+    includeCommands: false,
+    includeGenerated: false,
+    query: "docs",
+    sources: ["visits"],
+  });
 });
 
 test("scopes command palette queries to extension commands", () => {
   assert.deepEqual(
     commandPaletteQueryScope("cmd: settings", defaultPaletteOptions),
+    {
+      generatedKinds: [],
+      includeCommands: true,
+      includeGenerated: false,
+      query: "settings",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("m: settings", defaultPaletteOptions),
     {
       generatedKinds: [],
       includeCommands: true,
@@ -397,11 +435,31 @@ test("scopes command palette queries to direct URL generation", () => {
       sources: [],
     },
   );
+  assert.deepEqual(
+    commandPaletteQueryScope("u: example.com", defaultPaletteOptions),
+    {
+      generatedKinds: ["url"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "example.com",
+      sources: [],
+    },
+  );
 });
 
 test("scopes command palette queries to web search generation", () => {
   assert.deepEqual(
     commandPaletteQueryScope("search: example.com", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "example.com",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("s: example.com", defaultPaletteOptions),
     {
       generatedKinds: ["search"],
       includeCommands: false,
