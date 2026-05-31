@@ -63,7 +63,7 @@
                 ? (sources.visits ?? []).flatMap((visit) => localVisitPaletteResult(visit, normalizedQuery))
                 : []),
             ...(options.includeGenerated
-                ? generatedPaletteResults(normalizedQuery, options.searchEngine, options.generatedKinds)
+                ? generatedPaletteResults(normalizedQuery, options.searchEngine, options.generatedKinds, options.customSearchUrlTemplate)
                 : []),
         ];
         return dedupePaletteResults(results)
@@ -160,7 +160,7 @@
         const trimmedQuery = message.query.trim();
         const since = Date.now() - 1000 * 60 * 60 * 24 * 30;
         const sources = new Set(message.sources);
-        const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
+        const [tabs, bookmarks, history, visits, searchSettings] = await Promise.all([
             sources.has("tabs") && api.tabs
                 ? api.tabs.query(paletteTabQueryInfo())
                 : Promise.resolve([]),
@@ -177,13 +177,14 @@
             sources.has("visits") && api.storage?.local
                 ? loadLocalVisits(api).then((items) => trimmedQuery ? items : items.slice(0, 12))
                 : Promise.resolve([]),
-            loadConfiguredSearchEngine(api),
+            loadConfiguredSearchSettings(api),
         ]);
         return {
             results: searchPaletteResults({ bookmarks, history, tabs, visits }, message.query, {
+                customSearchUrlTemplate: searchSettings.customSearchUrlTemplate,
                 includeGenerated: message.includeGenerated,
                 generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
-                searchEngine,
+                searchEngine: searchSettings.searchEngine,
                 sources: message.sources,
             }),
         };
@@ -487,7 +488,7 @@
             return null;
         }
     }
-    function generatedPaletteResults(query, searchEngine = DEFAULT_SEARCH_ENGINE, generatedKinds = PALETTE_GENERATED_KINDS) {
+    function generatedPaletteResults(query, searchEngine = DEFAULT_SEARCH_ENGINE, generatedKinds = PALETTE_GENERATED_KINDS, customSearchUrlTemplate = "") {
         if (!query) {
             return [];
         }
@@ -505,17 +506,42 @@
             });
         }
         if (kindFilter.has("search")) {
-            const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
+            const engine = searchEngineConfig(searchEngine, customSearchUrlTemplate, query);
             results.push({
                 id: `search:${query}`,
                 kind: "search",
                 score: directUrl ? 5 : 70,
                 subtitle: engine.label,
                 title: `Search for "${query}"`,
-                url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
+                url: engine.searchUrl ??
+                    `${engine.urlPrefix ?? SEARCH_ENGINES.google.urlPrefix}${encodeURIComponent(query)}`,
             });
         }
         return results;
+    }
+    function searchEngineConfig(searchEngine, customSearchUrlTemplate, query) {
+        if (searchEngine === "custom") {
+            const customSearchUrl = customSearchUrlFromTemplate(customSearchUrlTemplate, encodeURIComponent(query));
+            if (customSearchUrl) {
+                return { label: "Custom Search", searchUrl: customSearchUrl };
+            }
+        }
+        const engine = searchEngine === "custom"
+            ? SEARCH_ENGINES.google
+            : (SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google);
+        return { ...engine, searchUrl: null };
+    }
+    function customSearchUrlFromTemplate(template, encodedQuery) {
+        if (!template || !template.includes("{query}")) {
+            return null;
+        }
+        try {
+            const url = new URL(template.split("{query}").join(encodedQuery));
+            return isSupportedNewTabUrl(url.toString()) ? url.toString() : null;
+        }
+        catch {
+            return null;
+        }
     }
     function directNavigationUrl(query) {
         if (/\s/.test(query)) {
@@ -656,20 +682,32 @@
         const targetUrl = canonicalDestinationUrl(url);
         return visits.filter((visit) => visit.url !== targetUrl);
     }
-    async function loadConfiguredSearchEngine(api) {
+    async function loadConfiguredSearchSettings(api) {
         if (!api.storage?.local) {
-            return DEFAULT_SEARCH_ENGINE;
+            return {
+                customSearchUrlTemplate: "",
+                searchEngine: DEFAULT_SEARCH_ENGINE,
+            };
         }
         const result = await api.storage.local.get(SETTINGS_STORAGE_KEY);
         const settings = result[SETTINGS_STORAGE_KEY];
         if (!settings || typeof settings !== "object") {
-            return DEFAULT_SEARCH_ENGINE;
+            return {
+                customSearchUrlTemplate: "",
+                searchEngine: DEFAULT_SEARCH_ENGINE,
+            };
         }
         const commandPalette = settings.commandPalette;
-        return searchEngineSetting(commandPalette?.searchEngine);
+        return {
+            customSearchUrlTemplate: typeof commandPalette?.customSearchUrlTemplate === "string"
+                ? commandPalette.customSearchUrlTemplate
+                : "",
+            searchEngine: searchEngineSetting(commandPalette?.searchEngine),
+        };
     }
     function searchEngineSetting(value) {
-        return typeof value === "string" && value in SEARCH_ENGINES
+        return typeof value === "string" &&
+            (value === "custom" || value in SEARCH_ENGINES)
             ? value
             : DEFAULT_SEARCH_ENGINE;
     }

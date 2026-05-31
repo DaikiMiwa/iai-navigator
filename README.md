@@ -29,6 +29,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
+- The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, or a custom URL template with `{query}`.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs across browser windows.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.

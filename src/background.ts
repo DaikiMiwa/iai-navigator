@@ -9,7 +9,7 @@
   const SETTINGS_STORAGE_KEY = "settings";
   const DEFAULT_SEARCH_ENGINE: SafariKeyboardNavigationSearchEngine = "google";
   const SEARCH_ENGINES: Record<
-    SafariKeyboardNavigationSearchEngine,
+    Exclude<SafariKeyboardNavigationSearchEngine, "custom">,
     { label: string; urlPrefix: string }
   > = {
     brave: {
@@ -74,6 +74,7 @@
     options: {
       includeGenerated?: boolean;
       generatedKinds?: PaletteGeneratedKind[];
+      customSearchUrlTemplate?: string;
       searchEngine?: SafariKeyboardNavigationSearchEngine;
       sources?: PaletteSource[];
     } = {},
@@ -106,6 +107,7 @@
             normalizedQuery,
             options.searchEngine,
             options.generatedKinds,
+            options.customSearchUrlTemplate,
           )
         : []),
     ];
@@ -234,36 +236,38 @@
     const trimmedQuery = message.query.trim();
     const since = Date.now() - 1000 * 60 * 60 * 24 * 30;
     const sources = new Set(message.sources);
-    const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
-      sources.has("tabs") && api.tabs
-        ? api.tabs.query(paletteTabQueryInfo())
-        : Promise.resolve([]),
-      sources.has("bookmarks") && trimmedQuery && api.bookmarks
-        ? api.bookmarks.search(trimmedQuery)
-        : Promise.resolve([]),
-      sources.has("history") && api.history
-        ? api.history.search({
-            text: trimmedQuery,
-            startTime: since,
-            maxResults: trimmedQuery ? 12 : 6,
-          })
-        : Promise.resolve([]),
-      sources.has("visits") && api.storage?.local
-        ? loadLocalVisits(api).then((items) =>
-            trimmedQuery ? items : items.slice(0, 12),
-          )
-        : Promise.resolve([]),
-      loadConfiguredSearchEngine(api),
-    ]);
+    const [tabs, bookmarks, history, visits, searchSettings] =
+      await Promise.all([
+        sources.has("tabs") && api.tabs
+          ? api.tabs.query(paletteTabQueryInfo())
+          : Promise.resolve([]),
+        sources.has("bookmarks") && trimmedQuery && api.bookmarks
+          ? api.bookmarks.search(trimmedQuery)
+          : Promise.resolve([]),
+        sources.has("history") && api.history
+          ? api.history.search({
+              text: trimmedQuery,
+              startTime: since,
+              maxResults: trimmedQuery ? 12 : 6,
+            })
+          : Promise.resolve([]),
+        sources.has("visits") && api.storage?.local
+          ? loadLocalVisits(api).then((items) =>
+              trimmedQuery ? items : items.slice(0, 12),
+            )
+          : Promise.resolve([]),
+        loadConfiguredSearchSettings(api),
+      ]);
 
     return {
       results: searchPaletteResults(
         { bookmarks, history, tabs, visits },
         message.query,
         {
+          customSearchUrlTemplate: searchSettings.customSearchUrlTemplate,
           includeGenerated: message.includeGenerated,
           generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
-          searchEngine,
+          searchEngine: searchSettings.searchEngine,
           sources: message.sources,
         },
       ),
@@ -694,6 +698,7 @@
     query: string,
     searchEngine: SafariKeyboardNavigationSearchEngine = DEFAULT_SEARCH_ENGINE,
     generatedKinds: PaletteGeneratedKind[] = PALETTE_GENERATED_KINDS,
+    customSearchUrlTemplate = "",
   ): PaletteResult[] {
     if (!query) {
       return [];
@@ -714,18 +719,62 @@
     }
 
     if (kindFilter.has("search")) {
-      const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
+      const engine = searchEngineConfig(
+        searchEngine,
+        customSearchUrlTemplate,
+        query,
+      );
       results.push({
         id: `search:${query}`,
         kind: "search",
         score: directUrl ? 5 : 70,
         subtitle: engine.label,
         title: `Search for "${query}"`,
-        url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
+        url:
+          engine.searchUrl ??
+          `${engine.urlPrefix ?? SEARCH_ENGINES.google.urlPrefix}${encodeURIComponent(query)}`,
       });
     }
 
     return results;
+  }
+
+  function searchEngineConfig(
+    searchEngine: SafariKeyboardNavigationSearchEngine,
+    customSearchUrlTemplate: string,
+    query: string,
+  ): { label: string; searchUrl: string | null; urlPrefix?: string } {
+    if (searchEngine === "custom") {
+      const customSearchUrl = customSearchUrlFromTemplate(
+        customSearchUrlTemplate,
+        encodeURIComponent(query),
+      );
+      if (customSearchUrl) {
+        return { label: "Custom Search", searchUrl: customSearchUrl };
+      }
+    }
+
+    const engine =
+      searchEngine === "custom"
+        ? SEARCH_ENGINES.google
+        : (SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google);
+    return { ...engine, searchUrl: null };
+  }
+
+  function customSearchUrlFromTemplate(
+    template: string,
+    encodedQuery: string,
+  ): string | null {
+    if (!template || !template.includes("{query}")) {
+      return null;
+    }
+
+    try {
+      const url = new URL(template.split("{query}").join(encodedQuery));
+      return isSupportedNewTabUrl(url.toString()) ? url.toString() : null;
+    } catch {
+      return null;
+    }
   }
 
   function directNavigationUrl(query: string): string | null {
@@ -913,29 +962,43 @@
     return visits.filter((visit) => visit.url !== targetUrl);
   }
 
-  async function loadConfiguredSearchEngine(
-    api: WebExtensionApi,
-  ): Promise<SafariKeyboardNavigationSearchEngine> {
+  async function loadConfiguredSearchSettings(api: WebExtensionApi): Promise<{
+    customSearchUrlTemplate: string;
+    searchEngine: SafariKeyboardNavigationSearchEngine;
+  }> {
     if (!api.storage?.local) {
-      return DEFAULT_SEARCH_ENGINE;
+      return {
+        customSearchUrlTemplate: "",
+        searchEngine: DEFAULT_SEARCH_ENGINE,
+      };
     }
 
     const result = await api.storage.local.get(SETTINGS_STORAGE_KEY);
     const settings = result[SETTINGS_STORAGE_KEY];
     if (!settings || typeof settings !== "object") {
-      return DEFAULT_SEARCH_ENGINE;
+      return {
+        customSearchUrlTemplate: "",
+        searchEngine: DEFAULT_SEARCH_ENGINE,
+      };
     }
 
     const commandPalette = (
       settings as Partial<SafariKeyboardNavigationExtensionSettings>
     ).commandPalette;
-    return searchEngineSetting(commandPalette?.searchEngine);
+    return {
+      customSearchUrlTemplate:
+        typeof commandPalette?.customSearchUrlTemplate === "string"
+          ? commandPalette.customSearchUrlTemplate
+          : "",
+      searchEngine: searchEngineSetting(commandPalette?.searchEngine),
+    };
   }
 
   function searchEngineSetting(
     value: unknown,
   ): SafariKeyboardNavigationSearchEngine {
-    return typeof value === "string" && value in SEARCH_ENGINES
+    return typeof value === "string" &&
+      (value === "custom" || value in SEARCH_ENGINES)
       ? (value as SafariKeyboardNavigationSearchEngine)
       : DEFAULT_SEARCH_ENGINE;
   }

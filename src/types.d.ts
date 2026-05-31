@@ -120,9 +120,11 @@ type SafariKeyboardNavigationSearchEngine =
   | "google"
   | "duckduckgo"
   | "brave"
-  | "kagi";
+  | "kagi"
+  | "custom";
 
 interface SafariKeyboardNavigationCommandPaletteSettings {
+  customSearchUrlTemplate: string;
   searchEngine: SafariKeyboardNavigationSearchEngine;
 }
 
@@ -504,6 +506,7 @@ interface SafariKeyboardNavigationTabs {
     query: string,
     options?: {
       generatedKinds?: PaletteGeneratedKind[];
+      customSearchUrlTemplate?: string;
       includeGenerated?: boolean;
       searchEngine?: SafariKeyboardNavigationSearchEngine;
       sources?: PaletteSource[];
