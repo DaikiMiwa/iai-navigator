@@ -23,6 +23,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
+- Palette prefixes can narrow intent: `tab:`, `book:`, `history:`, `visit:`, `cmd:`, `url:`, and `search:`.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
@@ -119,6 +120,7 @@ Useful checks:
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- In the palette, type `url: example.com` and verify only a direct URL result appears; type `search: example.com` and verify only a web search result appears.
 - In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette.
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it.
