@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Safari Keyboard Navigation Settings</title>
+    <link rel="stylesheet" href="options.css">
+    <script src="settings.js" defer></script>
+    <script src="options.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Safari Keyboard Navigation</h1>
+        <p>Configure shortcuts, site access, and hint appearance.</p>
+      </header>
+
+      <section aria-labelledby="general-heading">
+        <h2 id="general-heading">General</h2>
+        <label class="checkbox-row">
+          <input id="enabled" type="checkbox">
+          <span>Enable keyboard navigation</span>
+        </label>
+      </section>
+
+      <section aria-labelledby="sites-heading">
+        <h2 id="sites-heading">Sites</h2>
+        <label>
+          Site access mode
+          <select id="site-mode">
+            <option value="all">Run on allowed Safari websites except blocked sites</option>
+            <option value="allowlist">Run only on listed sites</option>
+          </select>
+        </label>
+        <label>
+          Enabled sites
+          <textarea id="allowlist" spellcheck="false" placeholder="example.com&#10;*.example.org"></textarea>
+        </label>
+        <label>
+          Disabled sites
+          <textarea id="blocklist" spellcheck="false" placeholder="docs.google.com&#10;example.com"></textarea>
+        </label>
+      </section>
+
+      <section aria-labelledby="shortcuts-heading">
+        <h2 id="shortcuts-heading">Shortcuts</h2>
+        <div id="shortcuts" class="shortcut-grid"></div>
+      </section>
+
+      <section aria-labelledby="appearance-heading">
+        <h2 id="appearance-heading">Hint Appearance</h2>
+        <div class="settings-grid">
+          <label>
+            Font size
+            <input id="font-size" type="number" min="9" max="28">
+          </label>
+          <label>
+            Media font size
+            <input id="media-font-size" type="number" min="10" max="32">
+          </label>
+          <label>
+            Font weight
+            <input id="font-weight" type="number" min="400" max="900" step="100">
+          </label>
+          <label>
+            Opacity
+            <input id="opacity" type="number" min="0.35" max="1" step="0.05">
+          </label>
+          <label>
+            Background
+            <input id="background-color" type="color">
+          </label>
+          <label>
+            Text
+            <input id="text-color" type="color">
+          </label>
+        </div>
+      </section>
+
+      <footer>
+        <button id="save" type="button">Save Settings</button>
+        <button id="reset" type="button">Reset to Defaults</button>
+        <p id="status" role="status"></p>
+      </footer>
+    </main>
+  </body>
+</html>

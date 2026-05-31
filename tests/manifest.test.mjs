@@ -15,10 +15,19 @@ test("loads content scripts early in every frame", () => {
     "hints.js",
     "help.js",
     "scroll-surface.js",
+    "settings.js",
     "content.js",
   ]);
   assert.equal(contentScript.run_at, "document_start");
   assert.equal(contentScript.all_frames, true);
+});
+
+test("registers settings storage and options page", () => {
+  assert.equal(manifest.permissions.includes("storage"), true);
+  assert.deepEqual(manifest.options_ui, {
+    page: "options.html",
+    open_in_tab: true,
+  });
 });
 
 test("registers browser-level tab switching fallback commands", () => {

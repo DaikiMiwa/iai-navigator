@@ -122,17 +122,21 @@
       SafariKeyboardNavigationScroll?: SafariKeyboardNavigationScroll;
     }
   ).SafariKeyboardNavigationScroll;
+  const maybeSettings = (
+    globalThis as typeof globalThis & {
+      SafariKeyboardNavigationSettings?: SafariKeyboardNavigationSettingsApi;
+    }
+  ).SafariKeyboardNavigationSettings;
 
-  if (!maybeHints || !maybeHelp || !maybeScroll) {
+  if (!maybeHints || !maybeHelp || !maybeScroll || !maybeSettings) {
     return;
   }
 
   const hints: SafariKeyboardNavigationHints = maybeHints;
   const help: SafariKeyboardNavigationHelp = maybeHelp;
   const scroll: SafariKeyboardNavigationScroll = maybeScroll;
+  const settingsApi: SafariKeyboardNavigationSettingsApi = maybeSettings;
 
-  const HINT_TRIGGER = "f";
-  const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
   const HELP_OVERLAY_ID = "skne-help-overlay";
   const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
   const NATIVE_HINT_TARGET_SELECTOR =
@@ -231,13 +235,47 @@
   let urlCopyToastTimer = 0;
   let movementState: MovementState | null = null;
   let menuRevealTimer = 0;
+  let extensionSettings = settingsApi.DEFAULT_EXTENSION_SETTINGS;
   const revealedMediaControlSurfaces = new Set<HTMLElement>();
 
+  initializeExtensionSettings();
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("keyup", handleKeyUp, true);
   window.addEventListener("blur", stopMovement, true);
   window.addEventListener("pagehide", closeHelpOverlay, true);
   window.addEventListener("pagehide", stopMovement, true);
+
+  function initializeExtensionSettings(): void {
+    void settingsApi
+      .loadExtensionSettings()
+      .then((loadedSettings) => {
+        extensionSettings = loadedSettings;
+        applyHintStyleSettings();
+      })
+      .catch(() => undefined);
+
+    (
+      globalThis as typeof globalThis & { browser?: WebExtensionApi }
+    ).browser?.storage?.onChanged?.addListener((changes, areaName) => {
+      if (
+        areaName !== "local" ||
+        !(settingsApi.SETTINGS_STORAGE_KEY in changes)
+      ) {
+        return;
+      }
+
+      extensionSettings = settingsApi.normalizeExtensionSettings(
+        changes[settingsApi.SETTINGS_STORAGE_KEY]?.newValue,
+      );
+      applyHintStyleSettings();
+      if (
+        !settingsApi.isExtensionEnabledForUrl(extensionSettings, location.href)
+      ) {
+        cancelHintMode();
+        stopMovement();
+      }
+    });
+  }
 
   function handleKeyDown(event: KeyboardEvent): void {
     if (hintState) {
@@ -269,6 +307,12 @@
       return;
     }
 
+    if (
+      !settingsApi.isExtensionEnabledForUrl(extensionSettings, location.href)
+    ) {
+      return;
+    }
+
     const hintActivationMode = hintActivationModeForEvent(event);
 
     if (isUrlCopyCancelCommand(event)) {
@@ -281,13 +325,16 @@
     if (isUrlCopyCommand(event)) {
       event.preventDefault();
       event.stopPropagation();
-      handleUrlCopyCommand();
+      handleUrlCopyCommand(event);
       return;
     }
 
     clearUrlCopySequence();
 
-    if (help.isHelpCommandEvent(event)) {
+    if (
+      settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.help) ||
+      help.isHelpCommandEvent(event)
+    ) {
       event.preventDefault();
       event.stopPropagation();
       showHelpOverlay();
@@ -353,7 +400,7 @@
     if (isTopCommand(event)) {
       event.preventDefault();
       event.stopPropagation();
-      handleTopCommand();
+      handleTopCommand(event);
       return;
     }
 
@@ -399,15 +446,13 @@
   function hintActivationModeForEvent(
     event: KeyboardEvent,
   ): HintActivationMode | null {
-    if (event.altKey || event.ctrlKey || event.metaKey) {
-      return null;
-    }
-
-    if (!event.shiftKey && event.key === HINT_TRIGGER) {
+    if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.hint)) {
       return "current-tab";
     }
 
-    if (event.shiftKey && event.code === NEW_TAB_HINT_TRIGGER_CODE) {
+    if (
+      settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.newTabHint)
+    ) {
       return "new-tab";
     }
 
@@ -568,6 +613,7 @@
 
     const overlay = document.createElement("div");
     overlay.id = "skne-hint-overlay";
+    applyHintStyleSettings(overlay);
 
     const entries = targets.map((target, index): HintEntry => {
       const hint = hintValues[index];
@@ -599,6 +645,21 @@
 
     window.addEventListener("scroll", cancelHintMode, true);
     window.addEventListener("resize", cancelHintMode, true);
+  }
+
+  function applyHintStyleSettings(
+    root: HTMLElement = document.documentElement,
+  ): void {
+    const style = extensionSettings.hintStyle;
+    root.style.setProperty("--skne-hint-background", style.backgroundColor);
+    root.style.setProperty("--skne-hint-color", style.textColor);
+    root.style.setProperty("--skne-hint-font-size", `${style.fontSize}px`);
+    root.style.setProperty("--skne-hint-font-weight", String(style.fontWeight));
+    root.style.setProperty(
+      "--skne-hint-media-font-size",
+      `${style.mediaFontSize}px`,
+    );
+    root.style.setProperty("--skne-hint-opacity", String(style.opacity));
   }
 
   function handleHintKeyDown(event: KeyboardEvent): void {
@@ -1663,84 +1724,106 @@
   }
 
   function movementForEvent(event: KeyboardEvent): Movement | null {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      return null;
-    }
-
-    switch (event.key) {
-      case "h":
-        return {
-          key: "h",
+    const movements: Array<
+      [keyof SafariKeyboardNavigationShortcutSettings, Movement]
+    > = [
+      [
+        "left",
+        {
+          key: event.key.toLowerCase(),
           dx: -HORIZONTAL_STEP_PX,
           dy: 0,
           speedX: -HORIZONTAL_HOLD_SPEED_PX_PER_SECOND,
           speedY: 0,
-        };
-      case "j":
-        return {
-          key: "j",
+        },
+      ],
+      [
+        "down",
+        {
+          key: event.key.toLowerCase(),
           dx: 0,
           dy: VERTICAL_STEP_PX,
           speedX: 0,
           speedY: VERTICAL_HOLD_SPEED_PX_PER_SECOND,
-        };
-      case "k":
-        return {
-          key: "k",
+        },
+      ],
+      [
+        "up",
+        {
+          key: event.key.toLowerCase(),
           dx: 0,
           dy: -VERTICAL_STEP_PX,
           speedX: 0,
           speedY: -VERTICAL_HOLD_SPEED_PX_PER_SECOND,
-        };
-      case "l":
-        return {
-          key: "l",
+        },
+      ],
+      [
+        "right",
+        {
+          key: event.key.toLowerCase(),
           dx: HORIZONTAL_STEP_PX,
           dy: 0,
           speedX: HORIZONTAL_HOLD_SPEED_PX_PER_SECOND,
           speedY: 0,
-        };
-      default:
-        return null;
+        },
+      ],
+    ];
+
+    for (const [shortcutName, movement] of movements) {
+      if (
+        settingsApi.isShortcutEvent(
+          event,
+          extensionSettings.shortcuts[shortcutName],
+          {
+            allowRepeat: true,
+          },
+        )
+      ) {
+        return movement;
+      }
     }
+
+    return null;
   }
 
   function halfPageDirectionForEvent(event: KeyboardEvent): -1 | 1 | null {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      return null;
+    if (
+      settingsApi.isShortcutEvent(
+        event,
+        extensionSettings.shortcuts.halfPageDown,
+      )
+    ) {
+      return 1;
     }
 
-    switch (event.key) {
-      case "d":
-        return 1;
-      case "u":
-        return -1;
-      default:
-        return null;
+    if (
+      settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.halfPageUp)
+    ) {
+      return -1;
     }
+
+    return null;
   }
 
   function tabSwitchDirectionForEvent(
     event: KeyboardEvent,
   ): TabSwitchDirection | null {
     if (
-      event.repeat ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey ||
-      !event.shiftKey
+      settingsApi.isShortcutEvent(
+        event,
+        extensionSettings.shortcuts.tabPrevious,
+      )
     ) {
-      return null;
+      return "previous";
     }
 
-    switch (event.code) {
-      case "KeyJ":
-        return "previous";
-      case "KeyK":
-        return "next";
-      default:
-        return null;
+    if (
+      settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.tabNext)
+    ) {
+      return "next";
     }
+
+    return null;
   }
 
   function scrollHalfPage(direction: -1 | 1): void {
@@ -1858,19 +1941,36 @@
   }
 
   function isTopCommand(event: KeyboardEvent): boolean {
+    const sequence = settingsApi.shortcutSequence(
+      extensionSettings.shortcuts.top,
+    );
+    const key = event.key.toLowerCase();
     return (
       !event.repeat &&
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === "g"
+      sequence?.length === 2 &&
+      (key === sequence[0] ||
+        isPendingSequenceKey(
+          lastGPressAt,
+          key,
+          sequence,
+          TOP_SEQUENCE_WINDOW_MS,
+        ))
     );
   }
 
-  function handleTopCommand(): void {
+  function handleTopCommand(event: KeyboardEvent): void {
+    const sequence = settingsApi.shortcutSequence(
+      extensionSettings.shortcuts.top,
+    );
+    if (!sequence || sequence.length !== 2) {
+      return;
+    }
+
     const now = performance.now();
-    if (now - lastGPressAt <= TOP_SEQUENCE_WINDOW_MS) {
+    const key = event.key.toLowerCase();
+    if (
+      isPendingSequenceKey(lastGPressAt, key, sequence, TOP_SEQUENCE_WINDOW_MS)
+    ) {
       lastGPressAt = 0;
       const surface = findScrollSurface(
         { key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 },
@@ -1883,6 +1983,11 @@
       return;
     }
 
+    if (key !== sequence[0]) {
+      lastGPressAt = 0;
+      return;
+    }
+
     lastGPressAt = now;
     window.setTimeout(() => {
       if (performance.now() - lastGPressAt >= TOP_SEQUENCE_WINDOW_MS) {
@@ -1892,13 +1997,20 @@
   }
 
   function isUrlCopyCommand(event: KeyboardEvent): boolean {
+    const sequence = settingsApi.shortcutSequence(
+      extensionSettings.shortcuts.copyUrl,
+    );
+    const key = event.key.toLowerCase();
     return (
       !event.repeat &&
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === "y"
+      sequence?.length === 2 &&
+      (key === sequence[0] ||
+        isPendingSequenceKey(
+          lastYPressAt,
+          key,
+          sequence,
+          URL_COPY_SEQUENCE_WINDOW_MS,
+        ))
     );
   }
 
@@ -1906,11 +2018,31 @@
     return lastYPressAt !== 0 && event.key === "Escape";
   }
 
-  function handleUrlCopyCommand(): void {
+  function handleUrlCopyCommand(event: KeyboardEvent): void {
+    const sequence = settingsApi.shortcutSequence(
+      extensionSettings.shortcuts.copyUrl,
+    );
+    if (!sequence || sequence.length !== 2) {
+      return;
+    }
+
     const now = performance.now();
-    if (now - lastYPressAt <= URL_COPY_SEQUENCE_WINDOW_MS) {
+    const key = event.key.toLowerCase();
+    if (
+      isPendingSequenceKey(
+        lastYPressAt,
+        key,
+        sequence,
+        URL_COPY_SEQUENCE_WINDOW_MS,
+      )
+    ) {
       clearUrlCopySequence();
       void copyCurrentUrl();
+      return;
+    }
+
+    if (key !== sequence[0]) {
+      clearUrlCopySequence();
       return;
     }
 
@@ -1924,6 +2056,19 @@
 
   function clearUrlCopySequence(): void {
     lastYPressAt = 0;
+  }
+
+  function isPendingSequenceKey(
+    startedAt: number,
+    key: string,
+    sequence: string[],
+    windowMs: number,
+  ): boolean {
+    return (
+      startedAt !== 0 &&
+      performance.now() - startedAt <= windowMs &&
+      key === sequence[1]
+    );
   }
 
   async function copyCurrentUrl(): Promise<void> {
@@ -1993,45 +2138,30 @@
   }
 
   function isBottomCommand(event: KeyboardEvent): boolean {
-    return (
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      event.shiftKey &&
-      event.code === "KeyG"
+    return settingsApi.isShortcutEvent(
+      event,
+      extensionSettings.shortcuts.bottom,
     );
   }
 
   function isHistoryBackCommand(event: KeyboardEvent): boolean {
-    return isShiftLetterCommand(event, "KeyH");
-  }
-
-  function isHistoryForwardCommand(event: KeyboardEvent): boolean {
-    return isShiftLetterCommand(event, "KeyL");
-  }
-
-  function isReloadCommand(event: KeyboardEvent): boolean {
-    return (
-      !event.repeat &&
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === "r"
+    return settingsApi.isShortcutEvent(
+      event,
+      extensionSettings.shortcuts.historyBack,
     );
   }
 
-  function isShiftLetterCommand(
-    event: KeyboardEvent,
-    code: KeyboardEvent["code"],
-  ): boolean {
-    return (
-      !event.repeat &&
-      !event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      event.shiftKey &&
-      event.code === code
+  function isHistoryForwardCommand(event: KeyboardEvent): boolean {
+    return settingsApi.isShortcutEvent(
+      event,
+      extensionSettings.shortcuts.historyForward,
+    );
+  }
+
+  function isReloadCommand(event: KeyboardEvent): boolean {
+    return settingsApi.isShortcutEvent(
+      event,
+      extensionSettings.shortcuts.reload,
     );
   }
 
