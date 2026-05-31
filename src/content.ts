@@ -1131,8 +1131,8 @@
     }
 
     const resultIndex = commandPaletteResultIndexForKey(candidate);
-    if (resultIndex !== null) {
-      return { kind: "activate-index", index: resultIndex };
+    if (resultIndex) {
+      return resultIndex;
     }
 
     const prefix = commandPaletteSourcePrefixForKey(candidate);
@@ -1156,7 +1156,7 @@
     if (typeof action === "object") {
       switch (action.kind) {
         case "activate-index":
-          activateCommandPaletteIndex(action.index);
+          activateCommandPaletteIndex(action.index, action.disposition);
           return;
         case "apply-prefix":
           applyCommandPaletteSourcePrefix(action.prefix);
@@ -1207,19 +1207,26 @@
 
   function commandPaletteResultIndexForKey(
     candidate: CommandPaletteKeyCandidate,
-  ): number | null {
-    if (
-      !candidate.altKey ||
-      candidate.ctrlKey ||
-      candidate.metaKey ||
-      candidate.shiftKey
-    ) {
+  ): CommandPaletteResultIndexAction | null {
+    if (!candidate.altKey || candidate.ctrlKey || candidate.metaKey) {
       return null;
     }
 
     const digit = candidate.code?.match(/^Digit([1-9])$/)?.[1] ?? "";
     const key = digit || (/^[1-9]$/.test(candidate.key) ? candidate.key : "");
-    return key ? Number(key) - 1 : null;
+    if (!key) {
+      return null;
+    }
+
+    const action: CommandPaletteResultIndexAction = {
+      index: Number(key) - 1,
+      kind: "activate-index",
+    };
+    if (candidate.shiftKey) {
+      action.disposition = "new-tab";
+    }
+
+    return action;
   }
 
   function commandPaletteSourcePrefixForKey(
@@ -1774,13 +1781,16 @@
     void executeBrowserPaletteResult(result, disposition);
   }
 
-  function activateCommandPaletteIndex(index: number): void {
+  function activateCommandPaletteIndex(
+    index: number,
+    dispositionOverride?: PaletteDisposition,
+  ): void {
     if (!commandPaletteState || !commandPaletteState.results[index]) {
       return;
     }
 
     commandPaletteState.activeIndex = index;
-    activateCommandPaletteSelection();
+    activateCommandPaletteSelection(dispositionOverride);
   }
 
   function applyCommandPaletteSourcePrefix(
