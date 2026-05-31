@@ -182,7 +182,7 @@ interface SafariKeyboardNavigationMediaReveal {
   ): boolean;
 }
 
-type CommandPaletteKeyAction =
+type CommandPaletteNamedKeyAction =
   | "close"
   | "next"
   | "previous"
@@ -194,6 +194,15 @@ type CommandPaletteKeyAction =
   | "close-tab"
   | "history-previous"
   | "history-next";
+
+interface CommandPaletteResultIndexAction {
+  kind: "activate-index";
+  index: number;
+}
+
+type CommandPaletteKeyAction =
+  | CommandPaletteNamedKeyAction
+  | CommandPaletteResultIndexAction;
 
 interface CommandPaletteHistoryNavigationCandidate {
   cursor: number | null;
@@ -211,6 +220,7 @@ interface CommandPaletteHistoryNavigationResult {
 
 interface CommandPaletteKeyCandidate {
   altKey: boolean;
+  code?: string;
   ctrlKey: boolean;
   key: string;
   metaKey: boolean;

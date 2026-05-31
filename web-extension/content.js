@@ -120,6 +120,7 @@
         "Option+C copy URL",
         "Option+⌫ forget local/query",
         "Option+W close tab",
+        "Option+1-9 open result",
         "Option+↑/↓ query history",
         "tab: book: history: visit: search: url: cmd:",
     ];
@@ -740,6 +741,10 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "w") {
             return "close-tab";
         }
+        const resultIndex = commandPaletteResultIndexForKey(candidate);
+        if (resultIndex !== null) {
+            return { kind: "activate-index", index: resultIndex };
+        }
         if (candidate.altKey &&
             (candidate.key === "Backspace" || candidate.key === "Delete")) {
             return "forget-palette-entry";
@@ -747,6 +752,10 @@
         return null;
     }
     function handleCommandPaletteKeyAction(action) {
+        if (typeof action === "object") {
+            activateCommandPaletteIndex(action.index);
+            return;
+        }
         switch (action) {
             case "close":
                 closeCommandPalette();
@@ -782,6 +791,17 @@
                 navigateCommandPaletteQueryHistory("next");
                 return;
         }
+    }
+    function commandPaletteResultIndexForKey(candidate) {
+        if (!candidate.altKey ||
+            candidate.ctrlKey ||
+            candidate.metaKey ||
+            candidate.shiftKey) {
+            return null;
+        }
+        const digit = candidate.code?.match(/^Digit([1-9])$/)?.[1] ?? "";
+        const key = digit || (/^[1-9]$/.test(candidate.key) ? candidate.key : "");
+        return key ? Number(key) - 1 : null;
     }
     function navigateCommandPaletteQueryHistory(direction) {
         if (!commandPaletteState) {
@@ -946,6 +966,11 @@
                 commandPaletteState.activeIndex = index;
                 activateCommandPaletteSelection();
             });
+            const shortcut = document.createElement("span");
+            shortcut.className = "skne-command-palette-index";
+            shortcut.textContent = index < 9 ? String(index + 1) : "";
+            shortcut.setAttribute("aria-hidden", "true");
+            row.appendChild(shortcut);
             const kind = document.createElement("span");
             kind.className = "skne-command-palette-kind";
             kind.textContent = result.kind;
@@ -1136,6 +1161,13 @@
             return;
         }
         void executeBrowserPaletteResult(result, disposition);
+    }
+    function activateCommandPaletteIndex(index) {
+        if (!commandPaletteState || !commandPaletteState.results[index]) {
+            return;
+        }
+        commandPaletteState.activeIndex = index;
+        activateCommandPaletteSelection();
     }
     async function copyCommandPaletteSelectionUrl() {
         if (!commandPaletteState) {
