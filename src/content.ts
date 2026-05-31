@@ -100,6 +100,7 @@
   interface CommandPaletteState {
     activeIndex: number;
     disposition: PaletteDisposition;
+    generatedKinds: PaletteGeneratedKind[];
     includeCommands: boolean;
     includeGenerated: boolean;
     input: HTMLInputElement;
@@ -283,8 +284,12 @@
     "Enter open",
     "Shift+Enter new tab",
     "Option+Enter background",
-    "tab: book: history: cmd:",
+    "tab: book: history: visit: search: url: cmd:",
   ] as const;
+  const COMMAND_PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = [
+    "url",
+    "search",
+  ];
 
   (
     globalThis as typeof globalThis & {
@@ -947,6 +952,7 @@
 
   function openCommandPalette(options: {
     disposition: PaletteDisposition;
+    generatedKinds: PaletteGeneratedKind[];
     includeCommands: boolean;
     includeGenerated: boolean;
     placeholder: string;
@@ -988,6 +994,7 @@
     commandPaletteState = {
       activeIndex: 0,
       disposition: options.disposition,
+      generatedKinds: options.generatedKinds,
       includeCommands: options.includeCommands,
       includeGenerated: options.includeGenerated,
       input,
@@ -1142,6 +1149,7 @@
     try {
       const response = (await browser.runtime.sendMessage({
         type: "palette-search",
+        generatedKinds: scope.generatedKinds,
         includeGenerated: scope.includeGenerated,
         query: scope.query,
         sources: scope.sources,
@@ -1337,8 +1345,9 @@
     }
 
     return {
+      generatedKinds: sources.generatedKinds,
       includeCommands: sources.includeCommands,
-      includeGenerated: false,
+      includeGenerated: sources.generatedKinds.length > 0,
       query: match[2],
       sources: sources.sources,
     };
@@ -1346,27 +1355,64 @@
 
   function paletteSourcesForPrefix(
     prefix: string,
-  ): Pick<CommandPaletteQueryScope, "includeCommands" | "sources"> | null {
+  ): Pick<
+    CommandPaletteQueryScope,
+    "generatedKinds" | "includeCommands" | "sources"
+  > | null {
     switch (prefix) {
       case "t":
       case "tab":
       case "tabs":
-        return { includeCommands: false, sources: ["tabs"] };
+        return {
+          generatedKinds: [],
+          includeCommands: false,
+          sources: ["tabs"],
+        };
       case "b":
       case "book":
       case "bookmark":
       case "bookmarks":
-        return { includeCommands: false, sources: ["bookmarks"] };
+        return {
+          generatedKinds: [],
+          includeCommands: false,
+          sources: ["bookmarks"],
+        };
       case "hist":
       case "history":
-        return { includeCommands: false, sources: ["history"] };
+        return {
+          generatedKinds: [],
+          includeCommands: false,
+          sources: ["history"],
+        };
       case "visit":
       case "visits":
-        return { includeCommands: false, sources: ["visits"] };
+        return {
+          generatedKinds: [],
+          includeCommands: false,
+          sources: ["visits"],
+        };
+      case "url":
+      case "open":
+        return {
+          generatedKinds: ["url"],
+          includeCommands: false,
+          sources: [],
+        };
+      case "s":
+      case "search":
+        return {
+          generatedKinds: ["search"],
+          includeCommands: false,
+          sources: [],
+        };
       case "cmd":
       case "command":
       case "commands":
-        return { includeCommands: true, sources: [] };
+        return {
+          generatedKinds: [],
+          includeCommands: true,
+          sources: [],
+        };
       default:
         return null;
     }
@@ -2861,6 +2907,7 @@
 
   function commandPaletteOptionsForEvent(event: KeyboardEvent): {
     disposition: PaletteDisposition;
+    generatedKinds: PaletteGeneratedKind[];
     includeCommands: boolean;
     includeGenerated: boolean;
     placeholder: string;
@@ -2874,6 +2921,7 @@
     ) {
       return {
         disposition: "current-tab",
+        generatedKinds: COMMAND_PALETTE_GENERATED_KINDS,
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Search tabs, bookmarks, history, commands, URLs",
@@ -2889,6 +2937,7 @@
     ) {
       return {
         disposition: "new-tab",
+        generatedKinds: COMMAND_PALETTE_GENERATED_KINDS,
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
@@ -2904,6 +2953,7 @@
     ) {
       return {
         disposition: "current-tab",
+        generatedKinds: [],
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Search bookmarks",
@@ -2919,6 +2969,7 @@
     ) {
       return {
         disposition: "new-tab",
+        generatedKinds: [],
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Open bookmark in new tab",
@@ -2931,6 +2982,7 @@
     ) {
       return {
         disposition: "current-tab",
+        generatedKinds: [],
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Search open tabs",

@@ -202,6 +202,7 @@ interface TextRange {
 }
 
 interface CommandPaletteQueryOptions {
+  generatedKinds: PaletteGeneratedKind[];
   includeCommands: boolean;
   includeGenerated: boolean;
   sources: PaletteSource[];
@@ -267,6 +268,7 @@ type PaletteResultKind =
   | "url"
   | "search";
 type PaletteSource = "tabs" | "bookmarks" | "history" | "visits";
+type PaletteGeneratedKind = "url" | "search";
 type PaletteDisposition = "current-tab" | "new-tab" | "background-tab";
 
 interface PaletteResult {
@@ -284,6 +286,7 @@ interface PaletteSearchMessage {
   type: "palette-search";
   query: string;
   sources: PaletteSource[];
+  generatedKinds?: PaletteGeneratedKind[];
   includeGenerated: boolean;
 }
 
@@ -469,6 +472,7 @@ interface SafariKeyboardNavigationTabs {
     },
     query: string,
     options?: {
+      generatedKinds?: PaletteGeneratedKind[];
       includeGenerated?: boolean;
       searchEngine?: SafariKeyboardNavigationSearchEngine;
       sources?: PaletteSource[];

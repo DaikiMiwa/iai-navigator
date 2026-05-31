@@ -29,6 +29,7 @@
       urlPrefix: "https://kagi.com/search?q=",
     },
   };
+  const PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = ["url", "search"];
 
   function chooseNeighborTabId(
     tabs: WebExtensionTab[],
@@ -72,6 +73,7 @@
     query: string,
     options: {
       includeGenerated?: boolean;
+      generatedKinds?: PaletteGeneratedKind[];
       searchEngine?: SafariKeyboardNavigationSearchEngine;
       sources?: PaletteSource[];
     } = {},
@@ -100,7 +102,11 @@
           )
         : []),
       ...(options.includeGenerated
-        ? generatedPaletteResults(normalizedQuery, options.searchEngine)
+        ? generatedPaletteResults(
+            normalizedQuery,
+            options.searchEngine,
+            options.generatedKinds,
+          )
         : []),
     ];
 
@@ -251,6 +257,7 @@
         message.query,
         {
           includeGenerated: message.includeGenerated,
+          generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
           searchEngine,
           sources: message.sources,
         },
@@ -392,8 +399,17 @@
       candidate.type === "palette-search" &&
       typeof candidate.query === "string" &&
       Array.isArray(candidate.sources) &&
+      (candidate.generatedKinds === undefined ||
+        (Array.isArray(candidate.generatedKinds) &&
+          candidate.generatedKinds.every(isPaletteGeneratedKind))) &&
       typeof candidate.includeGenerated === "boolean"
     );
+  }
+
+  function isPaletteGeneratedKind(
+    value: unknown,
+  ): value is PaletteGeneratedKind {
+    return value === "url" || value === "search";
   }
 
   function isPaletteExecuteMessage(
@@ -640,14 +656,16 @@
   function generatedPaletteResults(
     query: string,
     searchEngine: SafariKeyboardNavigationSearchEngine = DEFAULT_SEARCH_ENGINE,
+    generatedKinds: PaletteGeneratedKind[] = PALETTE_GENERATED_KINDS,
   ): PaletteResult[] {
     if (!query) {
       return [];
     }
 
     const results: PaletteResult[] = [];
+    const kindFilter = new Set(generatedKinds);
     const directUrl = directNavigationUrl(query);
-    if (directUrl) {
+    if (directUrl && kindFilter.has("url")) {
       results.push({
         id: `url:${directUrl}`,
         kind: "url",
@@ -658,15 +676,17 @@
       });
     }
 
-    const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
-    results.push({
-      id: `search:${query}`,
-      kind: "search",
-      score: directUrl ? 5 : 70,
-      subtitle: engine.label,
-      title: `Search for "${query}"`,
-      url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
-    });
+    if (kindFilter.has("search")) {
+      const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
+      results.push({
+        id: `search:${query}`,
+        kind: "search",
+        score: directUrl ? 5 : 70,
+        subtitle: engine.label,
+        title: `Search for "${query}"`,
+        url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
+      });
+    }
 
     return results;
   }

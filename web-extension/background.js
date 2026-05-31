@@ -22,6 +22,7 @@
             urlPrefix: "https://kagi.com/search?q=",
         },
     };
+    const PALETTE_GENERATED_KINDS = ["url", "search"];
     function chooseNeighborTabId(tabs, activeTabId, direction) {
         const orderedTabs = tabs
             .filter((tab) => Number.isFinite(tab.id))
@@ -62,7 +63,7 @@
                 ? (sources.visits ?? []).flatMap((visit) => localVisitPaletteResult(visit, normalizedQuery))
                 : []),
             ...(options.includeGenerated
-                ? generatedPaletteResults(normalizedQuery, options.searchEngine)
+                ? generatedPaletteResults(normalizedQuery, options.searchEngine, options.generatedKinds)
                 : []),
         ];
         return dedupePaletteResults(results)
@@ -177,6 +178,7 @@
         return {
             results: searchPaletteResults({ bookmarks, history, tabs, visits }, message.query, {
                 includeGenerated: message.includeGenerated,
+                generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
                 searchEngine,
                 sources: message.sources,
             }),
@@ -273,7 +275,13 @@
         return (candidate.type === "palette-search" &&
             typeof candidate.query === "string" &&
             Array.isArray(candidate.sources) &&
+            (candidate.generatedKinds === undefined ||
+                (Array.isArray(candidate.generatedKinds) &&
+                    candidate.generatedKinds.every(isPaletteGeneratedKind))) &&
             typeof candidate.includeGenerated === "boolean");
+    }
+    function isPaletteGeneratedKind(value) {
+        return value === "url" || value === "search";
     }
     function isPaletteExecuteMessage(message) {
         if (!message || typeof message !== "object") {
@@ -455,13 +463,14 @@
             return null;
         }
     }
-    function generatedPaletteResults(query, searchEngine = DEFAULT_SEARCH_ENGINE) {
+    function generatedPaletteResults(query, searchEngine = DEFAULT_SEARCH_ENGINE, generatedKinds = PALETTE_GENERATED_KINDS) {
         if (!query) {
             return [];
         }
         const results = [];
+        const kindFilter = new Set(generatedKinds);
         const directUrl = directNavigationUrl(query);
-        if (directUrl) {
+        if (directUrl && kindFilter.has("url")) {
             results.push({
                 id: `url:${directUrl}`,
                 kind: "url",
@@ -471,15 +480,17 @@
                 url: directUrl,
             });
         }
-        const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
-        results.push({
-            id: `search:${query}`,
-            kind: "search",
-            score: directUrl ? 5 : 70,
-            subtitle: engine.label,
-            title: `Search for "${query}"`,
-            url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
-        });
+        if (kindFilter.has("search")) {
+            const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
+            results.push({
+                id: `search:${query}`,
+                kind: "search",
+                score: directUrl ? 5 : 70,
+                subtitle: engine.label,
+                title: `Search for "${query}"`,
+                url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
+            });
+        }
         return results;
     }
     function directNavigationUrl(query) {

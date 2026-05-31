@@ -575,6 +575,43 @@ test("adds direct URL and search results for open palette queries", () => {
   );
 });
 
+test("filters generated palette results by generated kind", () => {
+  const searchOnlyResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "example.com",
+    { generatedKinds: ["search"], includeGenerated: true },
+  );
+
+  assert.deepEqual(
+    searchOnlyResults.map((result) => result.kind),
+    ["search"],
+  );
+  assert.equal(
+    searchOnlyResults[0].url,
+    "https://www.google.com/search?q=example.com",
+  );
+
+  const urlOnlyResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "example.com",
+    { generatedKinds: ["url"], includeGenerated: true },
+  );
+
+  assert.deepEqual(
+    urlOnlyResults.map((result) => result.kind),
+    ["url"],
+  );
+  assert.equal(urlOnlyResults[0].url, "https://example.com");
+
+  const invalidUrlResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "hello world",
+    { generatedKinds: ["url"], includeGenerated: true },
+  );
+
+  assert.deepEqual(invalidUrlResults, []);
+});
+
 test("records local visits with canonical URLs, deduping, and a bounded list", () => {
   const first = recordLocalVisit(
     [],
