@@ -174,6 +174,10 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /history:/);
   assert.match(hints, /visit:/);
   assert.match(hints, /search:/);
+  assert.match(hints, /g:/);
+  assert.match(hints, /ddg:/);
+  assert.match(hints, /br:/);
+  assert.match(hints, /k:/);
   assert.match(hints, /url:/);
   assert.match(hints, /cmd:/);
 });
@@ -344,4 +348,45 @@ test("scopes command palette queries to web search generation", () => {
       sources: [],
     },
   );
+});
+
+test("scopes command palette queries to explicit search engines", () => {
+  assert.deepEqual(commandPaletteQueryScope("g: docs", defaultPaletteOptions), {
+    generatedKinds: ["search"],
+    includeCommands: false,
+    includeGenerated: true,
+    query: "docs",
+    searchEngine: "google",
+    sources: [],
+  });
+  assert.deepEqual(
+    commandPaletteQueryScope("ddg: docs", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "docs",
+      searchEngine: "duckduckgo",
+      sources: [],
+    },
+  );
+  assert.deepEqual(
+    commandPaletteQueryScope("brave: docs", defaultPaletteOptions),
+    {
+      generatedKinds: ["search"],
+      includeCommands: false,
+      includeGenerated: true,
+      query: "docs",
+      searchEngine: "brave",
+      sources: [],
+    },
+  );
+  assert.deepEqual(commandPaletteQueryScope("k: docs", defaultPaletteOptions), {
+    generatedKinds: ["search"],
+    includeCommands: false,
+    includeGenerated: true,
+    query: "docs",
+    searchEngine: "kagi",
+    sources: [],
+  });
 });

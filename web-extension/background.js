@@ -188,7 +188,7 @@
                 customSearchUrlTemplate: searchSettings.customSearchUrlTemplate,
                 includeGenerated: message.includeGenerated,
                 generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
-                searchEngine: searchSettings.searchEngine,
+                searchEngine: message.searchEngine ?? searchSettings.searchEngine,
                 sources: message.sources,
             }),
         };
@@ -311,7 +311,16 @@
             (candidate.generatedKinds === undefined ||
                 (Array.isArray(candidate.generatedKinds) &&
                     candidate.generatedKinds.every(isPaletteGeneratedKind))) &&
-            typeof candidate.includeGenerated === "boolean");
+            typeof candidate.includeGenerated === "boolean" &&
+            (candidate.searchEngine === undefined ||
+                isSafariKeyboardNavigationSearchEngine(candidate.searchEngine)));
+    }
+    function isSafariKeyboardNavigationSearchEngine(value) {
+        return (value === "brave" ||
+            value === "custom" ||
+            value === "duckduckgo" ||
+            value === "google" ||
+            value === "kagi");
     }
     function isPaletteGeneratedKind(value) {
         return value === "url" || value === "search";
