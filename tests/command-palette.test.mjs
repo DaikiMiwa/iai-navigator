@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteDeletePreviousWordValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteMarkdownLinkValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteDomainFilterValue } =
@@ -126,6 +128,14 @@ test("maps command palette navigation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "U" })),
     "clear-query",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "w" })),
+    "delete-previous-word",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "W" })),
+    "delete-previous-word",
   );
 });
 
@@ -300,6 +310,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
+  assert.match(hints, /Ctrl\+U\/W/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/U\/M/);
   assert.match(hints, /tab:/);
@@ -518,6 +529,41 @@ test("formats command palette title filter values", () => {
     null,
   );
   assert.equal(commandPaletteTitleFilterValue("docs", { title: "  " }), null);
+});
+
+test("deletes the previous command palette word", () => {
+  assert.deepEqual(
+    commandPaletteDeletePreviousWordValue({
+      selectionEnd: 18,
+      selectionStart: 18,
+      value: "book: project docs",
+    }),
+    { selectionEnd: 14, selectionStart: 14, value: "book: project " },
+  );
+  assert.deepEqual(
+    commandPaletteDeletePreviousWordValue({
+      selectionEnd: 16,
+      selectionStart: 16,
+      value: "book: project  ",
+    }),
+    { selectionEnd: 6, selectionStart: 6, value: "book: " },
+  );
+  assert.deepEqual(
+    commandPaletteDeletePreviousWordValue({
+      selectionEnd: 13,
+      selectionStart: 5,
+      value: "book: project docs",
+    }),
+    { selectionEnd: 5, selectionStart: 5, value: "book: docs" },
+  );
+  assert.deepEqual(
+    commandPaletteDeletePreviousWordValue({
+      selectionEnd: 999,
+      selectionStart: 999,
+      value: "docs",
+    }),
+    { selectionEnd: 0, selectionStart: 0, value: "" },
+  );
 });
 
 test("formats command palette results as Markdown links", () => {
