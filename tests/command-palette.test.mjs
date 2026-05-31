@@ -63,6 +63,8 @@ const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteShouldCloseAfterActivation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { recentPaletteQueryResultTitles } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { COMMAND_PALETTE_FOOTER_HINTS } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 
@@ -676,6 +678,46 @@ test("navigates command palette query history", () => {
       inputBeforeHistory: "",
       query: "current",
     },
+  );
+});
+
+test("shows recent query suggestions only for an empty all-source palette", () => {
+  const history = ["github issues", "book: docs", "yt: safari"];
+
+  assert.deepEqual(
+    recentPaletteQueryResultTitles(
+      commandPaletteQueryScope("", defaultPaletteOptions),
+      history,
+    ),
+    history,
+  );
+
+  assert.deepEqual(
+    recentPaletteQueryResultTitles(
+      commandPaletteQueryScope("docs", defaultPaletteOptions),
+      history,
+    ),
+    [],
+  );
+
+  assert.deepEqual(
+    recentPaletteQueryResultTitles(
+      commandPaletteQueryScope("book:", defaultPaletteOptions),
+      history,
+    ),
+    [],
+  );
+
+  assert.deepEqual(
+    recentPaletteQueryResultTitles(
+      commandPaletteQueryScope("", {
+        ...defaultPaletteOptions,
+        includeCommands: false,
+        sources: ["bookmarks"],
+      }),
+      history,
+    ),
+    [],
   );
 });
 

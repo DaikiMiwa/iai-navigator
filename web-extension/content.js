@@ -220,6 +220,7 @@
         commandPaletteMarkdownLinkValue,
         commandPaletteNextIndexAfterActivation,
         commandPaletteQueryScope,
+        recentPaletteQueryResultTitles,
         commandPaletteShouldCloseAfterActivation,
         commandPaletteTitleFilterValue,
     };
@@ -750,6 +751,7 @@
         void loadCommandPaletteQueryHistory().then((history) => {
             if (commandPaletteState?.input === input) {
                 commandPaletteState.history = history;
+                void refreshCommandPaletteResults();
             }
         });
         void refreshCommandPaletteResults();
@@ -1069,7 +1071,7 @@
         const searchId = state.searchId + 1;
         state.searchId = searchId;
         const [localResults, browserResults] = await Promise.all([
-            Promise.resolve(scope.includeCommands ? searchLocalPaletteCommands(scope.query) : []),
+            Promise.resolve(searchLocalPaletteResults(scope, state.history)),
             searchBrowserPaletteResults(scope),
         ]);
         if (!commandPaletteState || commandPaletteState.searchId !== searchId) {
@@ -1100,6 +1102,34 @@
             return [];
         }
     }
+    function searchLocalPaletteResults(scope, queryHistory) {
+        return [
+            ...(scope.includeCommands ? searchLocalPaletteCommands(scope.query) : []),
+            ...recentPaletteQueryResults(scope, queryHistory),
+        ];
+    }
+    function recentPaletteQueryResults(scope, queryHistory) {
+        if (!shouldShowRecentPaletteQueryResults(scope)) {
+            return [];
+        }
+        return queryHistory.slice(0, 6).map((query, index) => ({
+            id: `query:${encodeURIComponent(query)}`,
+            kind: "query",
+            query,
+            score: 20 - index,
+            subtitle: "Recent palette query",
+            title: query,
+        }));
+    }
+    function shouldShowRecentPaletteQueryResults(scope) {
+        return (scope.query.trim() === "" &&
+            scope.includeCommands &&
+            scope.includeGenerated &&
+            scope.sources.includes("tabs") &&
+            scope.sources.includes("bookmarks") &&
+            scope.sources.includes("history") &&
+            scope.sources.includes("visits"));
+    }
     function searchLocalPaletteCommands(query) {
         const normalizedQuery = query.trim().toLowerCase();
         return LOCAL_PALETTE_COMMANDS.flatMap((command) => {
@@ -1123,7 +1153,10 @@
         return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
     }
     function commandPaletteCommandSearchIds(query) {
-        return searchLocalPaletteCommands(query).map((result) => result.command);
+        return searchLocalPaletteCommands(query).flatMap((result) => result.command ? [result.command] : []);
+    }
+    function recentPaletteQueryResultTitles(scope, queryHistory) {
+        return recentPaletteQueryResults(scope, queryHistory).map((result) => result.title);
     }
     function localPaletteCommandScore(command, query) {
         if (!query) {
@@ -1605,6 +1638,12 @@
         }
         const disposition = dispositionOverride ?? commandPaletteState.disposition;
         const query = commandPaletteState.input.value;
+        if (result.kind === "query") {
+            if (result.query) {
+                applyCommandPaletteQuerySuggestion(result.query);
+            }
+            return;
+        }
         if (result.kind === "command" && result.command === "edit-current-url") {
             executeLocalPaletteCommand(result.command);
             return;
@@ -1620,7 +1659,9 @@
             if (disposition === "background-tab") {
                 return;
             }
-            executeLocalPaletteCommand(result.command);
+            if (result.command) {
+                executeLocalPaletteCommand(result.command);
+            }
             return;
         }
         void executeBrowserPaletteResult(result, disposition);
@@ -1666,6 +1707,16 @@
         }
         commandPaletteState.input.value = commandPaletteApplyPrefixValue(commandPaletteState.input.value, prefix);
         commandPaletteState.input.setSelectionRange(commandPaletteState.input.value.length, commandPaletteState.input.value.length);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
+    }
+    function applyCommandPaletteQuerySuggestion(query) {
+        if (!commandPaletteState) {
+            return;
+        }
+        commandPaletteState.input.value = query;
+        commandPaletteState.input.setSelectionRange(query.length, query.length);
         commandPaletteState.historyCursor = null;
         commandPaletteState.inputBeforeHistory = "";
         void refreshCommandPaletteResults();
@@ -1822,7 +1873,23 @@
             }
         }
         const result = commandPaletteState.results[commandPaletteState.activeIndex];
-        if (!result || result.kind === "command" || !result.url) {
+        if (!result) {
+            showUrlCopyToast("Nothing to forget");
+            return;
+        }
+        if (result.kind === "query") {
+            if (!result.query) {
+                showUrlCopyToast("Nothing to forget");
+                return;
+            }
+            const removed = await forgetCommandPaletteQuery(result.query);
+            showUrlCopyToast(removed ? "Forgot palette query" : "Could not forget query");
+            if (removed) {
+                await refreshCommandPaletteResults();
+            }
+            return;
+        }
+        if (result.kind === "command" || !result.url) {
             showUrlCopyToast("Nothing to forget");
             return;
         }
@@ -1887,6 +1954,24 @@
         commandPaletteState.input.value = restoredQuery;
         await storeCommandPaletteQueryHistory(nextHistory);
         await refreshCommandPaletteResults();
+        return true;
+    }
+    async function forgetCommandPaletteQuery(query) {
+        const normalizedQuery = query.trim();
+        if (!normalizedQuery) {
+            return false;
+        }
+        const currentHistory = commandPaletteState?.history ?? (await loadCommandPaletteQueryHistory());
+        const nextHistory = currentHistory.filter((item) => item !== normalizedQuery);
+        if (nextHistory.length === currentHistory.length) {
+            return false;
+        }
+        await storeCommandPaletteQueryHistory(nextHistory);
+        if (commandPaletteState) {
+            commandPaletteState.history = nextHistory;
+            commandPaletteState.historyCursor = null;
+            commandPaletteState.inputBeforeHistory = "";
+        }
         return true;
     }
     async function removeCommandPaletteLocalVisit(url) {
