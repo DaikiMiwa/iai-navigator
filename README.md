@@ -25,6 +25,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - Palette prefixes can narrow intent: `tab:`, `book:`, `history:`, `visit:`, `cmd:`, `url:`, and `search:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
 - `Option+C` copies the selected command palette browser destination URL without opening it.
+- `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
 - `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result.
@@ -133,6 +134,7 @@ Useful checks:
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it.
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
+- In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, or the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result.

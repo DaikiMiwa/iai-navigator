@@ -37,6 +37,8 @@ const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteEditableResultValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHistoryNavigation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
@@ -112,6 +114,14 @@ test("maps command palette activation keys", () => {
     "copy-result-url",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "e" })),
+    "edit-result-url",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "E" })),
+    "edit-result-url",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "w" })),
     "close-tab",
   );
@@ -179,6 +189,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);
+  assert.match(hints, /Option\+E/);
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
@@ -212,6 +223,25 @@ test("applies command palette source prefixes while preserving query text", () =
     "tab: unknown: docs",
   );
   assert.equal(commandPaletteApplyPrefixValue("", "cmd"), "cmd: ");
+});
+
+test("formats editable command palette result URLs", () => {
+  assert.equal(
+    commandPaletteEditableResultValue({
+      kind: "bookmark",
+      url: "https://example.com/docs",
+    }),
+    "url: https://example.com/docs",
+  );
+  assert.equal(
+    commandPaletteEditableResultValue({
+      kind: "search",
+      url: "https://www.google.com/search?q=docs",
+    }),
+    "url: https://www.google.com/search?q=docs",
+  );
+  assert.equal(commandPaletteEditableResultValue({ kind: "command" }), null);
+  assert.equal(commandPaletteEditableResultValue({ kind: "history" }), null);
 });
 
 test("navigates command palette query history", () => {
