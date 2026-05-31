@@ -110,6 +110,14 @@ test("maps command palette activation keys", () => {
     "copy-result-url",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "w" })),
+    "close-tab",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "W" })),
+    "close-tab",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "Backspace" })),
     "forget-palette-entry",
   );
@@ -139,6 +147,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);
   assert.match(hints, /Option\+⌫/);
+  assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);

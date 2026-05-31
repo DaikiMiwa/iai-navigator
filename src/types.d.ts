@@ -191,6 +191,7 @@ type CommandPaletteKeyAction =
   | "activate-background-tab"
   | "copy-result-url"
   | "forget-palette-entry"
+  | "close-tab"
   | "history-previous"
   | "history-next";
 
@@ -324,6 +325,11 @@ interface PaletteRemoveLocalVisitMessage {
   url: string;
 }
 
+interface PaletteCloseTabMessage {
+  type: "palette-close-tab";
+  tabId: number;
+}
+
 interface OpenOptionsMessage {
   type: "open-options";
 }
@@ -344,6 +350,7 @@ type SafariKeyboardNavigationMessage =
   | PaletteSearchMessage
   | PaletteExecuteMessage
   | PaletteRemoveLocalVisitMessage
+  | PaletteCloseTabMessage
   | OpenOptionsMessage
   | ObservePageMessage;
 
@@ -446,6 +453,7 @@ interface WebExtensionStorage {
 interface WebExtensionTabs {
   create(createProperties: WebExtensionTabCreate): Promise<WebExtensionTab>;
   query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
+  remove(tabId: number): Promise<void>;
   update(
     tabId: number,
     updateProperties: WebExtensionTabUpdate,
@@ -479,6 +487,10 @@ interface SafariKeyboardNavigationTabs {
     activeTabId: number,
     direction: TabSwitchDirection,
   ): number | null;
+  closePaletteTab(
+    api: WebExtensionApi,
+    tabId: number,
+  ): Promise<{ closed: boolean }>;
   executePaletteResult(
     api: WebExtensionApi,
     result: PaletteResult,

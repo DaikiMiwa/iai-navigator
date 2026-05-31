@@ -119,6 +119,7 @@
         "Option+Enter background",
         "Option+C copy URL",
         "Option+⌫ forget local/query",
+        "Option+W close tab",
         "Option+↑/↓ query history",
         "tab: book: history: visit: search: url: cmd:",
     ];
@@ -736,6 +737,9 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "c") {
             return "copy-result-url";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "w") {
+            return "close-tab";
+        }
         if (candidate.altKey &&
             (candidate.key === "Backspace" || candidate.key === "Delete")) {
             return "forget-palette-entry";
@@ -767,6 +771,9 @@
                 return;
             case "forget-palette-entry":
                 void forgetCommandPaletteEntry();
+                return;
+            case "close-tab":
+                void closeCommandPaletteTab();
                 return;
             case "history-previous":
                 navigateCommandPaletteQueryHistory("previous");
@@ -1198,6 +1205,33 @@
         if (removed) {
             await refreshCommandPaletteResults();
         }
+    }
+    async function closeCommandPaletteTab() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result || result.kind !== "tab" || typeof result.tabId !== "number") {
+            showUrlCopyToast("No open tab to close");
+            return;
+        }
+        const closed = await closeBrowserPaletteTab(result.tabId);
+        showUrlCopyToast(closed ? "Closed tab" : "Could not close tab");
+        if (closed) {
+            await refreshCommandPaletteResults();
+        }
+    }
+    async function closeBrowserPaletteTab(tabId) {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return false;
+        }
+        const response = (await browser.runtime
+            .sendMessage({
+            type: "palette-close-tab",
+            tabId,
+        })
+            .catch(() => undefined));
+        return response?.closed === true;
     }
     async function forgetRecalledCommandPaletteQuery() {
         if (!commandPaletteState || commandPaletteState.historyCursor === null) {

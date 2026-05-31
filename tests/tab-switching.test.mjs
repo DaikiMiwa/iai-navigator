@@ -5,6 +5,7 @@ await import("../web-extension/background.js");
 
 const {
   chooseNeighborTabId,
+  closePaletteTab,
   executePaletteResult,
   isSupportedNewTabUrl,
   paletteTabQueryInfo,
@@ -304,6 +305,32 @@ test("focuses the source window when activating an open tab palette result", asy
 
   assert.deepEqual(updatedTabs, [[10, { active: true }]]);
   assert.deepEqual(updatedWindows, [[20, { focused: true }]]);
+});
+
+test("closes command palette open tab results", async () => {
+  const removedTabs = [];
+  assert.deepEqual(
+    await closePaletteTab(
+      {
+        tabs: {
+          create: async () => {
+            throw new Error("close should not create tabs");
+          },
+          query: async () => [],
+          remove: async (tabId) => {
+            removedTabs.push(tabId);
+          },
+          update: async () => {
+            throw new Error("close should not update tabs");
+          },
+        },
+      },
+      10,
+    ),
+    { closed: true },
+  );
+
+  assert.deepEqual(removedTabs, [10]);
 });
 
 test("combines matching tabs, bookmarks, recent history, and local visits for palette search", () => {
