@@ -74,6 +74,81 @@ interface SafariKeyboardNavigationPageSupport {
   ): boolean;
 }
 
+type SafariKeyboardNavigationSiteAccessMode = "all" | "allowlist";
+
+interface SafariKeyboardNavigationShortcutSettings {
+  hint: string;
+  newTabHint: string;
+  left: string;
+  down: string;
+  up: string;
+  right: string;
+  halfPageDown: string;
+  halfPageUp: string;
+  top: string;
+  bottom: string;
+  copyUrl: string;
+  reload: string;
+  historyBack: string;
+  historyForward: string;
+  tabPrevious: string;
+  tabNext: string;
+  help: string;
+}
+
+interface SafariKeyboardNavigationHintStyleSettings {
+  backgroundColor: string;
+  fontSize: number;
+  fontWeight: number;
+  mediaFontSize: number;
+  opacity: number;
+  textColor: string;
+}
+
+interface SafariKeyboardNavigationSiteAccessSettings {
+  allowlist: string[];
+  blocklist: string[];
+  mode: SafariKeyboardNavigationSiteAccessMode;
+}
+
+interface SafariKeyboardNavigationExtensionSettings {
+  enabled: boolean;
+  hintStyle: SafariKeyboardNavigationHintStyleSettings;
+  shortcuts: SafariKeyboardNavigationShortcutSettings;
+  siteAccess: SafariKeyboardNavigationSiteAccessSettings;
+  version: 1;
+}
+
+interface ParsedShortcut {
+  altKey: boolean;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  sequence: string[];
+  shiftKey: boolean;
+}
+
+interface SafariKeyboardNavigationSettingsApi {
+  DEFAULT_EXTENSION_SETTINGS: SafariKeyboardNavigationExtensionSettings;
+  SETTINGS_STORAGE_KEY: string;
+  isExtensionEnabledForUrl(
+    settings: SafariKeyboardNavigationExtensionSettings,
+    href: string,
+  ): boolean;
+  isShortcutEvent(
+    event: KeyboardEvent,
+    shortcut: string,
+    options?: { allowRepeat?: boolean },
+  ): boolean;
+  loadExtensionSettings(): Promise<SafariKeyboardNavigationExtensionSettings>;
+  normalizeExtensionSettings(
+    input: unknown,
+  ): SafariKeyboardNavigationExtensionSettings;
+  saveExtensionSettings(
+    settings: SafariKeyboardNavigationExtensionSettings,
+  ): Promise<void>;
+  shortcutSequence(shortcut: string): string[] | null;
+}
+
 interface SafariKeyboardNavigationMediaControlRevealCandidate {
   activationMode: "current-tab" | "new-tab";
   hasRevealableMediaSurfaces: boolean;
@@ -161,6 +236,28 @@ interface WebExtensionCommands {
   };
 }
 
+interface WebExtensionStorageChange {
+  newValue?: unknown;
+  oldValue?: unknown;
+}
+
+interface WebExtensionStorageArea {
+  get(key: string): Promise<Record<string, unknown>>;
+  set(items: Record<string, unknown>): Promise<void>;
+}
+
+interface WebExtensionStorage {
+  local?: WebExtensionStorageArea;
+  onChanged?: {
+    addListener(
+      listener: (
+        changes: Record<string, WebExtensionStorageChange>,
+        areaName: string,
+      ) => void,
+    ): void;
+  };
+}
+
 interface WebExtensionTabs {
   create(createProperties: WebExtensionTabCreate): Promise<WebExtensionTab>;
   query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
@@ -173,6 +270,7 @@ interface WebExtensionTabs {
 interface WebExtensionApi {
   commands?: WebExtensionCommands;
   runtime?: WebExtensionRuntime;
+  storage?: WebExtensionStorage;
   tabs?: WebExtensionTabs;
 }
 

@@ -1,0 +1,126 @@
+:root {
+  color-scheme: light dark;
+  --background: Canvas;
+  --border: color-mix(in srgb, CanvasText 18%, transparent);
+  --muted: color-mix(in srgb, CanvasText 68%, transparent);
+  --surface: color-mix(in srgb, CanvasText 4%, Canvas);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: CanvasText;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+main {
+  width: min(920px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 32px 0 40px;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+h2 {
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+
+header p,
+footer p {
+  color: var(--muted);
+}
+
+section {
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+}
+
+label,
+.checkbox-row {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.checkbox-row {
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+}
+
+input,
+select {
+  min-height: 34px;
+  padding: 5px 8px;
+}
+
+input[type="checkbox"],
+input[type="color"] {
+  width: auto;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+  padding: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.settings-grid,
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px 16px;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+button {
+  min-height: 34px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+}
