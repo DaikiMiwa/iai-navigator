@@ -57,6 +57,8 @@ const { commandPaletteCommandIds } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteCommandSearchIds } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteCurrentUrlEditValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteShouldCloseAfterActivation } =
@@ -414,6 +416,7 @@ test("lists tab operation commands in the command palette", () => {
   assert.equal(commandIds.includes("close-current-tab"), true);
   assert.equal(commandIds.includes("previous-tab"), true);
   assert.equal(commandIds.includes("next-tab"), true);
+  assert.equal(commandIds.includes("edit-current-url"), true);
 });
 
 test("matches command palette command aliases", () => {
@@ -432,6 +435,11 @@ test("matches command palette command aliases", () => {
   assert.equal(commandPaletteCommandSearchIds("next tab")[0], "next-tab");
   assert.equal(commandPaletteCommandSearchIds("options")[0], "open-settings");
   assert.equal(commandPaletteCommandSearchIds("gg")[0], "scroll-top");
+  assert.equal(commandPaletteCommandSearchIds("ge")[0], "edit-current-url");
+  assert.equal(
+    commandPaletteCommandSearchIds("edit current url")[0],
+    "edit-current-url",
+  );
 });
 
 test("applies command palette source prefixes while preserving query text", () => {
@@ -573,6 +581,22 @@ test("deletes the previous command palette word", () => {
     }),
     { selectionEnd: 0, selectionStart: 0, value: "" },
   );
+});
+
+test("formats the current URL for command palette editing", () => {
+  assert.equal(
+    commandPaletteCurrentUrlEditValue("https://example.com/docs?q=1"),
+    "url: https://example.com/docs?q=1",
+  );
+  assert.equal(
+    commandPaletteCurrentUrlEditValue(" http://localhost:3000/path "),
+    "url: http://localhost:3000/path",
+  );
+  assert.equal(
+    commandPaletteCurrentUrlEditValue("file:///tmp/page.html"),
+    null,
+  );
+  assert.equal(commandPaletteCurrentUrlEditValue("not a url"), null);
 });
 
 test("formats command palette results as Markdown links", () => {

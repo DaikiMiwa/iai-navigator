@@ -334,6 +334,7 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteCommandIds(): string[];
   commandPaletteCommandSearchIds(query: string): string[];
+  commandPaletteCurrentUrlEditValue(href: string): string | null;
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
