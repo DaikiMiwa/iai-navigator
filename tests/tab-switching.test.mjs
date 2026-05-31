@@ -6,6 +6,7 @@ await import("../web-extension/background.js");
 const {
   chooseNeighborTabId,
   closePaletteTab,
+  executeTabCommand,
   executePaletteResult,
   isSupportedNewTabUrl,
   paletteTabQueryInfo,
@@ -177,6 +178,75 @@ test("duplicates open tab palette results in a background tab", async () => {
   assert.deepEqual(createdTabs, [
     { active: false, url: "https://example.com/tab" },
   ]);
+});
+
+test("executes command palette tab operations", async () => {
+  const createdTabs = [];
+  const duplicatedTabs = [];
+  const removedTabs = [];
+  const api = {
+    tabs: {
+      create: async (properties) => {
+        createdTabs.push(properties);
+        return { id: 99, index: 2 };
+      },
+      duplicate: async (tabId) => {
+        duplicatedTabs.push(tabId);
+        return { id: 100, index: 2 };
+      },
+      query: async (queryInfo) =>
+        queryInfo.active
+          ? [{ active: true, id: 12, index: 1, url: "https://example.com" }]
+          : [
+              { id: 11, index: 0 },
+              { active: true, id: 12, index: 1, url: "https://example.com" },
+            ],
+      remove: async (tabId) => {
+        removedTabs.push(tabId);
+      },
+      update: async () => {
+        throw new Error("tab commands should not update tabs");
+      },
+    },
+  };
+
+  assert.deepEqual(await executeTabCommand(api, "new-tab"), {
+    executed: true,
+  });
+  assert.deepEqual(await executeTabCommand(api, "duplicate-current-tab"), {
+    executed: true,
+  });
+  assert.deepEqual(await executeTabCommand(api, "close-current-tab"), {
+    executed: true,
+  });
+
+  assert.deepEqual(createdTabs, [{ active: true }]);
+  assert.deepEqual(duplicatedTabs, [12]);
+  assert.deepEqual(removedTabs, [12]);
+});
+
+test("does not close the only current-window tab from the command palette", async () => {
+  const removedTabs = [];
+  const result = await executeTabCommand(
+    {
+      tabs: {
+        create: async () => {
+          throw new Error("close command should not create tabs");
+        },
+        query: async () => [{ active: true, id: 12, index: 0 }],
+        remove: async (tabId) => {
+          removedTabs.push(tabId);
+        },
+        update: async () => {
+          throw new Error("close command should not update tabs");
+        },
+      },
+    },
+    "close-current-tab",
+  );
+
+  assert.deepEqual(result, { executed: false });
+  assert.deepEqual(removedTabs, []);
 });
 
 test("records direct URL palette activations as local visits", async () => {

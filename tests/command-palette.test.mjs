@@ -43,6 +43,8 @@ const { commandPaletteHistoryNavigation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteCommandIds } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteShouldCloseAfterActivation } =
@@ -263,6 +265,13 @@ test("keeps the command palette open after background activation", () => {
     }),
     false,
   );
+});
+
+test("lists tab operation commands in the command palette", () => {
+  const commandIds = commandPaletteCommandIds();
+  assert.equal(commandIds.includes("new-tab"), true);
+  assert.equal(commandIds.includes("duplicate-current-tab"), true);
+  assert.equal(commandIds.includes("close-current-tab"), true);
 });
 
 test("applies command palette source prefixes while preserving query text", () => {

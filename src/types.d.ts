@@ -286,6 +286,7 @@ interface SafariKeyboardNavigationCommandPalette {
     candidate: CommandPaletteHistoryNavigationCandidate,
   ): CommandPaletteHistoryNavigationResult;
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
+  commandPaletteCommandIds(): string[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
@@ -381,6 +382,13 @@ interface PaletteCloseTabMessage {
   tabId: number;
 }
 
+type TabCommandId = "new-tab" | "duplicate-current-tab" | "close-current-tab";
+
+interface TabCommandMessage {
+  type: "tab-command";
+  command: TabCommandId;
+}
+
 interface OpenOptionsMessage {
   type: "open-options";
 }
@@ -402,6 +410,7 @@ type SafariKeyboardNavigationMessage =
   | PaletteExecuteMessage
   | PaletteRemoveLocalVisitMessage
   | PaletteCloseTabMessage
+  | TabCommandMessage
   | OpenOptionsMessage
   | ObservePageMessage;
 
@@ -426,7 +435,7 @@ interface WebExtensionTabUpdate {
 
 interface WebExtensionTabCreate {
   active?: boolean;
-  url: string;
+  url?: string;
 }
 
 interface WebExtensionRuntime {
@@ -503,6 +512,7 @@ interface WebExtensionStorage {
 
 interface WebExtensionTabs {
   create(createProperties: WebExtensionTabCreate): Promise<WebExtensionTab>;
+  duplicate?(tabId: number): Promise<WebExtensionTab>;
   query(queryInfo: WebExtensionTabQuery): Promise<WebExtensionTab[]>;
   remove(tabId: number): Promise<void>;
   update(
@@ -542,6 +552,10 @@ interface SafariKeyboardNavigationTabs {
     api: WebExtensionApi,
     tabId: number,
   ): Promise<{ closed: boolean }>;
+  executeTabCommand(
+    api: WebExtensionApi,
+    command: TabCommandId,
+  ): Promise<{ executed: boolean }>;
   executePaletteResult(
     api: WebExtensionApi,
     result: PaletteResult,

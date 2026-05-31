@@ -74,6 +74,9 @@
     | "show-hints"
     | "show-new-tab-hints"
     | "copy-url"
+    | "new-tab"
+    | "duplicate-current-tab"
+    | "close-current-tab"
     | "scroll-top"
     | "scroll-bottom"
     | "reload"
@@ -265,6 +268,21 @@
       subtitle: "Copy this page address to the clipboard",
     },
     {
+      id: "new-tab",
+      title: "New tab",
+      subtitle: "Open a new foreground tab",
+    },
+    {
+      id: "duplicate-current-tab",
+      title: "Duplicate current tab",
+      subtitle: "Copy the current tab into a new foreground tab",
+    },
+    {
+      id: "close-current-tab",
+      title: "Close current tab",
+      subtitle: "Close this tab when another tab is available",
+    },
+    {
       id: "scroll-top",
       title: "Scroll to top",
       subtitle: "Jump to the top of the current scroll area",
@@ -335,6 +353,7 @@
   ).SafariKeyboardNavigationCommandPalette = {
     COMMAND_PALETTE_FOOTER_HINTS,
     commandPaletteApplyPrefixValue,
+    commandPaletteCommandIds,
     commandPaletteEditableResultValue,
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
@@ -1413,6 +1432,10 @@
     });
   }
 
+  function commandPaletteCommandIds(): string[] {
+    return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
+  }
+
   function localPaletteCommandScore(
     command: LocalPaletteCommand,
     query: string,
@@ -2071,6 +2094,11 @@
       case "copy-url":
         void copyCurrentUrl();
         return;
+      case "new-tab":
+      case "duplicate-current-tab":
+      case "close-current-tab":
+        void executeTabCommand(command);
+        return;
       case "scroll-top":
         scrollToTop();
         return;
@@ -2110,6 +2138,16 @@
 
     await browser.runtime
       .sendMessage({ type: "open-options" })
+      .catch(() => undefined);
+  }
+
+  async function executeTabCommand(command: TabCommandId): Promise<void> {
+    if (typeof browser === "undefined" || !browser.runtime) {
+      return;
+    }
+
+    await browser.runtime
+      .sendMessage({ type: "tab-command", command })
       .catch(() => undefined);
   }
 

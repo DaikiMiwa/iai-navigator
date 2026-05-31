@@ -83,6 +83,7 @@
     global.SafariKeyboardNavigationTabs = {
         chooseNeighborTabId,
         closePaletteTab,
+        executeTabCommand,
         executePaletteResult,
         isSupportedNewTabUrl,
         paletteTabQueryInfo,
@@ -114,6 +115,9 @@
             }
             if (isPaletteCloseTabMessage(message)) {
                 return closePaletteTab(api, message.tabId);
+            }
+            if (isTabCommandMessage(message)) {
+                return executeTabCommand(api, message.command);
             }
             if (isObservePageMessage(message)) {
                 return observePage(api, message);
@@ -272,6 +276,49 @@
             return { closed: false };
         }
     }
+    async function executeTabCommand(api, command) {
+        if (!api.tabs) {
+            return { executed: false };
+        }
+        switch (command) {
+            case "new-tab":
+                await api.tabs.create({ active: true });
+                return { executed: true };
+            case "duplicate-current-tab": {
+                const activeTab = await activeCurrentWindowTab(api);
+                if (!activeTab || typeof activeTab.id !== "number") {
+                    return { executed: false };
+                }
+                if (api.tabs.duplicate) {
+                    await api.tabs.duplicate(activeTab.id);
+                    return { executed: true };
+                }
+                if (activeTab.url && isSupportedNewTabUrl(activeTab.url)) {
+                    await api.tabs.create({ active: true, url: activeTab.url });
+                    return { executed: true };
+                }
+                return { executed: false };
+            }
+            case "close-current-tab": {
+                const tabs = await api.tabs.query({ currentWindow: true });
+                const activeTab = tabs.find((tab) => tab.active);
+                if (tabs.length <= 1 ||
+                    !activeTab ||
+                    typeof activeTab.id !== "number") {
+                    return { executed: false };
+                }
+                await api.tabs.remove(activeTab.id);
+                return { executed: true };
+            }
+        }
+    }
+    async function activeCurrentWindowTab(api) {
+        if (!api.tabs) {
+            return null;
+        }
+        const tabs = await api.tabs.query({ active: true, currentWindow: true });
+        return tabs.find((tab) => tab.active) ?? tabs[0] ?? null;
+    }
     async function recordPaletteActivation(api, result) {
         if (result.kind === "search" ||
             !api.storage?.local ||
@@ -353,6 +400,16 @@
         return (candidate.type === "palette-close-tab" &&
             typeof candidate.tabId === "number" &&
             Number.isFinite(candidate.tabId));
+    }
+    function isTabCommandMessage(message) {
+        if (!message || typeof message !== "object") {
+            return false;
+        }
+        const candidate = message;
+        return (candidate.type === "tab-command" &&
+            (candidate.command === "new-tab" ||
+                candidate.command === "duplicate-current-tab" ||
+                candidate.command === "close-current-tab"));
     }
     function isOpenOptionsMessage(message) {
         if (!message || typeof message !== "object") {
