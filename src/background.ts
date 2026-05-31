@@ -32,6 +32,7 @@
   const PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = ["url", "search"];
 
   interface PaletteQueryTerm {
+    field?: "title" | "url";
     negative: boolean;
     phrase: boolean;
     value: string;
@@ -944,10 +945,15 @@
       return 1;
     }
 
-    const haystack = `${title} ${url}`.toLowerCase();
+    const titleLower = title.toLowerCase();
+    const urlLower = url.toLowerCase();
     const terms = paletteQueryTerms(query);
     const negativeTerms = terms.filter((term) => term.negative);
-    if (negativeTerms.some((term) => paletteTermMatches(term, haystack))) {
+    if (
+      negativeTerms.some((term) =>
+        paletteTermMatches(term, titleLower, urlLower),
+      )
+    ) {
       return null;
     }
 
@@ -956,13 +962,23 @@
       return terms.length === 0 ? null : 1;
     }
 
-    if (!positiveTerms.every((term) => paletteTermMatches(term, haystack))) {
+    if (
+      !positiveTerms.every((term) =>
+        paletteTermMatches(term, titleLower, urlLower),
+      )
+    ) {
       return null;
     }
 
-    const titleLower = title.toLowerCase();
-    const urlLower = url.toLowerCase();
     return positiveTerms.reduce((score, term) => {
+      if (term.field === "url") {
+        return score + paletteFieldTermScore(term, urlLower, 20);
+      }
+
+      if (term.field === "title") {
+        return score + paletteFieldTermScore(term, titleLower, 40);
+      }
+
       if (titleLower === term.value) {
         return score + 80;
       }
@@ -1003,6 +1019,15 @@
         index += 1;
       }
 
+      const fieldMatch = query.slice(index).match(/^(title|url):/i);
+      const field = fieldMatch?.[1].toLowerCase() as
+        | "title"
+        | "url"
+        | undefined;
+      if (fieldMatch) {
+        index += fieldMatch[0].length;
+      }
+
       const phrase = query[index] === '"';
       let value = "";
       if (phrase) {
@@ -1024,7 +1049,7 @@
       }
 
       if (value) {
-        terms.push({ negative, phrase, value });
+        terms.push({ field, negative, phrase, value: value.toLowerCase() });
       }
     }
 
@@ -1033,12 +1058,41 @@
 
   function paletteTermMatches(
     term: PaletteQueryTerm,
-    haystack: string,
+    title: string,
+    url: string,
   ): boolean {
+    const haystack =
+      term.field === "title"
+        ? title
+        : term.field === "url"
+          ? url
+          : `${title} ${url}`;
+
     return (
       haystack.includes(term.value) ||
       (!term.phrase && fuzzyMatchScore(term.value, haystack) !== null)
     );
+  }
+
+  function paletteFieldTermScore(
+    term: PaletteQueryTerm,
+    fieldValue: string,
+    includeScore: number,
+  ): number {
+    if (fieldValue === term.value) {
+      return includeScore + 40;
+    }
+    if (fieldValue.startsWith(term.value)) {
+      return includeScore + 20;
+    }
+    if (fieldValue.includes(term.value)) {
+      return includeScore;
+    }
+    if (term.phrase) {
+      return 0;
+    }
+
+    return fuzzyMatchScore(term.value, fieldValue) ?? 0;
   }
 
   function fuzzyMatchScore(term: string, haystack: string): number | null {
