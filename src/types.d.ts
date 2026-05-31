@@ -264,6 +264,13 @@ interface CommandPaletteActivationCloseCandidate {
   resultKind: PaletteResultKind | "command";
 }
 
+interface CommandPaletteAdvanceCandidate {
+  activeIndex: number;
+  disposition: PaletteDisposition;
+  resultCount: number;
+  resultKind: PaletteResultKind | "command";
+}
+
 interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
   query: string;
 }
@@ -295,6 +302,9 @@ interface SafariKeyboardNavigationCommandPalette {
     query: string,
     options: CommandPaletteQueryOptions,
   ): CommandPaletteQueryScope;
+  commandPaletteNextIndexAfterActivation(
+    candidate: CommandPaletteAdvanceCandidate,
+  ): number;
   commandPaletteShouldCloseAfterActivation(
     candidate: CommandPaletteActivationCloseCandidate,
   ): boolean;

@@ -177,6 +177,7 @@
         commandPaletteHistoryNavigation,
         commandPaletteHighlightRanges,
         commandPaletteKeyAction,
+        commandPaletteNextIndexAfterActivation,
         commandPaletteQueryScope,
         commandPaletteShouldCloseAfterActivation,
     };
@@ -1344,9 +1345,34 @@
             return;
         }
         void executeBrowserPaletteResult(result, disposition);
+        advanceCommandPaletteSelectionAfterActivation({
+            activeIndex: commandPaletteState?.activeIndex ?? 0,
+            disposition,
+            resultCount: commandPaletteState?.results.length ?? 0,
+            resultKind: result.kind,
+        });
     }
     function commandPaletteShouldCloseAfterActivation(candidate) {
         return candidate.disposition !== "background-tab";
+    }
+    function commandPaletteNextIndexAfterActivation(candidate) {
+        if (candidate.disposition !== "background-tab" ||
+            candidate.resultKind === "command" ||
+            candidate.resultCount <= 0) {
+            return candidate.activeIndex;
+        }
+        return (candidate.activeIndex + 1) % candidate.resultCount;
+    }
+    function advanceCommandPaletteSelectionAfterActivation(candidate) {
+        if (!commandPaletteState) {
+            return;
+        }
+        const nextIndex = commandPaletteNextIndexAfterActivation(candidate);
+        if (nextIndex === commandPaletteState.activeIndex) {
+            return;
+        }
+        commandPaletteState.activeIndex = nextIndex;
+        renderCommandPaletteResults();
     }
     function activateCommandPaletteIndex(index, dispositionOverride) {
         if (!commandPaletteState || !commandPaletteState.results[index]) {
