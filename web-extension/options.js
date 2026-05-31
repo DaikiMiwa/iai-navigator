@@ -24,6 +24,8 @@
         ["commandPaletteNewTab", "Command palette in new tab"],
         ["bookmarkPalette", "Bookmark palette"],
         ["bookmarkPaletteNewTab", "Bookmark palette in new tab"],
+        ["historyPalette", "History palette"],
+        ["historyPaletteNewTab", "History palette in new tab"],
         ["tabPalette", "Tab palette"],
         ["tabPrevious", "Previous tab"],
         ["tabNext", "Next tab"],

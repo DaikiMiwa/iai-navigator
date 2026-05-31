@@ -18,6 +18,8 @@
     | "commandPaletteNewTab"
     | "bookmarkPalette"
     | "bookmarkPaletteNewTab"
+    | "historyPalette"
+    | "historyPaletteNewTab"
     | "tabPalette"
     | "tabPrevious"
     | "tabNext"
@@ -48,6 +50,8 @@
         commandPaletteNewTab: "Shift+O",
         bookmarkPalette: "b",
         bookmarkPaletteNewTab: "Shift+B",
+        historyPalette: "v",
+        historyPaletteNewTab: "Shift+V",
         down: "j",
         halfPageDown: "d",
         halfPageUp: "u",
@@ -92,6 +96,8 @@
     "commandPaletteNewTab",
     "bookmarkPalette",
     "bookmarkPaletteNewTab",
+    "historyPalette",
+    "historyPaletteNewTab",
     "tabPalette",
     "tabPrevious",
     "tabNext",
