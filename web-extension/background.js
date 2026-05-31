@@ -2,6 +2,7 @@
 ((global) => {
     const LOCAL_VISITS_STORAGE_KEY = "paletteLocalVisits";
     const LOCAL_VISITS_MAX_ITEMS = 500;
+    const EMPTY_ALL_SOURCE_BOOKMARK_LIMIT = 8;
     const SETTINGS_STORAGE_KEY = "settings";
     const DEFAULT_SEARCH_ENGINE = "google";
     const SEARCH_ENGINES = {
@@ -49,13 +50,19 @@
     function searchPaletteResults(sources, query, options = {}) {
         const normalizedQuery = normalizePaletteQuery(query);
         const sourceFilter = new Set(options.sources ?? ["tabs", "bookmarks", "history", "visits"]);
+        const bookmarkResults = sourceFilter.has("bookmarks")
+            ? bookmarkPaletteResultsForQuery(sources.bookmarks, normalizedQuery, sourceFilter.size === 1
+                ? { emptyQueryMode: "all" }
+                : {
+                    emptyQueryLimit: EMPTY_ALL_SOURCE_BOOKMARK_LIMIT,
+                    emptyQueryMode: "recent",
+                })
+            : [];
         const results = [
             ...(sourceFilter.has("tabs")
                 ? sources.tabs.flatMap((tab) => tabPaletteResult(tab, normalizedQuery))
                 : []),
-            ...(sourceFilter.has("bookmarks")
-                ? sources.bookmarks.flatMap((bookmark) => bookmarkPaletteResults(bookmark, normalizedQuery))
-                : []),
+            ...bookmarkResults,
             ...(sourceFilter.has("history")
                 ? sources.history.flatMap((historyItem) => historyPaletteResult(historyItem, normalizedQuery))
                 : []),
@@ -485,14 +492,42 @@
         if (!sources.includes("bookmarks")) {
             return false;
         }
-        return query.trim().length > 0 || sources.length === 1;
+        return (query.trim().length > 0 ||
+            sources.length === 1 ||
+            isAllSourcePalette(sources));
     }
-    function bookmarkPaletteResults(bookmark, query, folders = []) {
+    function isAllSourcePalette(sources) {
+        const sourceSet = new Set(sources);
+        return (sourceSet.has("tabs") &&
+            sourceSet.has("bookmarks") &&
+            sourceSet.has("history") &&
+            sourceSet.has("visits"));
+    }
+    function bookmarkPaletteResultsForQuery(bookmarks, query, options) {
+        const entries = bookmarks.flatMap((bookmark) => bookmarkPaletteResultEntries(bookmark, query));
+        if (query || options.emptyQueryMode === "all") {
+            return entries.map((entry) => entry.result);
+        }
+        const recentEntries = entries
+            .sort(compareBookmarkPaletteResultEntriesByRecent)
+            .slice(0, options.emptyQueryLimit ?? EMPTY_ALL_SOURCE_BOOKMARK_LIMIT);
+        return recentEntries.map((entry, index) => ({
+            ...entry.result,
+            score: entry.result.score + (recentEntries.length - index) / 100,
+        }));
+    }
+    function compareBookmarkPaletteResultEntriesByRecent(a, b) {
+        if (a.dateAdded !== b.dateAdded) {
+            return b.dateAdded - a.dateAdded;
+        }
+        return a.result.title.localeCompare(b.result.title);
+    }
+    function bookmarkPaletteResultEntries(bookmark, query, folders = []) {
         if (!bookmark.url) {
             const nextFolders = bookmark.title
                 ? [...folders, bookmark.title]
                 : folders;
-            return (bookmark.children ?? []).flatMap((child) => bookmarkPaletteResults(child, query, nextFolders));
+            return (bookmark.children ?? []).flatMap((child) => bookmarkPaletteResultEntries(child, query, nextFolders));
         }
         if (!isSupportedNewTabUrl(bookmark.url)) {
             return [];
@@ -509,12 +544,18 @@
             : bookmark.url;
         return [
             {
-                id: `bookmark:${bookmark.id}`,
-                kind: "bookmark",
-                score: score + 10,
-                subtitle,
-                title,
-                url: bookmark.url,
+                dateAdded: typeof bookmark.dateAdded === "number" &&
+                    Number.isFinite(bookmark.dateAdded)
+                    ? bookmark.dateAdded
+                    : 0,
+                result: {
+                    id: `bookmark:${bookmark.id}`,
+                    kind: "bookmark",
+                    score: score + 10,
+                    subtitle,
+                    title,
+                    url: bookmark.url,
+                },
             },
         ];
     }

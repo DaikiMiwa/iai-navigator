@@ -522,6 +522,7 @@ interface WebExtensionRuntime {
 
 interface WebExtensionBookmarkTreeNode {
   children?: WebExtensionBookmarkTreeNode[];
+  dateAdded?: number;
   id: string;
   title: string;
   url?: string;
