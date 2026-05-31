@@ -144,7 +144,7 @@ python3 -m http.server 8765
 - palette 内で `title:"project docs" domain:github.com -url:archive` と入力し、title、URL、domain field で destination result を絞れることを確認する。
 - palette 内で `u: example.com` と入力し direct URL result だけが出ること、`s: example.com` と入力し web search result だけが出ることを確認する。長い `url:` / `search:` prefix でも同様に確認する。
 - palette 内で `ddg: safari keyboard` と入力し generated search result が DuckDuckGo を使うことを確認する。`g:`、`br:`、`k:` でも同様に確認する。
-- palette 内で `ArrowDown`、`ArrowUp`、`Ctrl+n`、`Ctrl+p`、`Tab`、`Shift+Tab` を押し、palette から focus が外れずに選択 result が移動し、長い result list でも選択行が見える位置に保たれることを確認する。
+- palette 内で `ArrowDown`、`ArrowUp`、`Ctrl+n`、`Ctrl+p`、`Tab`、`Shift+Tab` を押し、palette から focus が外れずに選択 result が移動することを確認する。`PageDown` / `PageUp` では大きめに移動し、`Home` / `End` では最初と最後の result へ移動し、長い result list でも選択行が見える位置に保たれることを確認する。
 - palette 内で `Shift+Enter`、`Command+Enter`、`Control+Enter` を押し、browser destination が新しい前面 tab で開くことを確認する。
 - palette 内で `Alt+Enter` / `Option+Enter` を押し、browser destination が新しい background tab で開き、active にならず、palette が開いたままになり、selection が次の result へ進むことを確認する。
 - palette 内で `Alt+C` / `Option+C` を押し、選択中の browser destination URL が開かれずにコピーされることを確認する。

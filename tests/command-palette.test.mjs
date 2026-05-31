@@ -92,6 +92,13 @@ test("maps command palette navigation keys", () => {
     commandPaletteKeyAction(key({ key: "Tab", shiftKey: true })),
     "previous",
   );
+  assert.equal(commandPaletteKeyAction(key({ key: "PageDown" })), "page-next");
+  assert.equal(
+    commandPaletteKeyAction(key({ key: "PageUp" })),
+    "page-previous",
+  );
+  assert.equal(commandPaletteKeyAction(key({ key: "Home" })), "first");
+  assert.equal(commandPaletteKeyAction(key({ key: "End" })), "last");
 });
 
 test("maps command palette activation keys", () => {
