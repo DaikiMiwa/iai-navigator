@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteHistoryNavigation } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
@@ -107,6 +109,14 @@ test("maps command palette activation keys", () => {
     commandPaletteKeyAction(key({ altKey: true, key: "C" })),
     "copy-result-url",
   );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "ArrowUp" })),
+    "history-previous",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "ArrowDown" })),
+    "history-next",
+  );
 });
 
 test("maps command palette close and ignores text input keys", () => {
@@ -120,6 +130,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);
+  assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
   assert.match(hints, /history:/);
@@ -127,6 +138,54 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /search:/);
   assert.match(hints, /url:/);
   assert.match(hints, /cmd:/);
+});
+
+test("navigates command palette query history", () => {
+  const history = ["search: docs", "tab: mail"];
+
+  const first = commandPaletteHistoryNavigation({
+    cursor: null,
+    direction: "previous",
+    history,
+    inputBeforeHistory: "",
+    query: "current",
+  });
+  assert.deepEqual(first, {
+    cursor: 0,
+    inputBeforeHistory: "current",
+    query: "search: docs",
+  });
+
+  const older = commandPaletteHistoryNavigation({
+    ...first,
+    direction: "previous",
+    history,
+  });
+  assert.deepEqual(older, {
+    cursor: 1,
+    inputBeforeHistory: "current",
+    query: "tab: mail",
+  });
+
+  const newer = commandPaletteHistoryNavigation({
+    ...older,
+    direction: "next",
+    history,
+  });
+  assert.deepEqual(newer, first);
+
+  assert.deepEqual(
+    commandPaletteHistoryNavigation({
+      ...newer,
+      direction: "next",
+      history,
+    }),
+    {
+      cursor: null,
+      inputBeforeHistory: "",
+      query: "current",
+    },
+  );
 });
 
 test("highlights contiguous command palette query matches", () => {
