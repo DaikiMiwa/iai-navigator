@@ -194,6 +194,7 @@ type CommandPaletteNamedKeyAction =
   | "last"
   | "clear-query"
   | "delete-previous-word"
+  | "refresh-results"
   | "activate-current-tab"
   | "activate-new-tab"
   | "activate-background-tab"

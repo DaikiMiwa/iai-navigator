@@ -41,6 +41,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - `Ctrl+u` clears the current command palette query without closing the palette.
 - `Ctrl+w` deletes the previous command palette query word without closing the palette.
+- `Option+R` refreshes command palette results without closing the palette or changing the query.
 - `Option+A/T/B/H/V/S/U/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
 - `b` opens a bookmark-only palette with suggestions before typing, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
 - Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
@@ -161,6 +162,7 @@ Useful checks:
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - In the palette, type a query, press `Ctrl+u`, and verify the input clears while the palette stays open.
 - In the palette, type `book: project docs`, press `Ctrl+w`, and verify the previous word is deleted while the palette stays open and results refresh.
+- In the palette, press `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`; then press `Alt+A` / `Option+A` and verify it changes back to `docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
