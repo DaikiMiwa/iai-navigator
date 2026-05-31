@@ -3518,6 +3518,38 @@
     }
 
     if (
+      settingsApi.isShortcutEvent(
+        event,
+        extensionSettings.shortcuts.historyPalette,
+      )
+    ) {
+      return {
+        disposition: "current-tab",
+        generatedKinds: [],
+        includeCommands: false,
+        includeGenerated: false,
+        placeholder: "Search recent history",
+        sources: ["history"],
+      };
+    }
+
+    if (
+      settingsApi.isShortcutEvent(
+        event,
+        extensionSettings.shortcuts.historyPaletteNewTab,
+      )
+    ) {
+      return {
+        disposition: "new-tab",
+        generatedKinds: [],
+        includeCommands: false,
+        includeGenerated: false,
+        placeholder: "Open recent history in new tab",
+        sources: ["history"],
+      };
+    }
+
+    if (
       settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.tabPalette)
     ) {
       return {

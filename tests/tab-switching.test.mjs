@@ -439,6 +439,42 @@ test("can restrict palette search to bookmarks only", () => {
   );
 });
 
+test("can restrict palette search to history only", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          id: "bookmark-docs",
+          title: "Project Docs",
+          url: "https://example.com/bookmark",
+        },
+      ],
+      history: [
+        {
+          id: "history-docs",
+          title: "Docs History",
+          url: "https://example.com/history",
+        },
+      ],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Docs Tab",
+          url: "https://example.com/tab",
+        },
+      ],
+    },
+    "docs",
+    { sources: ["history"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.kind),
+    ["history"],
+  );
+});
+
 test("deduplicates matching palette destinations by URL with open tabs first", () => {
   const results = searchPaletteResults(
     {

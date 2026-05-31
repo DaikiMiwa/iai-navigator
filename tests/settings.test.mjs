@@ -57,6 +57,8 @@ test("normalizes missing and invalid settings to defaults", () => {
   assert.equal(settings.shortcuts.commandPaletteNewTab, "Shift+O");
   assert.equal(settings.shortcuts.bookmarkPalette, "b");
   assert.equal(settings.shortcuts.bookmarkPaletteNewTab, "Shift+B");
+  assert.equal(settings.shortcuts.historyPalette, "v");
+  assert.equal(settings.shortcuts.historyPaletteNewTab, "Shift+V");
   assert.equal(settings.shortcuts.tabPalette, "Shift+T");
   assert.deepEqual(settings.siteAccess.allowlist, ["example.com"]);
   assert.deepEqual(settings.siteAccess.blocklist, ["docs.google.com"]);
