@@ -186,7 +186,8 @@ type CommandPaletteKeyAction =
   | "previous"
   | "activate-current-tab"
   | "activate-new-tab"
-  | "activate-background-tab";
+  | "activate-background-tab"
+  | "copy-result-url";
 
 interface CommandPaletteKeyCandidate {
   altKey: boolean;

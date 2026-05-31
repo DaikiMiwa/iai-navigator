@@ -24,6 +24,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - Palette prefixes can narrow intent: `tab:`, `book:`, `history:`, `visit:`, `cmd:`, `url:`, and `search:`.
+- `Option+C` copies the selected command palette browser destination URL without opening it.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
@@ -124,6 +125,7 @@ Useful checks:
 - In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette.
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it.
+- In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify only bookmarks are searched, with `Shift+B` opening the selected bookmark in a new foreground tab.
 - Press `Shift+T` and verify open tabs across browser windows are searched and selected tabs are focused.
