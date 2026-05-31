@@ -199,6 +199,7 @@ type CommandPaletteNamedKeyAction =
   | "history-next";
 
 interface CommandPaletteResultIndexAction {
+  disposition?: PaletteDisposition;
   kind: "activate-index";
   index: number;
 }

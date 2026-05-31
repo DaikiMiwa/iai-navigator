@@ -29,7 +29,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
 - `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
-- `Option+1` through `Option+9` activate the corresponding visible command palette result.
+- `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - `Option+T/B/H/V/S/U/M` changes the command palette source to tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
 - `b` opens a bookmark-only palette, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
@@ -140,7 +140,7 @@ Useful checks:
 - In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, or the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
-- In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result.
+- In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.

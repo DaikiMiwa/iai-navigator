@@ -142,6 +142,12 @@ test("maps command palette activation keys", () => {
     { kind: "activate-index", index: 2 },
   );
   assert.deepEqual(
+    commandPaletteKeyAction(
+      key({ altKey: true, code: "Digit4", key: "$", shiftKey: true }),
+    ),
+    { disposition: "new-tab", kind: "activate-index", index: 3 },
+  );
+  assert.deepEqual(
     commandPaletteKeyAction(key({ altKey: true, code: "KeyB", key: "∫" })),
     { kind: "apply-prefix", prefix: "book" },
   );
@@ -175,11 +181,11 @@ test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "1" })), null);
-  assert.equal(
+  assert.deepEqual(
     commandPaletteKeyAction(
       key({ altKey: true, code: "Digit1", key: "1", shiftKey: true }),
     ),
-    null,
+    { disposition: "new-tab", kind: "activate-index", index: 0 },
   );
 });
 
