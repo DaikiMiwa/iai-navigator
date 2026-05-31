@@ -240,6 +240,65 @@ test("deduplicates matching palette destinations by URL with open tabs first", (
   );
 });
 
+test("matches compact fuzzy destination queries", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Google Docs Project Plan",
+          url: "https://docs.google.com/document/d/project-plan",
+        },
+        {
+          id: 11,
+          index: 1,
+          title: "Project Dashboard",
+          url: "https://example.com/dashboard",
+        },
+      ],
+      visits: [],
+    },
+    "gdocs",
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.title),
+    ["Google Docs Project Plan"],
+  );
+});
+
+test("ranks exact and prefix palette matches before fuzzy matches", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [
+        {
+          id: "bookmark-docs",
+          title: "Docs",
+          url: "https://example.com/docs",
+        },
+      ],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Developer Operations Console",
+          url: "https://example.com/dev-ops-console",
+        },
+      ],
+      visits: [],
+    },
+    "docs",
+    { sources: ["tabs", "bookmarks"] },
+  );
+
+  assert.equal(results[0].title, "Docs");
+});
+
 test("adds direct URL and search results for open palette queries", () => {
   const urlResults = searchPaletteResults(
     { bookmarks: [], history: [], tabs: [] },
