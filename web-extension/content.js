@@ -115,6 +115,7 @@
         "Enter open",
         "Shift+Enter new tab",
         "Option+Enter background",
+        "Option+C copy URL",
         "tab: book: history: visit: search: url: cmd:",
     ];
     const COMMAND_PALETTE_GENERATED_KINDS = [
@@ -709,6 +710,9 @@
                 ? "activate-new-tab"
                 : "activate-current-tab";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "c") {
+            return "copy-result-url";
+        }
         return null;
     }
     function handleCommandPaletteKeyAction(action) {
@@ -730,6 +734,9 @@
                 return;
             case "activate-background-tab":
                 activateCommandPaletteSelection("background-tab");
+                return;
+            case "copy-result-url":
+                void copyCommandPaletteSelectionUrl();
                 return;
         }
     }
@@ -1027,6 +1034,23 @@
             return;
         }
         void executeBrowserPaletteResult(result, disposition);
+    }
+    async function copyCommandPaletteSelectionUrl() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result) {
+            return;
+        }
+        if (!("url" in result) || !result.url) {
+            showUrlCopyToast("No URL to copy");
+            return;
+        }
+        const url = result.url;
+        closeCommandPalette();
+        const didCopy = await writeTextToClipboard(url);
+        showUrlCopyToast(didCopy ? "Copied URL" : "Could not copy URL");
     }
     function executeLocalPaletteCommand(command) {
         switch (command) {

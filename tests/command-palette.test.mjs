@@ -99,6 +99,14 @@ test("maps command palette activation keys", () => {
     commandPaletteKeyAction(key({ key: "Enter", altKey: true })),
     "activate-background-tab",
   );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "c" })),
+    "copy-result-url",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "C" })),
+    "copy-result-url",
+  );
 });
 
 test("maps command palette close and ignores text input keys", () => {
@@ -111,6 +119,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Enter/);
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
+  assert.match(hints, /Option\+C/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
   assert.match(hints, /history:/);
