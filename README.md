@@ -23,6 +23,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
+- `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
 - Command palette extension commands include page history actions plus tab operations such as New tab, Duplicate current tab, Previous/Next tab, and Close current tab.
 - Command palette commands also match aliases such as `nt`, `dup`, `close tab`, `options`, `gg`, and `ge`.
 - Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
@@ -143,6 +144,7 @@ Useful checks:
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- Press `ge` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input.
 - In the palette, type `back`, `forward`, `prev tab`, or `next tab` and verify the selected command runs the matching navigation or tab-switch action.
 - In the palette, type `ge` or `edit current url`, activate the command, and verify the input changes to `url: <current page URL>` without closing the palette.
 - In the palette, type `"project docs"` to verify the phrase is matched as one term, and type `docs -archive` to verify matching archive destinations are excluded.

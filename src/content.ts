@@ -152,6 +152,8 @@
     frameId: number;
   }
 
+  type PageSequenceAction = "top" | "edit-current-url-palette";
+
   type ScrollAxis = "x" | "y";
   type ScrollSurface = Window | Element;
 
@@ -425,7 +427,7 @@
   let hintState: HintState | null = null;
   let helpState: HelpState | null = null;
   let commandPaletteState: CommandPaletteState | null = null;
-  let lastGPressAt = 0;
+  let pendingPageSequence: { key: string; startedAt: number } | null = null;
   let lastYPressAt = 0;
   let urlCopyToastTimer = 0;
   let movementState: MovementState | null = null;
@@ -624,10 +626,11 @@
       return;
     }
 
-    if (isTopCommand(event)) {
+    const pageSequenceAction = pageSequenceActionForEvent(event);
+    if (pageSequenceAction) {
       event.preventDefault();
       event.stopPropagation();
-      handleTopCommand(event);
+      handlePageSequenceAction(pageSequenceAction);
       return;
     }
 
@@ -1050,6 +1053,7 @@
     generatedKinds: PaletteGeneratedKind[];
     includeCommands: boolean;
     includeGenerated: boolean;
+    initialQuery?: string;
     placeholder: string;
     sources: PaletteSource[];
   }): void {
@@ -1102,6 +1106,7 @@
       searchId: 0,
       sources: options.sources,
     };
+    input.value = options.initialQuery ?? "";
 
     input.addEventListener("input", () => {
       if (commandPaletteState) {
@@ -2726,6 +2731,24 @@
     void refreshCommandPaletteResults();
   }
 
+  function openCurrentUrlEditPalette(): void {
+    const initialQuery = commandPaletteCurrentUrlEditValue(location.href);
+    if (!initialQuery) {
+      showUrlCopyToast("Current URL cannot be edited");
+      return;
+    }
+
+    openCommandPalette({
+      disposition: "current-tab",
+      generatedKinds: ["url"],
+      includeCommands: false,
+      includeGenerated: true,
+      initialQuery,
+      placeholder: "Edit current URL",
+      sources: [],
+    });
+  }
+
   async function executeBrowserPaletteResult(
     result: BrowserPaletteResult,
     disposition: PaletteDisposition,
@@ -3889,53 +3912,100 @@
     movementState = null;
   }
 
-  function isTopCommand(event: KeyboardEvent): boolean {
-    const sequence = settingsApi.shortcutSequence(
-      extensionSettings.shortcuts.top,
-    );
-    const key = event.key.toLowerCase();
-    return (
-      !event.repeat &&
-      sequence?.length === 2 &&
-      (key === sequence[0] ||
-        isPendingSequenceKey(
-          lastGPressAt,
-          key,
-          sequence,
-          TOP_SEQUENCE_WINDOW_MS,
-        ))
-    );
-  }
-
-  function handleTopCommand(event: KeyboardEvent): void {
-    const sequence = settingsApi.shortcutSequence(
-      extensionSettings.shortcuts.top,
-    );
-    if (!sequence || sequence.length !== 2) {
-      return;
+  function pageSequenceActionForEvent(
+    event: KeyboardEvent,
+  ): PageSequenceAction | "pending" | null {
+    if (
+      event.repeat ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey
+    ) {
+      pendingPageSequence = null;
+      return null;
     }
 
     const now = performance.now();
     const key = event.key.toLowerCase();
+    const candidates = pageSequenceCandidates();
+
     if (
-      isPendingSequenceKey(lastGPressAt, key, sequence, TOP_SEQUENCE_WINDOW_MS)
+      pendingPageSequence &&
+      now - pendingPageSequence.startedAt < TOP_SEQUENCE_WINDOW_MS
     ) {
-      lastGPressAt = 0;
-      scrollToTop();
-      return;
+      const match = candidates.find(
+        (candidate) =>
+          candidate.sequence[0] === pendingPageSequence?.key &&
+          candidate.sequence[1] === key,
+      );
+      pendingPageSequence = null;
+      if (match) {
+        return match.action;
+      }
     }
 
-    if (key !== sequence[0]) {
-      lastGPressAt = 0;
-      return;
+    const startsSequence = candidates.some(
+      (candidate) => candidate.sequence[0] === key,
+    );
+    if (!startsSequence) {
+      pendingPageSequence = null;
+      return null;
     }
 
-    lastGPressAt = now;
+    pendingPageSequence = { key, startedAt: now };
     window.setTimeout(() => {
-      if (performance.now() - lastGPressAt >= TOP_SEQUENCE_WINDOW_MS) {
-        lastGPressAt = 0;
+      if (
+        pendingPageSequence &&
+        performance.now() - pendingPageSequence.startedAt >=
+          TOP_SEQUENCE_WINDOW_MS
+      ) {
+        pendingPageSequence = null;
       }
     }, TOP_SEQUENCE_WINDOW_MS);
+    return "pending";
+  }
+
+  function pageSequenceCandidates(): Array<{
+    action: PageSequenceAction;
+    sequence: string[];
+  }> {
+    const candidates: Array<{
+      action: PageSequenceAction;
+      sequence: string[] | null;
+    }> = [
+      {
+        action: "top",
+        sequence: settingsApi.shortcutSequence(extensionSettings.shortcuts.top),
+      },
+      {
+        action: "edit-current-url-palette",
+        sequence: settingsApi.shortcutSequence(
+          extensionSettings.shortcuts.editCurrentUrlPalette,
+        ),
+      },
+    ];
+
+    return candidates.flatMap((candidate) =>
+      candidate.sequence?.length === 2
+        ? [{ action: candidate.action, sequence: candidate.sequence }]
+        : [],
+    );
+  }
+
+  function handlePageSequenceAction(
+    action: PageSequenceAction | "pending",
+  ): void {
+    switch (action) {
+      case "pending":
+        return;
+      case "top":
+        scrollToTop();
+        return;
+      case "edit-current-url-palette":
+        openCurrentUrlEditPalette();
+        return;
+    }
   }
 
   function isUrlCopyCommand(event: KeyboardEvent): boolean {
@@ -4134,6 +4204,7 @@
     generatedKinds: PaletteGeneratedKind[];
     includeCommands: boolean;
     includeGenerated: boolean;
+    initialQuery?: string;
     placeholder: string;
     sources: PaletteSource[];
   } | null {

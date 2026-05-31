@@ -80,6 +80,10 @@
                     description: "Search tabs, bookmarks, history, and open in a new tab",
                 },
                 {
+                    key: "ge",
+                    description: "Edit the current page URL in the command palette",
+                },
+                {
                     key: "b / Shift+B",
                     description: "Search bookmarks in current or new tab",
                 },
