@@ -1,19 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../Style.css">
     <script src="../Script.js" defer></script>
-</head>
-<body>
-    <img src="../Icon.png" width="128" height="128" alt="Safari Keyboard Navigation Extension Icon">
-    <p class="state-unknown">You can turn on Safari Keyboard Navigation Extension’s extension in Safari Extensions preferences.</p>
-    <p class="state-on">Safari Keyboard Navigation Extension’s extension is currently on. You can turn it off in Safari Extensions preferences.</p>
-    <p class="state-off">Safari Keyboard Navigation Extension’s extension is currently off. You can turn it on in Safari Extensions preferences.</p>
-    <button class="open-preferences">Quit and Open Safari Extensions Preferences…</button>
-</body>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="../Icon.png" width="64" height="64" alt="">
+        <div>
+          <h1>Safari Keyboard Navigation</h1>
+          <p class="state-unknown">Enable the extension in Safari to start using keyboard navigation.</p>
+          <p class="state-on">The Safari extension is currently enabled.</p>
+          <p class="state-off">The Safari extension is currently disabled.</p>
+        </div>
+      </header>
+
+      <section aria-labelledby="setup-heading">
+        <h2 id="setup-heading">Setup</h2>
+        <ol>
+          <li>Open Safari Settings and enable the extension.</li>
+          <li>Grant website access for the sites where you want keyboard navigation.</li>
+          <li>Open a web page and press <kbd>f</kbd> to show hints.</li>
+        </ol>
+        <button class="open-preferences">Open Safari Extension Settings</button>
+      </section>
+
+      <section aria-labelledby="shortcuts-heading">
+        <h2 id="shortcuts-heading">Default Shortcuts</h2>
+        <div class="shortcut-grid">
+          <div><kbd>f</kbd><span>Open hints</span></div>
+          <div><kbd>Shift</kbd> + <kbd>f</kbd><span>Open hint in a new tab</span></div>
+          <div><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd><span>Move the page</span></div>
+          <div><kbd>u</kbd> <kbd>d</kbd><span>Move half a page</span></div>
+          <div><kbd>g</kbd><kbd>g</kbd><span>Go to top</span></div>
+          <div><kbd>Shift</kbd> + <kbd>G</kbd><span>Go to bottom</span></div>
+          <div><kbd>y</kbd><kbd>y</kbd><span>Copy the current URL</span></div>
+          <div><kbd>?</kbd><span>Show shortcut help</span></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="permissions-heading">
+        <h2 id="permissions-heading">Permissions</h2>
+        <p>
+          The extension reads visible links, buttons, form controls, and element positions on pages where
+          you grant access. This is used locally to draw hints and run keyboard commands.
+        </p>
+        <p>
+          It does not send page content, browsing data, or shortcut activity to any external server.
+        </p>
+      </section>
+
+      <section aria-labelledby="settings-heading">
+        <h2 id="settings-heading">Settings</h2>
+        <p>
+          Site-specific access, shortcut customization, and hint appearance settings are managed from
+          the extension settings page in Safari.
+        </p>
+        <button class="open-preferences">Open Safari Extension Settings</button>
+      </section>
+    </main>
+  </body>
 </html>
