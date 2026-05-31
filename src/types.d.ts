@@ -283,14 +283,14 @@ interface CommandPaletteQueryOptions {
 
 interface CommandPaletteActivationCloseCandidate {
   disposition: PaletteDisposition;
-  resultKind: PaletteResultKind | "command";
+  resultKind: PaletteResultKind | "command" | "query";
 }
 
 interface CommandPaletteAdvanceCandidate {
   activeIndex: number;
   disposition: PaletteDisposition;
   resultCount: number;
-  resultKind: PaletteResultKind | "command";
+  resultKind: PaletteResultKind | "command" | "query";
 }
 
 interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
@@ -367,6 +367,10 @@ interface SafariKeyboardNavigationCommandPalette {
     query: string,
     options: CommandPaletteQueryOptions,
   ): CommandPaletteQueryScope;
+  recentPaletteQueryResultTitles(
+    scope: CommandPaletteQueryScope,
+    queryHistory: string[],
+  ): string[];
   commandPaletteNextIndexAfterActivation(
     candidate: CommandPaletteAdvanceCandidate,
   ): number;
