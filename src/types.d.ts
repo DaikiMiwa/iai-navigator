@@ -183,7 +183,13 @@ interface CommandPaletteKeyCandidate {
   shiftKey: boolean;
 }
 
+interface TextRange {
+  start: number;
+  end: number;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
+  commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
