@@ -30,6 +30,7 @@ globalThis.window = {
   cancelAnimationFrame: () => undefined,
 };
 
+await import("../web-extension/settings.js");
 await import("../web-extension/content.js");
 
 const { isSupportedPdfCandidate, isSupportedWebPageCandidate } =

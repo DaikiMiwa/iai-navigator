@@ -3,14 +3,14 @@
     const maybeHints = globalThis.SafariKeyboardNavigationHints;
     const maybeHelp = globalThis.SafariKeyboardNavigationHelp;
     const maybeScroll = globalThis.SafariKeyboardNavigationScroll;
-    if (!maybeHints || !maybeHelp || !maybeScroll) {
+    const maybeSettings = globalThis.SafariKeyboardNavigationSettings;
+    if (!maybeHints || !maybeHelp || !maybeScroll || !maybeSettings) {
         return;
     }
     const hints = maybeHints;
     const help = maybeHelp;
     const scroll = maybeScroll;
-    const HINT_TRIGGER = "f";
-    const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
+    const settingsApi = maybeSettings;
     const HELP_OVERLAY_ID = "skne-help-overlay";
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const MENU_TRIGGER_TARGET_SELECTOR = [
@@ -88,11 +88,34 @@
     let urlCopyToastTimer = 0;
     let movementState = null;
     let menuRevealTimer = 0;
+    let extensionSettings = settingsApi.DEFAULT_EXTENSION_SETTINGS;
+    initializeExtensionSettings();
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopMovement, true);
     window.addEventListener("pagehide", closeHelpOverlay, true);
     window.addEventListener("pagehide", stopMovement, true);
+    function initializeExtensionSettings() {
+        void settingsApi
+            .loadExtensionSettings()
+            .then((loadedSettings) => {
+            extensionSettings = loadedSettings;
+            applyHintStyleSettings();
+        })
+            .catch(() => undefined);
+        globalThis.browser?.storage?.onChanged?.addListener((changes, areaName) => {
+            if (areaName !== "local" ||
+                !(settingsApi.SETTINGS_STORAGE_KEY in changes)) {
+                return;
+            }
+            extensionSettings = settingsApi.normalizeExtensionSettings(changes[settingsApi.SETTINGS_STORAGE_KEY]?.newValue);
+            applyHintStyleSettings();
+            if (!settingsApi.isExtensionEnabledForUrl(extensionSettings, location.href)) {
+                cancelHintMode();
+                stopMovement();
+            }
+        });
+    }
     function handleKeyDown(event) {
         if (hintState) {
             handleHintKeyDown(event);
@@ -118,6 +141,9 @@
         if (shouldIgnoreKeyboardCommand(event)) {
             return;
         }
+        if (!settingsApi.isExtensionEnabledForUrl(extensionSettings, location.href)) {
+            return;
+        }
         const hintActivationMode = hintActivationModeForEvent(event);
         if (isUrlCopyCancelCommand(event)) {
             event.preventDefault();
@@ -132,7 +158,8 @@
             return;
         }
         clearUrlCopySequence();
-        if (help.isHelpCommandEvent(event)) {
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.help) ||
+            help.isHelpCommandEvent(event)) {
             event.preventDefault();
             event.stopPropagation();
             showHelpOverlay();
@@ -223,13 +250,10 @@
         stopMovement();
     }
     function hintActivationModeForEvent(event) {
-        if (event.altKey || event.ctrlKey || event.metaKey) {
-            return null;
-        }
-        if (!event.shiftKey && event.key === HINT_TRIGGER) {
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.hint)) {
             return "current-tab";
         }
-        if (event.shiftKey && event.code === NEW_TAB_HINT_TRIGGER_CODE) {
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.newTabHint)) {
             return "new-tab";
         }
         return null;
@@ -329,6 +353,7 @@
         }
         const overlay = document.createElement("div");
         overlay.id = "skne-hint-overlay";
+        applyHintStyleSettings(overlay);
         const entries = targets.map((target, index) => {
             const hint = hintValues[index];
             const label = document.createElement("span");
@@ -353,6 +378,15 @@
         };
         window.addEventListener("scroll", cancelHintMode, true);
         window.addEventListener("resize", cancelHintMode, true);
+    }
+    function applyHintStyleSettings(root = document.documentElement) {
+        const style = extensionSettings.hintStyle;
+        root.style.setProperty("--skne-hint-background", style.backgroundColor);
+        root.style.setProperty("--skne-hint-color", style.textColor);
+        root.style.setProperty("--skne-hint-font-size", `${style.fontSize}px`);
+        root.style.setProperty("--skne-hint-font-weight", String(style.fontWeight));
+        root.style.setProperty("--skne-hint-media-font-size", `${style.mediaFontSize}px`);
+        root.style.setProperty("--skne-hint-opacity", String(style.opacity));
     }
     function handleHintKeyDown(event) {
         event.preventDefault();
@@ -1017,75 +1051,74 @@
         }
     }
     function movementForEvent(event) {
-        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-            return null;
-        }
-        switch (event.key) {
-            case "h":
-                return {
-                    key: "h",
+        const movements = [
+            [
+                "left",
+                {
+                    key: event.key.toLowerCase(),
                     dx: -HORIZONTAL_STEP_PX,
                     dy: 0,
                     speedX: -HORIZONTAL_HOLD_SPEED_PX_PER_SECOND,
                     speedY: 0,
-                };
-            case "j":
-                return {
-                    key: "j",
+                },
+            ],
+            [
+                "down",
+                {
+                    key: event.key.toLowerCase(),
                     dx: 0,
                     dy: VERTICAL_STEP_PX,
                     speedX: 0,
                     speedY: VERTICAL_HOLD_SPEED_PX_PER_SECOND,
-                };
-            case "k":
-                return {
-                    key: "k",
+                },
+            ],
+            [
+                "up",
+                {
+                    key: event.key.toLowerCase(),
                     dx: 0,
                     dy: -VERTICAL_STEP_PX,
                     speedX: 0,
                     speedY: -VERTICAL_HOLD_SPEED_PX_PER_SECOND,
-                };
-            case "l":
-                return {
-                    key: "l",
+                },
+            ],
+            [
+                "right",
+                {
+                    key: event.key.toLowerCase(),
                     dx: HORIZONTAL_STEP_PX,
                     dy: 0,
                     speedX: HORIZONTAL_HOLD_SPEED_PX_PER_SECOND,
                     speedY: 0,
-                };
-            default:
-                return null;
+                },
+            ],
+        ];
+        for (const [shortcutName, movement] of movements) {
+            if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts[shortcutName], {
+                allowRepeat: true,
+            })) {
+                return movement;
+            }
         }
+        return null;
     }
     function halfPageDirectionForEvent(event) {
-        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-            return null;
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.halfPageDown)) {
+            return 1;
         }
-        switch (event.key) {
-            case "d":
-                return 1;
-            case "u":
-                return -1;
-            default:
-                return null;
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.halfPageUp)) {
+            return -1;
         }
+        return null;
     }
     function tabSwitchDirectionForEvent(event) {
-        if (event.repeat ||
-            event.altKey ||
-            event.ctrlKey ||
-            event.metaKey ||
-            !event.shiftKey) {
-            return null;
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.tabPrevious)) {
+            return "previous";
         }
-        switch (event.code) {
-            case "KeyJ":
-                return "previous";
-            case "KeyK":
-                return "next";
-            default:
-                return null;
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.tabNext)) {
+            return "next";
         }
+        return null;
     }
     function scrollHalfPage(direction) {
         const surface = findScrollSurface({
@@ -1175,16 +1208,19 @@
         movementState = null;
     }
     function isTopCommand(event) {
+        const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.top);
         return (!event.repeat &&
-            !event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.shiftKey &&
-            event.key === "g");
+            sequence?.length === 2 &&
+            event.key.toLowerCase() === sequence[0]);
     }
     function handleTopCommand() {
+        const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.top);
+        if (!sequence || sequence.length !== 2) {
+            return;
+        }
         const now = performance.now();
-        if (now - lastGPressAt <= TOP_SEQUENCE_WINDOW_MS) {
+        if (now - lastGPressAt <= TOP_SEQUENCE_WINDOW_MS &&
+            sequence[1] === sequence[0]) {
             lastGPressAt = 0;
             const surface = findScrollSurface({ key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 }, { requireCanMove: false });
             scrollToSurfacePosition(surface, {
@@ -1201,19 +1237,22 @@
         }, TOP_SEQUENCE_WINDOW_MS);
     }
     function isUrlCopyCommand(event) {
+        const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.copyUrl);
         return (!event.repeat &&
-            !event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.shiftKey &&
-            event.key === "y");
+            sequence?.length === 2 &&
+            event.key.toLowerCase() === sequence[0]);
     }
     function isUrlCopyCancelCommand(event) {
         return lastYPressAt !== 0 && event.key === "Escape";
     }
     function handleUrlCopyCommand() {
+        const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.copyUrl);
+        if (!sequence || sequence.length !== 2) {
+            return;
+        }
         const now = performance.now();
-        if (now - lastYPressAt <= URL_COPY_SEQUENCE_WINDOW_MS) {
+        if (now - lastYPressAt <= URL_COPY_SEQUENCE_WINDOW_MS &&
+            sequence[1] === sequence[0]) {
             clearUrlCopySequence();
             void copyCurrentUrl();
             return;
@@ -1289,33 +1328,16 @@
         }, URL_COPY_TOAST_MS);
     }
     function isBottomCommand(event) {
-        return (!event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            event.shiftKey &&
-            event.code === "KeyG");
+        return settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.bottom);
     }
     function isHistoryBackCommand(event) {
-        return isShiftLetterCommand(event, "KeyH");
+        return settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.historyBack);
     }
     function isHistoryForwardCommand(event) {
-        return isShiftLetterCommand(event, "KeyL");
+        return settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.historyForward);
     }
     function isReloadCommand(event) {
-        return (!event.repeat &&
-            !event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.shiftKey &&
-            event.key === "r");
-    }
-    function isShiftLetterCommand(event, code) {
-        return (!event.repeat &&
-            !event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            event.shiftKey &&
-            event.code === code);
+        return settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.reload);
     }
     function navigateHistory(direction) {
         stopMovement();
