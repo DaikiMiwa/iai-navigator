@@ -99,6 +99,14 @@ test("maps command palette navigation keys", () => {
   );
   assert.equal(commandPaletteKeyAction(key({ key: "Home" })), "first");
   assert.equal(commandPaletteKeyAction(key({ key: "End" })), "last");
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "u" })),
+    "clear-query",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "U" })),
+    "clear-query",
+  );
 });
 
 test("maps command palette activation keys", () => {

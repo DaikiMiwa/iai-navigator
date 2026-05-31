@@ -36,6 +36,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
+- `Ctrl+u` clears the current command palette query without closing the palette.
 - `Option+T/B/H/V/S/U/M` changes the command palette source to tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
 - `b` opens a bookmark-only palette with suggestions before typing, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
 - Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
@@ -151,6 +152,7 @@ Useful checks:
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
+- In the palette, type a query, press `Ctrl+u`, and verify the input clears while the palette stays open.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.

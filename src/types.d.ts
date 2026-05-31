@@ -192,6 +192,7 @@ type CommandPaletteNamedKeyAction =
   | "page-previous"
   | "first"
   | "last"
+  | "clear-query"
   | "activate-current-tab"
   | "activate-new-tab"
   | "activate-background-tab"
