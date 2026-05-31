@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteMarkdownLinkValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteNextIndexAfterActivation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
@@ -120,6 +122,14 @@ test("maps command palette activation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "C" })),
     "copy-result-url",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "y" })),
+    "copy-result-markdown",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "Y" })),
+    "copy-result-markdown",
   );
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "e" })),
@@ -365,6 +375,36 @@ test("formats editable command palette result URLs", () => {
   );
   assert.equal(commandPaletteEditableResultValue({ kind: "command" }), null);
   assert.equal(commandPaletteEditableResultValue({ kind: "history" }), null);
+});
+
+test("formats command palette results as Markdown links", () => {
+  assert.equal(
+    commandPaletteMarkdownLinkValue({
+      title: "Project [Docs]",
+      url: "https://example.com/docs",
+    }),
+    "[Project \\[Docs\\]](https://example.com/docs)",
+  );
+  assert.equal(
+    commandPaletteMarkdownLinkValue({
+      title: "Project) Docs",
+      url: "https://example.com/a_(b)",
+    }),
+    "[Project) Docs](https://example.com/a_(b\\))",
+  );
+  assert.equal(
+    commandPaletteMarkdownLinkValue({
+      title: "  \n  ",
+      url: "https://example.com/",
+    }),
+    "[https://example.com/](https://example.com/)",
+  );
+  assert.equal(
+    commandPaletteMarkdownLinkValue({
+      title: "Command result",
+    }),
+    null,
+  );
 });
 
 test("navigates command palette query history", () => {

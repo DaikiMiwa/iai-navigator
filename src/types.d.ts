@@ -191,6 +191,7 @@ type CommandPaletteNamedKeyAction =
   | "activate-current-tab"
   | "activate-new-tab"
   | "activate-background-tab"
+  | "copy-result-markdown"
   | "copy-result-url"
   | "edit-result-url"
   | "forget-palette-entry"
@@ -280,6 +281,11 @@ interface CommandPaletteEditableResultCandidate {
   url?: string;
 }
 
+interface CommandPaletteMarkdownResultCandidate {
+  title?: string;
+  url?: string;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
   commandPaletteApplyPrefixValue(
@@ -298,6 +304,9 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
+  commandPaletteMarkdownLinkValue(
+    result: CommandPaletteMarkdownResultCandidate,
+  ): string | null;
   commandPaletteQueryScope(
     query: string,
     options: CommandPaletteQueryOptions,

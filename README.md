@@ -28,6 +28,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
 - Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
 - `Option+C` copies the selected command palette browser destination URL without opening it.
+- `Option+Y` copies the selected command palette browser destination as a Markdown link without opening it.
 - `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
 - `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
@@ -140,6 +141,7 @@ Useful checks:
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it, keeps the palette open, and moves selection to the next result.
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
+- In the palette, verify `Alt+Y` / `Option+Y` copies the selected browser destination as a Markdown link without opening it.
 - In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, or the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
