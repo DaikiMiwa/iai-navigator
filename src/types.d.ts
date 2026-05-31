@@ -212,6 +212,7 @@ interface CommandPaletteResultIndexAction {
 }
 
 type CommandPaletteSourcePrefix =
+  | "all"
   | "tab"
   | "book"
   | "history"

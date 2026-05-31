@@ -236,6 +236,14 @@ test("maps command palette activation keys", () => {
     kind: "apply-prefix",
     prefix: "cmd",
   });
+  assert.deepEqual(commandPaletteKeyAction(key({ altKey: true, key: "a" })), {
+    kind: "apply-prefix",
+    prefix: "all",
+  });
+  assert.deepEqual(commandPaletteKeyAction(key({ altKey: true, key: "A" })), {
+    kind: "apply-prefix",
+    prefix: "all",
+  });
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "Backspace" })),
     "forget-palette-entry",
@@ -282,7 +290,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
   assert.match(hints, /Option\+↑\/↓/);
-  assert.match(hints, /Option\+T\/B\/H\/V\/S\/U\/M/);
+  assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/U\/M/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
   assert.match(hints, /history:/);
@@ -408,6 +416,11 @@ test("applies command palette source prefixes while preserving query text", () =
   assert.equal(
     commandPaletteApplyPrefixValue("unknown: docs", "tab"),
     "tab: unknown: docs",
+  );
+  assert.equal(commandPaletteApplyPrefixValue("book: docs", "all"), "docs");
+  assert.equal(
+    commandPaletteApplyPrefixValue("unknown: docs", "all"),
+    "unknown: docs",
   );
   assert.equal(commandPaletteApplyPrefixValue("", "cmd"), "cmd: ");
 });

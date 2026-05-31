@@ -176,7 +176,7 @@
         "Option+1-9 open result",
         "Ctrl+J/K move",
         "Option+↑/↓ query history",
-        "Option+T/B/H/V/S/U/M source",
+        "Option+A/T/B/H/V/S/U/M source",
         "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
     ];
     const COMMAND_PALETTE_GENERATED_KINDS = [
@@ -963,6 +963,8 @@
                 return "url";
             case "m":
                 return "cmd";
+            case "a":
+                return "all";
             default:
                 return null;
         }
@@ -1285,6 +1287,9 @@
     }
     function commandPaletteApplyPrefixValue(value, prefix) {
         const query = commandPaletteUnprefixedQuery(value);
+        if (prefix === "all") {
+            return query;
+        }
         return `${prefix}: ${query}`;
     }
     function commandPaletteUnprefixedQuery(value) {
