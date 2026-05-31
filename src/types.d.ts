@@ -397,6 +397,11 @@ interface PaletteRemoveLocalVisitMessage {
   url: string;
 }
 
+interface PaletteRemoveHistoryMessage {
+  type: "palette-remove-history";
+  url: string;
+}
+
 interface PaletteCloseTabMessage {
   type: "palette-close-tab";
   tabId: number;
@@ -429,6 +434,7 @@ type SafariKeyboardNavigationMessage =
   | PaletteSearchMessage
   | PaletteExecuteMessage
   | PaletteRemoveLocalVisitMessage
+  | PaletteRemoveHistoryMessage
   | PaletteCloseTabMessage
   | TabCommandMessage
   | OpenOptionsMessage
@@ -492,6 +498,7 @@ interface WebExtensionHistoryQuery {
 }
 
 interface WebExtensionHistory {
+  deleteUrl(details: { url: string }): Promise<void>;
   search(query: WebExtensionHistoryQuery): Promise<WebExtensionHistoryItem[]>;
 }
 
@@ -572,6 +579,10 @@ interface SafariKeyboardNavigationTabs {
     api: WebExtensionApi,
     tabId: number,
   ): Promise<{ closed: boolean }>;
+  deletePaletteHistoryUrl(
+    api: WebExtensionApi,
+    url: string,
+  ): Promise<{ removed: boolean }>;
   executeTabCommand(
     api: WebExtensionApi,
     command: TabCommandId,

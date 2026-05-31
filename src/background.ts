@@ -140,6 +140,7 @@
   global.SafariKeyboardNavigationTabs = {
     chooseNeighborTabId,
     closePaletteTab,
+    deletePaletteHistoryUrl,
     executeTabCommand,
     executePaletteResult,
     isSupportedNewTabUrl,
@@ -175,6 +176,10 @@
 
       if (isPaletteRemoveLocalVisitMessage(message)) {
         return removeLocalVisit(api, message.url);
+      }
+
+      if (isPaletteRemoveHistoryMessage(message)) {
+        return deletePaletteHistoryUrl(api, message.url);
       }
 
       if (isPaletteCloseTabMessage(message)) {
@@ -399,6 +404,22 @@
     }
   }
 
+  async function deletePaletteHistoryUrl(
+    api: WebExtensionApi,
+    url: string,
+  ): Promise<{ removed: boolean }> {
+    if (!api.history?.deleteUrl || !isSupportedNewTabUrl(url)) {
+      return { removed: false };
+    }
+
+    try {
+      await api.history.deleteUrl({ url });
+      return { removed: true };
+    } catch {
+      return { removed: false };
+    }
+  }
+
   async function executeTabCommand(
     api: WebExtensionApi,
     command: TabCommandId,
@@ -572,6 +593,20 @@
     const candidate = message as Partial<PaletteRemoveLocalVisitMessage>;
     return (
       candidate.type === "palette-remove-local-visit" &&
+      typeof candidate.url === "string"
+    );
+  }
+
+  function isPaletteRemoveHistoryMessage(
+    message: unknown,
+  ): message is PaletteRemoveHistoryMessage {
+    if (!message || typeof message !== "object") {
+      return false;
+    }
+
+    const candidate = message as Partial<PaletteRemoveHistoryMessage>;
+    return (
+      candidate.type === "palette-remove-history" &&
       typeof candidate.url === "string"
     );
   }
