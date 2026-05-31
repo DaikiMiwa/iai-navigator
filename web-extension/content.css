@@ -348,6 +348,34 @@
   line-height: 1.4;
 }
 
+#skne-command-palette-overlay .skne-command-palette-footer {
+  all: initial;
+  display: flex;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  background: #171717;
+  color: #bdbdbd;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+#skne-command-palette-overlay .skne-command-palette-footer-item {
+  all: initial;
+  display: inline-block;
+  color: inherit;
+  font-family:
+    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+}
+
 .html5-video-player.skne-media-controls-revealed .ytp-chrome-top,
 .html5-video-player.skne-media-controls-revealed .ytp-chrome-bottom,
 .html5-video-player.skne-media-controls-revealed .ytp-gradient-top,

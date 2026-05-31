@@ -201,6 +201,7 @@ interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
 }
 
 interface SafariKeyboardNavigationCommandPalette {
+  COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
