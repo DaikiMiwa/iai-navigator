@@ -116,7 +116,18 @@ interface SafariKeyboardNavigationSiteAccessSettings {
   mode: SafariKeyboardNavigationSiteAccessMode;
 }
 
+type SafariKeyboardNavigationSearchEngine =
+  | "google"
+  | "duckduckgo"
+  | "brave"
+  | "kagi";
+
+interface SafariKeyboardNavigationCommandPaletteSettings {
+  searchEngine: SafariKeyboardNavigationSearchEngine;
+}
+
 interface SafariKeyboardNavigationExtensionSettings {
+  commandPalette: SafariKeyboardNavigationCommandPaletteSettings;
   enabled: boolean;
   hintStyle: SafariKeyboardNavigationHintStyleSettings;
   shortcuts: SafariKeyboardNavigationShortcutSettings;
@@ -442,7 +453,11 @@ interface SafariKeyboardNavigationTabs {
       visits?: LocalVisitItem[];
     },
     query: string,
-    options?: { includeGenerated?: boolean; sources?: PaletteSource[] },
+    options?: {
+      includeGenerated?: boolean;
+      searchEngine?: SafariKeyboardNavigationSearchEngine;
+      sources?: PaletteSource[];
+    },
   ): PaletteResult[];
   tabSwitchDirectionForCommand(command: string): TabSwitchDirection | null;
 }

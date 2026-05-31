@@ -390,6 +390,18 @@ test("adds direct URL and search results for open palette queries", () => {
     searchResults[0].url,
     "https://www.google.com/search?q=hello%20world",
   );
+
+  const duckDuckGoResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "private search",
+    { includeGenerated: true, searchEngine: "duckduckgo" },
+  );
+
+  assert.equal(duckDuckGoResults[0].subtitle, "DuckDuckGo");
+  assert.equal(
+    duckDuckGoResults[0].url,
+    "https://duckduckgo.com/?q=private%20search",
+  );
 });
 
 test("records local visits with canonical URLs, deduping, and a bounded list", () => {

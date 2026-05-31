@@ -18,7 +18,7 @@ The extension uses this access to:
 - copy the current page URL when the user presses the URL copy shortcut;
 - switch tabs or open a selected link in a new tab;
 - search open tabs, bookmarks, recent history, and locally observed page destinations when the command palette is open.
-- open a user-entered search query in Google Search when the user explicitly selects a generated search result.
+- open a user-entered search query in the configured search engine when the user explicitly selects a generated search result.
 
 ## What the Extension Does Not Collect
 
@@ -31,7 +31,7 @@ The extension does not:
 - record typed text from input fields;
 - sync settings to a developer-controlled backend.
 
-Settings and the local observed-page index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. User-entered web searches leave the device only when the user chooses the generated search result.
+Settings and the local observed-page index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. User-entered web searches leave the device only when the user chooses the generated search result, and then only to the configured search engine.
 
 ## Website Access Modes
 

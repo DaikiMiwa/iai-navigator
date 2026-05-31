@@ -85,6 +85,7 @@
     select("site-mode").value = settings.siteAccess.mode;
     textarea("allowlist").value = settings.siteAccess.allowlist.join("\n");
     textarea("blocklist").value = settings.siteAccess.blocklist.join("\n");
+    select("search-engine").value = settings.commandPalette.searchEngine;
 
     for (const [name, shortcutInput] of shortcutInputs) {
       shortcutInput.value = settings.shortcuts[name];
@@ -106,6 +107,9 @@
 
     const nextSettings = settingsApi.normalizeExtensionSettings({
       enabled: input("enabled").checked,
+      commandPalette: {
+        searchEngine: select("search-engine").value,
+      },
       hintStyle: {
         backgroundColor: input("background-color").value,
         fontSize: Number(input("font-size").value),
