@@ -42,6 +42,9 @@
             return false;
         }
     }
+    function paletteTabQueryInfo() {
+        return {};
+    }
     function searchPaletteResults(sources, query, options = {}) {
         const normalizedQuery = normalizePaletteQuery(query);
         const sourceFilter = new Set(options.sources ?? ["tabs", "bookmarks", "history", "visits"]);
@@ -80,6 +83,7 @@
         chooseNeighborTabId,
         executePaletteResult,
         isSupportedNewTabUrl,
+        paletteTabQueryInfo,
         recordLocalVisit,
         searchPaletteResults,
         tabSwitchDirectionForCommand,
@@ -153,7 +157,7 @@
         const sources = new Set(message.sources);
         const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
             sources.has("tabs") && api.tabs
-                ? api.tabs.query({ currentWindow: true })
+                ? api.tabs.query(paletteTabQueryInfo())
                 : Promise.resolve([]),
             sources.has("bookmarks") && trimmedQuery && api.bookmarks
                 ? api.bookmarks.search(trimmedQuery)
@@ -192,6 +196,11 @@
                 return;
             }
             await api.tabs.update(result.tabId, { active: true });
+            if (typeof result.windowId === "number") {
+                await api.windows
+                    ?.update(result.windowId, { focused: true })
+                    .catch(() => undefined);
+            }
             return;
         }
         if (!result.url || !isSupportedNewTabUrl(result.url)) {
@@ -286,17 +295,19 @@
         if (score === null) {
             return [];
         }
-        return [
-            {
-                id: `tab:${tab.id}`,
-                kind: "tab",
-                score: score + 20 + (tab.active ? 2 : 0),
-                subtitle: tab.url ?? "Open tab",
-                tabId: tab.id,
-                title,
-                url: tab.url,
-            },
-        ];
+        const result = {
+            id: `tab:${tab.id}`,
+            kind: "tab",
+            score: score + 20 + (tab.active ? 2 : 0),
+            subtitle: tab.url ?? "Open tab",
+            tabId: tab.id,
+            title,
+            url: tab.url,
+        };
+        if (typeof tab.windowId === "number") {
+            result.windowId = tab.windowId;
+        }
+        return [result];
     }
     function bookmarkPaletteResult(bookmark, query) {
         if (!bookmark.url || !isSupportedNewTabUrl(bookmark.url)) {

@@ -7,6 +7,7 @@ const {
   chooseNeighborTabId,
   executePaletteResult,
   isSupportedNewTabUrl,
+  paletteTabQueryInfo,
   recordLocalVisit,
   searchPaletteResults,
   tabSwitchDirectionForCommand,
@@ -95,6 +96,10 @@ test("maps browser-level tab switch commands to directions", () => {
   assert.equal(tabSwitchDirectionForCommand("unknown-command"), null);
 });
 
+test("queries all windows for command palette tab search", () => {
+  assert.deepEqual(paletteTabQueryInfo(), {});
+});
+
 test("opens palette destinations in a background tab", async () => {
   const createdTabs = [];
   await executePaletteResult(
@@ -158,6 +163,45 @@ test("duplicates open tab palette results in a background tab", async () => {
   ]);
 });
 
+test("focuses the source window when activating an open tab palette result", async () => {
+  const updatedTabs = [];
+  const updatedWindows = [];
+  await executePaletteResult(
+    {
+      tabs: {
+        create: async () => {
+          throw new Error("current-tab activation should not create tabs");
+        },
+        query: async () => [],
+        update: async (tabId, properties) => {
+          updatedTabs.push([tabId, properties]);
+          return { id: tabId, index: 0, ...properties };
+        },
+      },
+      windows: {
+        update: async (windowId, properties) => {
+          updatedWindows.push([windowId, properties]);
+          return {};
+        },
+      },
+    },
+    {
+      id: "tab:10",
+      kind: "tab",
+      tabId: 10,
+      title: "Docs Tab",
+      subtitle: "https://example.com/tab",
+      url: "https://example.com/tab",
+      windowId: 20,
+      score: 10,
+    },
+    "current-tab",
+  );
+
+  assert.deepEqual(updatedTabs, [[10, { active: true }]]);
+  assert.deepEqual(updatedWindows, [[20, { focused: true }]]);
+});
+
 test("combines matching tabs, bookmarks, recent history, and local visits for palette search", () => {
   const results = searchPaletteResults(
     {
@@ -202,6 +246,30 @@ test("combines matching tabs, bookmarks, recent history, and local visits for pa
     new Set(["tab", "bookmark", "history", "visit"]),
   );
   assert.equal(results[0].tabId, 10);
+});
+
+test("preserves window context on open tab palette results", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Docs Tab",
+          url: "https://example.com/docs",
+          windowId: 20,
+        },
+      ],
+    },
+    "docs",
+    { sources: ["tabs"] },
+  );
+
+  assert.equal(results[0]?.kind, "tab");
+  assert.equal(results[0]?.tabId, 10);
+  assert.equal(results[0]?.windowId, 20);
 });
 
 test("can restrict palette search to bookmarks only", () => {
