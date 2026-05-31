@@ -340,6 +340,7 @@
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
     commandPaletteQueryScope,
+    commandPaletteShouldCloseAfterActivation,
   };
 
   let hintState: HintState | null = null;
@@ -1773,7 +1774,14 @@
 
     const disposition = dispositionOverride ?? commandPaletteState.disposition;
     const query = commandPaletteState.input.value;
-    closeCommandPalette();
+    if (
+      commandPaletteShouldCloseAfterActivation({
+        disposition,
+        resultKind: result.kind,
+      })
+    ) {
+      closeCommandPalette();
+    }
     void rememberCommandPaletteQuery(query);
     if (result.kind === "command") {
       if (disposition === "background-tab") {
@@ -1785,6 +1793,12 @@
     }
 
     void executeBrowserPaletteResult(result, disposition);
+  }
+
+  function commandPaletteShouldCloseAfterActivation(
+    candidate: CommandPaletteActivationCloseCandidate,
+  ): boolean {
+    return candidate.disposition !== "background-tab";
   }
 
   function activateCommandPaletteIndex(

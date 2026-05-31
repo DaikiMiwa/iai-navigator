@@ -45,6 +45,8 @@ const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteQueryScope } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteShouldCloseAfterActivation } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { COMMAND_PALETTE_FOOTER_HINTS } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 
@@ -230,6 +232,37 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /k:/);
   assert.match(hints, /url:/);
   assert.match(hints, /cmd:/);
+});
+
+test("keeps the command palette open after background activation", () => {
+  assert.equal(
+    commandPaletteShouldCloseAfterActivation({
+      disposition: "current-tab",
+      resultKind: "tab",
+    }),
+    true,
+  );
+  assert.equal(
+    commandPaletteShouldCloseAfterActivation({
+      disposition: "new-tab",
+      resultKind: "bookmark",
+    }),
+    true,
+  );
+  assert.equal(
+    commandPaletteShouldCloseAfterActivation({
+      disposition: "background-tab",
+      resultKind: "history",
+    }),
+    false,
+  );
+  assert.equal(
+    commandPaletteShouldCloseAfterActivation({
+      disposition: "background-tab",
+      resultKind: "command",
+    }),
+    false,
+  );
 });
 
 test("applies command palette source prefixes while preserving query text", () => {

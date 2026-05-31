@@ -259,6 +259,11 @@ interface CommandPaletteQueryOptions {
   sources: PaletteSource[];
 }
 
+interface CommandPaletteActivationCloseCandidate {
+  disposition: PaletteDisposition;
+  resultKind: PaletteResultKind | "command";
+}
+
 interface CommandPaletteQueryScope extends CommandPaletteQueryOptions {
   query: string;
 }
@@ -288,6 +293,9 @@ interface SafariKeyboardNavigationCommandPalette {
     query: string,
     options: CommandPaletteQueryOptions,
   ): CommandPaletteQueryScope;
+  commandPaletteShouldCloseAfterActivation(
+    candidate: CommandPaletteActivationCloseCandidate,
+  ): boolean;
 }
 
 interface ScrollSurfaceCandidate {
