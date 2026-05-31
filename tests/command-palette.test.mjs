@@ -322,12 +322,18 @@ test("advances the command palette selection after background browser activation
 
 test("lists tab operation commands in the command palette", () => {
   const commandIds = commandPaletteCommandIds();
+  assert.equal(commandIds.includes("history-back"), true);
+  assert.equal(commandIds.includes("history-forward"), true);
   assert.equal(commandIds.includes("new-tab"), true);
   assert.equal(commandIds.includes("duplicate-current-tab"), true);
   assert.equal(commandIds.includes("close-current-tab"), true);
+  assert.equal(commandIds.includes("previous-tab"), true);
+  assert.equal(commandIds.includes("next-tab"), true);
 });
 
 test("matches command palette command aliases", () => {
+  assert.equal(commandPaletteCommandSearchIds("back")[0], "history-back");
+  assert.equal(commandPaletteCommandSearchIds("forward")[0], "history-forward");
   assert.equal(commandPaletteCommandSearchIds("nt")[0], "new-tab");
   assert.equal(
     commandPaletteCommandSearchIds("dup")[0],
@@ -337,6 +343,8 @@ test("matches command palette command aliases", () => {
     commandPaletteCommandSearchIds("close tab")[0],
     "close-current-tab",
   );
+  assert.equal(commandPaletteCommandSearchIds("prev tab")[0], "previous-tab");
+  assert.equal(commandPaletteCommandSearchIds("next tab")[0], "next-tab");
   assert.equal(commandPaletteCommandSearchIds("options")[0], "open-settings");
   assert.equal(commandPaletteCommandSearchIds("gg")[0], "scroll-top");
 });

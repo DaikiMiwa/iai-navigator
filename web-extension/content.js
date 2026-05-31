@@ -96,6 +96,18 @@
             subtitle: "Copy this page address to the clipboard",
         },
         {
+            aliases: ["back", "go back", "history back", "h"],
+            id: "history-back",
+            title: "Go back",
+            subtitle: "Navigate back in the current tab history",
+        },
+        {
+            aliases: ["forward", "go forward", "history forward", "l"],
+            id: "history-forward",
+            title: "Go forward",
+            subtitle: "Navigate forward in the current tab history",
+        },
+        {
             aliases: ["new", "new page", "nt", "open tab", "create tab"],
             id: "new-tab",
             title: "New tab",
@@ -112,6 +124,18 @@
             id: "close-current-tab",
             title: "Close current tab",
             subtitle: "Close this tab when another tab is available",
+        },
+        {
+            aliases: ["previous tab", "prev tab", "left tab", "shift j"],
+            id: "previous-tab",
+            title: "Previous tab",
+            subtitle: "Switch to the tab on the left",
+        },
+        {
+            aliases: ["next tab", "right tab", "shift k"],
+            id: "next-tab",
+            title: "Next tab",
+            subtitle: "Switch to the tab on the right",
         },
         {
             aliases: ["top", "gg"],
@@ -1649,10 +1673,22 @@
             case "copy-url":
                 void copyCurrentUrl();
                 return;
+            case "history-back":
+                navigateHistory("back");
+                return;
+            case "history-forward":
+                navigateHistory("forward");
+                return;
             case "new-tab":
             case "duplicate-current-tab":
             case "close-current-tab":
                 void executeTabCommand(command);
+                return;
+            case "previous-tab":
+                switchTab("previous");
+                return;
+            case "next-tab":
+                switchTab("next");
                 return;
             case "scroll-top":
                 scrollToTop();
