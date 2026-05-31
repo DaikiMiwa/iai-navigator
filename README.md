@@ -23,6 +23,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
+- Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs across browser windows.

@@ -102,8 +102,17 @@ test("queries all windows for command palette tab search", () => {
 
 test("opens palette destinations in a background tab", async () => {
   const createdTabs = [];
+  const storedItems = [];
   await executePaletteResult(
     {
+      storage: {
+        local: {
+          get: async () => ({ paletteLocalVisits: [] }),
+          set: async (items) => {
+            storedItems.push(items);
+          },
+        },
+      },
       tabs: {
         create: async (properties) => {
           createdTabs.push(properties);
@@ -129,6 +138,11 @@ test("opens palette destinations in a background tab", async () => {
   assert.deepEqual(createdTabs, [
     { active: false, url: "https://example.com/docs" },
   ]);
+  assert.equal(
+    storedItems[0]?.paletteLocalVisits[0]?.url,
+    "https://example.com/docs",
+  );
+  assert.equal(storedItems[0]?.paletteLocalVisits[0]?.visitCount, 1);
 });
 
 test("duplicates open tab palette results in a background tab", async () => {
@@ -161,6 +175,95 @@ test("duplicates open tab palette results in a background tab", async () => {
   assert.deepEqual(createdTabs, [
     { active: false, url: "https://example.com/tab" },
   ]);
+});
+
+test("records direct URL palette activations as local visits", async () => {
+  const storedItems = [];
+  await executePaletteResult(
+    {
+      storage: {
+        local: {
+          get: async () => ({
+            paletteLocalVisits: [
+              {
+                lastVisitTime: 100,
+                title: "Old Docs",
+                url: "https://example.com/docs",
+                visitCount: 1,
+              },
+            ],
+          }),
+          set: async (items) => {
+            storedItems.push(items);
+          },
+        },
+      },
+      tabs: {
+        create: async () => {
+          throw new Error("current-tab activation should update active tab");
+        },
+        query: async () => [{ active: true, id: 5, index: 0 }],
+        update: async (tabId, properties) => ({
+          id: tabId,
+          index: 0,
+          ...properties,
+        }),
+      },
+    },
+    {
+      id: "url:https://example.com/docs",
+      kind: "url",
+      title: "Open https://example.com/docs",
+      subtitle: "https://example.com/docs",
+      url: "https://example.com/docs",
+      score: 95,
+    },
+    "current-tab",
+  );
+
+  assert.equal(
+    storedItems[0]?.paletteLocalVisits[0]?.url,
+    "https://example.com/docs",
+  );
+  assert.equal(storedItems[0]?.paletteLocalVisits[0]?.visitCount, 2);
+});
+
+test("does not record generated search palette activations as local visits", async () => {
+  const storedItems = [];
+  await executePaletteResult(
+    {
+      storage: {
+        local: {
+          get: async () => ({ paletteLocalVisits: [] }),
+          set: async (items) => {
+            storedItems.push(items);
+          },
+        },
+      },
+      tabs: {
+        create: async () => {
+          throw new Error("current-tab activation should update active tab");
+        },
+        query: async () => [{ active: true, id: 5, index: 0 }],
+        update: async (tabId, properties) => ({
+          id: tabId,
+          index: 0,
+          ...properties,
+        }),
+      },
+    },
+    {
+      id: "search:docs",
+      kind: "search",
+      title: 'Search for "docs"',
+      subtitle: "Google Search",
+      url: "https://www.google.com/search?q=docs",
+      score: 70,
+    },
+    "current-tab",
+  );
+
+  assert.deepEqual(storedItems, []);
 });
 
 test("focuses the source window when activating an open tab palette result", async () => {
