@@ -199,6 +199,7 @@ type CommandPaletteNamedKeyAction =
   | "copy-result-markdown"
   | "copy-result-url"
   | "edit-result-url"
+  | "narrow-to-domain"
   | "forget-palette-entry"
   | "close-tab"
   | "history-previous"
@@ -291,6 +292,10 @@ interface CommandPaletteMarkdownResultCandidate {
   url?: string;
 }
 
+interface CommandPaletteDomainFilterCandidate {
+  url?: string;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
   commandPaletteApplyPrefixValue(
@@ -311,6 +316,10 @@ interface SafariKeyboardNavigationCommandPalette {
   ): CommandPaletteKeyAction | null;
   commandPaletteMarkdownLinkValue(
     result: CommandPaletteMarkdownResultCandidate,
+  ): string | null;
+  commandPaletteDomainFilterValue(
+    value: string,
+    result: CommandPaletteDomainFilterCandidate,
   ): string | null;
   commandPaletteQueryScope(
     query: string,

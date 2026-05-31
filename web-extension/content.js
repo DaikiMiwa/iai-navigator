@@ -170,6 +170,7 @@
         "Option+C copy URL",
         "Option+Y copy Markdown",
         "Option+E edit URL",
+        "Option+D same domain",
         "Option+⌫ forget local/query",
         "Option+W close tab",
         "Option+1-9 open result",
@@ -199,6 +200,7 @@
         commandPaletteApplyPrefixValue,
         commandPaletteCommandIds,
         commandPaletteCommandSearchIds,
+        commandPaletteDomainFilterValue,
         commandPaletteEditableResultValue,
         commandPaletteHistoryNavigation,
         commandPaletteHighlightRanges,
@@ -819,6 +821,9 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "e") {
             return "edit-result-url";
         }
+        if (candidate.altKey && candidate.key.toLowerCase() === "d") {
+            return "narrow-to-domain";
+        }
         if (candidate.altKey && candidate.key.toLowerCase() === "w") {
             return "close-tab";
         }
@@ -890,6 +895,9 @@
                 return;
             case "edit-result-url":
                 editCommandPaletteSelectionUrl();
+                return;
+            case "narrow-to-domain":
+                narrowCommandPaletteSelectionToDomain();
                 return;
             case "forget-palette-entry":
                 void forgetCommandPaletteEntry();
@@ -1288,6 +1296,41 @@
             ? `url: ${result.url}`
             : null;
     }
+    function commandPaletteDomainFilterValue(value, result) {
+        const hostname = commandPaletteResultHostname(result);
+        if (!hostname) {
+            return null;
+        }
+        const prefix = commandPaletteSourcePrefixForValue(value);
+        const nextQuery = `domain:${hostname}`;
+        return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
+    }
+    function commandPaletteResultHostname(result) {
+        const url = result.url?.trim();
+        if (!url) {
+            return null;
+        }
+        try {
+            const parsedUrl = new URL(url);
+            if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+                return null;
+            }
+            return parsedUrl.hostname.toLowerCase();
+        }
+        catch {
+            return null;
+        }
+    }
+    function commandPaletteSourcePrefixForValue(value) {
+        const match = value.trimStart().match(/^([a-z]+):\s*(.*)$/i);
+        if (!match) {
+            return null;
+        }
+        const sources = paletteSourcesForPrefix(match[1].toLowerCase());
+        return sources && sources.sources.length > 0
+            ? match[1].toLowerCase()
+            : null;
+    }
     function paletteSourcesForPrefix(prefix) {
         switch (prefix) {
             case "t":
@@ -1498,6 +1541,25 @@
             return;
         }
         commandPaletteState.input.value = editableValue;
+        commandPaletteState.input.setSelectionRange(commandPaletteState.input.value.length, commandPaletteState.input.value.length);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
+    }
+    function narrowCommandPaletteSelectionToDomain() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result) {
+            return;
+        }
+        const nextValue = commandPaletteDomainFilterValue(commandPaletteState.input.value, { url: "url" in result ? result.url : undefined });
+        if (!nextValue) {
+            showUrlCopyToast("No domain to filter");
+            return;
+        }
+        commandPaletteState.input.value = nextValue;
         commandPaletteState.input.setSelectionRange(commandPaletteState.input.value.length, commandPaletteState.input.value.length);
         commandPaletteState.historyCursor = null;
         commandPaletteState.inputBeforeHistory = "";

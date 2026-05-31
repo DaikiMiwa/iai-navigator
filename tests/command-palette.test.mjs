@@ -37,6 +37,8 @@ const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteMarkdownLinkValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteDomainFilterValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteNextIndexAfterActivation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
@@ -155,6 +157,14 @@ test("maps command palette activation keys", () => {
     "edit-result-url",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "d" })),
+    "narrow-to-domain",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "D" })),
+    "narrow-to-domain",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "w" })),
     "close-tab",
   );
@@ -246,7 +256,9 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);
+  assert.match(hints, /Option\+Y/);
   assert.match(hints, /Option\+E/);
+  assert.match(hints, /Option\+D/);
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
@@ -398,6 +410,32 @@ test("formats editable command palette result URLs", () => {
   );
   assert.equal(commandPaletteEditableResultValue({ kind: "command" }), null);
   assert.equal(commandPaletteEditableResultValue({ kind: "history" }), null);
+});
+
+test("formats command palette domain filter values", () => {
+  assert.equal(
+    commandPaletteDomainFilterValue("docs", {
+      url: "https://Example.com/docs",
+    }),
+    "domain:example.com",
+  );
+  assert.equal(
+    commandPaletteDomainFilterValue("book: docs", {
+      url: "https://docs.example.com/path",
+    }),
+    "book: domain:docs.example.com",
+  );
+  assert.equal(
+    commandPaletteDomainFilterValue("url: https://example.com", {
+      url: "https://docs.example.com/path",
+    }),
+    "domain:docs.example.com",
+  );
+  assert.equal(
+    commandPaletteDomainFilterValue("docs", { url: "javascript:alert(1)" }),
+    null,
+  );
+  assert.equal(commandPaletteDomainFilterValue("docs", {}), null);
 });
 
 test("formats command palette results as Markdown links", () => {
