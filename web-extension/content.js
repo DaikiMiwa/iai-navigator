@@ -125,6 +125,7 @@
         shouldPreRevealMediaControlsCandidate,
     };
     globalThis.SafariKeyboardNavigationCommandPalette = {
+        commandPaletteHighlightRanges,
         commandPaletteKeyAction,
     };
     let hintState = null;
@@ -817,11 +818,11 @@
             text.className = "skne-command-palette-text";
             const title = document.createElement("span");
             title.className = "skne-command-palette-title";
-            title.textContent = result.title;
+            appendCommandPaletteHighlightedText(title, result.title, state.input.value);
             text.appendChild(title);
             const subtitle = document.createElement("span");
             subtitle.className = "skne-command-palette-subtitle";
-            subtitle.textContent = result.subtitle;
+            appendCommandPaletteHighlightedText(subtitle, result.subtitle, state.input.value);
             text.appendChild(subtitle);
             row.appendChild(text);
             state.list.appendChild(row);
@@ -835,6 +836,73 @@
         commandPaletteState.activeIndex =
             (commandPaletteState.activeIndex + delta + length) % length;
         renderCommandPaletteResults();
+    }
+    function appendCommandPaletteHighlightedText(element, value, query) {
+        const ranges = commandPaletteHighlightRanges(value, query);
+        if (ranges.length === 0) {
+            element.textContent = value;
+            return;
+        }
+        let cursor = 0;
+        for (const range of ranges) {
+            if (range.start > cursor) {
+                element.appendChild(document.createTextNode(value.slice(cursor, range.start)));
+            }
+            const match = document.createElement("mark");
+            match.className = "skne-command-palette-match";
+            match.textContent = value.slice(range.start, range.end);
+            element.appendChild(match);
+            cursor = range.end;
+        }
+        if (cursor < value.length) {
+            element.appendChild(document.createTextNode(value.slice(cursor)));
+        }
+    }
+    function commandPaletteHighlightRanges(value, query) {
+        const normalizedValue = value.toLowerCase();
+        const ranges = query
+            .trim()
+            .toLowerCase()
+            .split(/\s+/)
+            .filter(Boolean)
+            .flatMap((term) => {
+            const substringIndex = normalizedValue.indexOf(term);
+            if (substringIndex >= 0) {
+                return [{ start: substringIndex, end: substringIndex + term.length }];
+            }
+            return fuzzyHighlightRanges(term, normalizedValue);
+        });
+        return mergeTextRanges(ranges);
+    }
+    function fuzzyHighlightRanges(term, value) {
+        let termIndex = 0;
+        const ranges = [];
+        for (let index = 0; index < value.length; index += 1) {
+            if (value[index] !== term[termIndex]) {
+                continue;
+            }
+            ranges.push({ start: index, end: index + 1 });
+            termIndex += 1;
+            if (termIndex === term.length) {
+                return ranges;
+            }
+        }
+        return [];
+    }
+    function mergeTextRanges(ranges) {
+        const sortedRanges = ranges
+            .filter((range) => range.start < range.end)
+            .sort((a, b) => a.start - b.start || a.end - b.end);
+        const mergedRanges = [];
+        for (const range of sortedRanges) {
+            const previous = mergedRanges[mergedRanges.length - 1];
+            if (!previous || range.start > previous.end) {
+                mergedRanges.push({ ...range });
+                continue;
+            }
+            previous.end = Math.max(previous.end, range.end);
+        }
+        return mergedRanges;
     }
     function activateCommandPaletteSelection(dispositionOverride) {
         if (!commandPaletteState) {

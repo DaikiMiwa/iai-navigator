@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteHighlightRanges } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 
 function key(overrides) {
   return {
@@ -86,4 +88,26 @@ test("maps command palette activation keys", () => {
 test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
+});
+
+test("highlights contiguous command palette query matches", () => {
+  assert.deepEqual(
+    commandPaletteHighlightRanges("Google Docs Project Plan", "docs"),
+    [{ start: 7, end: 11 }],
+  );
+});
+
+test("highlights fuzzy command palette query matches", () => {
+  assert.deepEqual(
+    commandPaletteHighlightRanges("Google Docs Project Plan", "gdp"),
+    [
+      { start: 0, end: 1 },
+      { start: 7, end: 8 },
+      { start: 12, end: 13 },
+    ],
+  );
+});
+
+test("does not highlight empty command palette queries", () => {
+  assert.deepEqual(commandPaletteHighlightRanges("Google Docs", " "), []);
 });
