@@ -23,6 +23,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
+- Command palette extension commands include page actions plus tab operations such as New tab, Duplicate current tab, and Close current tab.
 - Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
 - Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
 - `Option+C` copies the selected command palette browser destination URL without opening it.

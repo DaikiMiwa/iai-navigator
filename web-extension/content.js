@@ -93,6 +93,21 @@
             subtitle: "Copy this page address to the clipboard",
         },
         {
+            id: "new-tab",
+            title: "New tab",
+            subtitle: "Open a new foreground tab",
+        },
+        {
+            id: "duplicate-current-tab",
+            title: "Duplicate current tab",
+            subtitle: "Copy the current tab into a new foreground tab",
+        },
+        {
+            id: "close-current-tab",
+            title: "Close current tab",
+            subtitle: "Close this tab when another tab is available",
+        },
+        {
             id: "scroll-top",
             title: "Scroll to top",
             subtitle: "Jump to the top of the current scroll area",
@@ -146,6 +161,7 @@
     globalThis.SafariKeyboardNavigationCommandPalette = {
         COMMAND_PALETTE_FOOTER_HINTS,
         commandPaletteApplyPrefixValue,
+        commandPaletteCommandIds,
         commandPaletteEditableResultValue,
         commandPaletteHistoryNavigation,
         commandPaletteHighlightRanges,
@@ -981,6 +997,9 @@
             ];
         });
     }
+    function commandPaletteCommandIds() {
+        return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
+    }
     function localPaletteCommandScore(command, query) {
         if (!query) {
             return 1;
@@ -1496,6 +1515,11 @@
             case "copy-url":
                 void copyCurrentUrl();
                 return;
+            case "new-tab":
+            case "duplicate-current-tab":
+            case "close-current-tab":
+                void executeTabCommand(command);
+                return;
             case "scroll-top":
                 scrollToTop();
                 return;
@@ -1528,6 +1552,14 @@
         }
         await browser.runtime
             .sendMessage({ type: "open-options" })
+            .catch(() => undefined);
+    }
+    async function executeTabCommand(command) {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        await browser.runtime
+            .sendMessage({ type: "tab-command", command })
             .catch(() => undefined);
     }
     function compareCommandPaletteResults(a, b) {
