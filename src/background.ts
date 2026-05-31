@@ -32,7 +32,7 @@
   const PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = ["url", "search"];
 
   interface PaletteQueryTerm {
-    field?: "title" | "url";
+    field?: "domain" | "title" | "url";
     negative: boolean;
     phrase: boolean;
     value: string;
@@ -947,11 +947,12 @@
 
     const titleLower = title.toLowerCase();
     const urlLower = url.toLowerCase();
+    const domainLower = paletteUrlHostname(url);
     const terms = paletteQueryTerms(query);
     const negativeTerms = terms.filter((term) => term.negative);
     if (
       negativeTerms.some((term) =>
-        paletteTermMatches(term, titleLower, urlLower),
+        paletteTermMatches(term, titleLower, urlLower, domainLower),
       )
     ) {
       return null;
@@ -964,7 +965,7 @@
 
     if (
       !positiveTerms.every((term) =>
-        paletteTermMatches(term, titleLower, urlLower),
+        paletteTermMatches(term, titleLower, urlLower, domainLower),
       )
     ) {
       return null;
@@ -973,6 +974,10 @@
     return positiveTerms.reduce((score, term) => {
       if (term.field === "url") {
         return score + paletteFieldTermScore(term, urlLower, 20);
+      }
+
+      if (term.field === "domain") {
+        return score + paletteFieldTermScore(term, domainLower, 30);
       }
 
       if (term.field === "title") {
@@ -1019,11 +1024,8 @@
         index += 1;
       }
 
-      const fieldMatch = query.slice(index).match(/^(title|url):/i);
-      const field = fieldMatch?.[1].toLowerCase() as
-        | "title"
-        | "url"
-        | undefined;
+      const fieldMatch = query.slice(index).match(/^(title|url|domain|host):/i);
+      const field = paletteQueryTermField(fieldMatch?.[1]);
       if (fieldMatch) {
         index += fieldMatch[0].length;
       }
@@ -1060,13 +1062,16 @@
     term: PaletteQueryTerm,
     title: string,
     url: string,
+    domain: string,
   ): boolean {
     const haystack =
       term.field === "title"
         ? title
         : term.field === "url"
           ? url
-          : `${title} ${url}`;
+          : term.field === "domain"
+            ? domain
+            : `${title} ${url}`;
 
     return (
       haystack.includes(term.value) ||
@@ -1093,6 +1098,27 @@
     }
 
     return fuzzyMatchScore(term.value, fieldValue) ?? 0;
+  }
+
+  function paletteQueryTermField(
+    value: string | undefined,
+  ): PaletteQueryTerm["field"] {
+    const field = value?.toLowerCase();
+    if (field === "host" || field === "domain") {
+      return "domain";
+    }
+    if (field === "title" || field === "url") {
+      return field;
+    }
+    return undefined;
+  }
+
+  function paletteUrlHostname(url: string): string {
+    try {
+      return new URL(url).hostname.toLowerCase();
+    } catch {
+      return "";
+    }
   }
 
   function fuzzyMatchScore(term: string, haystack: string): number | null {

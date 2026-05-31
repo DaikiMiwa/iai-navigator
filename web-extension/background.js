@@ -659,21 +659,25 @@
         }
         const titleLower = title.toLowerCase();
         const urlLower = url.toLowerCase();
+        const domainLower = paletteUrlHostname(url);
         const terms = paletteQueryTerms(query);
         const negativeTerms = terms.filter((term) => term.negative);
-        if (negativeTerms.some((term) => paletteTermMatches(term, titleLower, urlLower))) {
+        if (negativeTerms.some((term) => paletteTermMatches(term, titleLower, urlLower, domainLower))) {
             return null;
         }
         const positiveTerms = terms.filter((term) => !term.negative);
         if (positiveTerms.length === 0) {
             return terms.length === 0 ? null : 1;
         }
-        if (!positiveTerms.every((term) => paletteTermMatches(term, titleLower, urlLower))) {
+        if (!positiveTerms.every((term) => paletteTermMatches(term, titleLower, urlLower, domainLower))) {
             return null;
         }
         return positiveTerms.reduce((score, term) => {
             if (term.field === "url") {
                 return score + paletteFieldTermScore(term, urlLower, 20);
+            }
+            if (term.field === "domain") {
+                return score + paletteFieldTermScore(term, domainLower, 30);
             }
             if (term.field === "title") {
                 return score + paletteFieldTermScore(term, titleLower, 40);
@@ -713,8 +717,8 @@
                 negative = true;
                 index += 1;
             }
-            const fieldMatch = query.slice(index).match(/^(title|url):/i);
-            const field = fieldMatch?.[1].toLowerCase();
+            const fieldMatch = query.slice(index).match(/^(title|url|domain|host):/i);
+            const field = paletteQueryTermField(fieldMatch?.[1]);
             if (fieldMatch) {
                 index += fieldMatch[0].length;
             }
@@ -744,12 +748,14 @@
         }
         return terms;
     }
-    function paletteTermMatches(term, title, url) {
+    function paletteTermMatches(term, title, url, domain) {
         const haystack = term.field === "title"
             ? title
             : term.field === "url"
                 ? url
-                : `${title} ${url}`;
+                : term.field === "domain"
+                    ? domain
+                    : `${title} ${url}`;
         return (haystack.includes(term.value) ||
             (!term.phrase && fuzzyMatchScore(term.value, haystack) !== null));
     }
@@ -767,6 +773,24 @@
             return 0;
         }
         return fuzzyMatchScore(term.value, fieldValue) ?? 0;
+    }
+    function paletteQueryTermField(value) {
+        const field = value?.toLowerCase();
+        if (field === "host" || field === "domain") {
+            return "domain";
+        }
+        if (field === "title" || field === "url") {
+            return field;
+        }
+        return undefined;
+    }
+    function paletteUrlHostname(url) {
+        try {
+            return new URL(url).hostname.toLowerCase();
+        }
+        catch {
+            return "";
+        }
     }
     function fuzzyMatchScore(term, haystack) {
         if (!term) {

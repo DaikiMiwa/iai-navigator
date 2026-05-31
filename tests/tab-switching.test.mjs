@@ -782,6 +782,80 @@ test("composes scoped command palette query terms with phrases and exclusions", 
   );
 });
 
+test("matches domain scoped command palette query terms", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Project Docs",
+          url: "https://docs.example.com/current",
+        },
+        {
+          id: 11,
+          index: 1,
+          title: "Project Docs",
+          url: "https://github.com/example/project-docs",
+        },
+        {
+          id: 12,
+          index: 2,
+          title: "Project Docs",
+          url: "https://example.com/github/path",
+        },
+      ],
+      visits: [],
+    },
+    "title:docs domain:github.com",
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.url),
+    ["https://github.com/example/project-docs"],
+  );
+});
+
+test("composes domain scoped command palette query terms with host aliases and exclusions", () => {
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          title: "Project Docs",
+          url: "https://docs.example.com/current",
+        },
+        {
+          id: 11,
+          index: 1,
+          title: "Project Docs Archive",
+          url: "https://archive.docs.example.com/current",
+        },
+        {
+          id: 12,
+          index: 2,
+          title: "Project Docs",
+          url: "not a url",
+        },
+      ],
+      visits: [],
+    },
+    'host:"docs.example.com" -domain:archive',
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.url),
+    ["https://docs.example.com/current"],
+  );
+});
+
 test("ranks exact and prefix palette matches before fuzzy matches", () => {
   const results = searchPaletteResults(
     {
