@@ -787,6 +787,9 @@
         handleCommandPaletteKeyAction(action);
     }
     function commandPaletteKeyAction(candidate) {
+        if (candidate.isComposing || candidate.keyCode === 229) {
+            return null;
+        }
         if (candidate.key === "Escape") {
             return "close";
         }

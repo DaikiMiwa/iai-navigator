@@ -263,7 +263,9 @@ interface CommandPaletteKeyCandidate {
   altKey: boolean;
   code?: string;
   ctrlKey: boolean;
+  isComposing?: boolean;
   key: string;
+  keyCode?: number;
   metaKey: boolean;
   shiftKey: boolean;
 }
