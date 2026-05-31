@@ -189,6 +189,150 @@
   line-height: 1.35;
 }
 
+#skne-command-palette-overlay {
+  all: initial;
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+  background: rgb(0 0 0 / 28%);
+  color: #f7f7f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
+  pointer-events: auto;
+  contain: layout style paint;
+}
+
+#skne-command-palette-overlay .skne-command-palette-panel {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(620px, calc(100vh - 96px));
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: inherit;
+  font-family: inherit;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 42%);
+}
+
+#skne-command-palette-overlay .skne-command-palette-input {
+  all: initial;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  background: #222;
+  color: #fff;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+#skne-command-palette-overlay .skne-command-palette-input::placeholder {
+  color: #a8a8a8;
+}
+
+#skne-command-palette-overlay .skne-command-palette-list {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  max-height: min(536px, calc(100vh - 160px));
+  overflow-y: auto;
+  padding: 6px;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-command-palette-overlay .skne-command-palette-result {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 54px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: inherit;
+  font-family: inherit;
+  cursor: default;
+}
+
+#skne-command-palette-overlay .skne-command-palette-result[data-active="true"] {
+  background: #ffd84d;
+  color: #111;
+}
+
+#skne-command-palette-overlay .skne-command-palette-kind {
+  all: initial;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 76px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: inherit;
+  font-family:
+    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#skne-command-palette-overlay .skne-command-palette-text {
+  all: initial;
+  display: grid;
+  box-sizing: border-box;
+  gap: 3px;
+  min-width: 0;
+  color: inherit;
+  font-family: inherit;
+}
+
+#skne-command-palette-overlay .skne-command-palette-title,
+#skne-command-palette-overlay .skne-command-palette-subtitle {
+  all: initial;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-family: inherit;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#skne-command-palette-overlay .skne-command-palette-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#skne-command-palette-overlay .skne-command-palette-subtitle {
+  opacity: 0.78;
+  font-size: 12px;
+}
+
+#skne-command-palette-overlay .skne-command-palette-empty {
+  all: initial;
+  display: block;
+  padding: 18px;
+  color: #cfcfcf;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .html5-video-player.skne-media-controls-revealed .ytp-chrome-top,
 .html5-video-player.skne-media-controls-revealed .ytp-chrome-bottom,
 .html5-video-player.skne-media-controls-revealed .ytp-gradient-top,

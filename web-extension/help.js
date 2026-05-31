@@ -72,6 +72,22 @@
                     description: "Copy the current page URL",
                 },
                 {
+                    key: "o",
+                    description: "Search tabs, bookmarks, history, and commands",
+                },
+                {
+                    key: "Shift+O",
+                    description: "Search tabs, bookmarks, history, and open in a new tab",
+                },
+                {
+                    key: "b / Shift+B",
+                    description: "Search bookmarks in current or new tab",
+                },
+                {
+                    key: "Shift+T",
+                    description: "Search open tabs",
+                },
+                {
                     key: "?",
                     description: "Show this keyboard shortcut help",
                 },

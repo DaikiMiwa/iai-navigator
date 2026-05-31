@@ -24,6 +24,8 @@ test("loads content scripts early in every frame", () => {
 
 test("registers settings storage and options page", () => {
   assert.equal(manifest.permissions.includes("storage"), true);
+  assert.equal(manifest.permissions.includes("bookmarks"), true);
+  assert.equal(manifest.permissions.includes("history"), true);
   assert.deepEqual(manifest.options_ui, {
     page: "options.html",
     open_in_tab: true,
