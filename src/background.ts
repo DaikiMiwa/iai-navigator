@@ -93,6 +93,7 @@
 
   global.SafariKeyboardNavigationTabs = {
     chooseNeighborTabId,
+    executePaletteResult,
     isSupportedNewTabUrl,
     recordLocalVisit,
     searchPaletteResults,
@@ -233,8 +234,14 @@
     }
 
     if (result.kind === "tab" && typeof result.tabId === "number") {
-      if (disposition === "new-tab" && result.url) {
-        await api.tabs.create({ url: result.url, active: true });
+      if (
+        (disposition === "new-tab" || disposition === "background-tab") &&
+        result.url
+      ) {
+        await api.tabs.create({
+          active: disposition === "new-tab",
+          url: result.url,
+        });
         return;
       }
 
@@ -246,8 +253,11 @@
       return;
     }
 
-    if (disposition === "new-tab") {
-      await api.tabs.create({ url: result.url, active: true });
+    if (disposition === "new-tab" || disposition === "background-tab") {
+      await api.tabs.create({
+        active: disposition === "new-tab",
+        url: result.url,
+      });
       return;
     }
 
@@ -330,7 +340,8 @@
     return (
       candidate.type === "palette-execute" &&
       (candidate.disposition === "current-tab" ||
-        candidate.disposition === "new-tab") &&
+        candidate.disposition === "new-tab" ||
+        candidate.disposition === "background-tab") &&
       !!candidate.result &&
       typeof candidate.result === "object"
     );

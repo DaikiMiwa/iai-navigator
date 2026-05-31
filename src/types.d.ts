@@ -174,9 +174,11 @@ type CommandPaletteKeyAction =
   | "next"
   | "previous"
   | "activate-current-tab"
-  | "activate-new-tab";
+  | "activate-new-tab"
+  | "activate-background-tab";
 
 interface CommandPaletteKeyCandidate {
+  altKey: boolean;
   ctrlKey: boolean;
   key: string;
   metaKey: boolean;
@@ -253,7 +255,7 @@ type PaletteResultKind =
   | "url"
   | "search";
 type PaletteSource = "tabs" | "bookmarks" | "history" | "visits";
-type PaletteDisposition = "current-tab" | "new-tab";
+type PaletteDisposition = "current-tab" | "new-tab" | "background-tab";
 
 interface PaletteResult {
   id: string;
@@ -419,6 +421,11 @@ interface SafariKeyboardNavigationTabs {
     activeTabId: number,
     direction: TabSwitchDirection,
   ): number | null;
+  executePaletteResult(
+    api: WebExtensionApi,
+    result: PaletteResult,
+    disposition: PaletteDisposition,
+  ): Promise<void>;
   isSupportedNewTabUrl(url: string): boolean;
   recordLocalVisit(
     visits: LocalVisitItem[],

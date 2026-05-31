@@ -5,6 +5,7 @@ await import("../web-extension/background.js");
 
 const {
   chooseNeighborTabId,
+  executePaletteResult,
   isSupportedNewTabUrl,
   recordLocalVisit,
   searchPaletteResults,
@@ -92,6 +93,69 @@ test("maps browser-level tab switch commands to directions", () => {
   assert.equal(tabSwitchDirectionForCommand("switch-tab-previous"), "previous");
   assert.equal(tabSwitchDirectionForCommand("switch-tab-next"), "next");
   assert.equal(tabSwitchDirectionForCommand("unknown-command"), null);
+});
+
+test("opens palette destinations in a background tab", async () => {
+  const createdTabs = [];
+  await executePaletteResult(
+    {
+      tabs: {
+        create: async (properties) => {
+          createdTabs.push(properties);
+          return { id: 99, index: 1, url: properties.url };
+        },
+        query: async () => [],
+        update: async () => {
+          throw new Error("background tab activation should not update tabs");
+        },
+      },
+    },
+    {
+      id: "bookmark-docs",
+      kind: "bookmark",
+      title: "Docs",
+      subtitle: "https://example.com/docs",
+      url: "https://example.com/docs",
+      score: 10,
+    },
+    "background-tab",
+  );
+
+  assert.deepEqual(createdTabs, [
+    { active: false, url: "https://example.com/docs" },
+  ]);
+});
+
+test("duplicates open tab palette results in a background tab", async () => {
+  const createdTabs = [];
+  await executePaletteResult(
+    {
+      tabs: {
+        create: async (properties) => {
+          createdTabs.push(properties);
+          return { id: 99, index: 1, url: properties.url };
+        },
+        query: async () => [],
+        update: async () => {
+          throw new Error("background tab activation should not focus tabs");
+        },
+      },
+    },
+    {
+      id: "tab:10",
+      kind: "tab",
+      tabId: 10,
+      title: "Docs Tab",
+      subtitle: "https://example.com/tab",
+      url: "https://example.com/tab",
+      score: 10,
+    },
+    "background-tab",
+  );
+
+  assert.deepEqual(createdTabs, [
+    { active: false, url: "https://example.com/tab" },
+  ]);
 });
 
 test("combines matching tabs, bookmarks, recent history, and local visits for palette search", () => {

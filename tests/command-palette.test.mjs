@@ -48,6 +48,7 @@ const defaultPaletteOptions = {
 
 function key(overrides) {
   return {
+    altKey: false,
     ctrlKey: false,
     key: "",
     metaKey: false,
@@ -90,6 +91,10 @@ test("maps command palette activation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ key: "Enter", ctrlKey: true })),
     "activate-new-tab",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ key: "Enter", altKey: true })),
+    "activate-background-tab",
   );
 });
 
