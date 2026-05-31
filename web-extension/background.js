@@ -86,6 +86,7 @@
         isSupportedNewTabUrl,
         paletteTabQueryInfo,
         recordLocalVisit,
+        removeLocalVisitByUrl,
         searchPaletteResults,
         tabSwitchDirectionForCommand,
     };
@@ -106,6 +107,9 @@
             }
             if (isPaletteExecuteMessage(message)) {
                 return executePaletteResult(api, message.result, message.disposition);
+            }
+            if (isPaletteRemoveLocalVisitMessage(message)) {
+                return removeLocalVisit(api, message.url);
             }
             if (isObservePageMessage(message)) {
                 return observePage(api, message);
@@ -239,6 +243,18 @@
         const nextVisits = recordLocalVisit(visits, message, Date.now());
         await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
     }
+    async function removeLocalVisit(api, url) {
+        if (!api.storage?.local || !isSupportedNewTabUrl(url)) {
+            return { removed: false };
+        }
+        const visits = await loadLocalVisits(api);
+        const nextVisits = removeLocalVisitByUrl(visits, url);
+        if (nextVisits.length === visits.length) {
+            return { removed: false };
+        }
+        await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
+        return { removed: true };
+    }
     async function recordPaletteActivation(api, result) {
         if (result.kind === "search" ||
             !api.storage?.local ||
@@ -294,6 +310,14 @@
                 candidate.disposition === "background-tab") &&
             !!candidate.result &&
             typeof candidate.result === "object");
+    }
+    function isPaletteRemoveLocalVisitMessage(message) {
+        if (!message || typeof message !== "object") {
+            return false;
+        }
+        const candidate = message;
+        return (candidate.type === "palette-remove-local-visit" &&
+            typeof candidate.url === "string");
     }
     function isOpenOptionsMessage(message) {
         if (!message || typeof message !== "object") {
@@ -624,6 +648,13 @@
         return [nextVisit, ...visits.filter((visit) => visit.url !== url)]
             .sort((a, b) => b.lastVisitTime - a.lastVisitTime)
             .slice(0, maxItems);
+    }
+    function removeLocalVisitByUrl(visits, url) {
+        if (!isSupportedNewTabUrl(url)) {
+            return visits;
+        }
+        const targetUrl = canonicalDestinationUrl(url);
+        return visits.filter((visit) => visit.url !== targetUrl);
     }
     async function loadConfiguredSearchEngine(api) {
         if (!api.storage?.local) {

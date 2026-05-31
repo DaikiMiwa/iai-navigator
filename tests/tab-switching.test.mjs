@@ -9,6 +9,7 @@ const {
   isSupportedNewTabUrl,
   paletteTabQueryInfo,
   recordLocalVisit,
+  removeLocalVisitByUrl,
   searchPaletteResults,
   tabSwitchDirectionForCommand,
 } = globalThis.SafariKeyboardNavigationTabs;
@@ -651,6 +652,36 @@ test("records local visits with canonical URLs, deduping, and a bounded list", (
       visitCount: 2,
     },
   ]);
+});
+
+test("removes local visits by canonical URL", () => {
+  assert.deepEqual(
+    removeLocalVisitByUrl(
+      [
+        {
+          lastVisitTime: 100,
+          title: "Docs",
+          url: "https://example.com/docs",
+          visitCount: 2,
+        },
+        {
+          lastVisitTime: 90,
+          title: "Other",
+          url: "https://example.com/other",
+          visitCount: 1,
+        },
+      ],
+      "https://example.com/docs#section",
+    ),
+    [
+      {
+        lastVisitTime: 90,
+        title: "Other",
+        url: "https://example.com/other",
+        visitCount: 1,
+      },
+    ],
+  );
 });
 
 test("filters unsafe palette destinations", () => {
