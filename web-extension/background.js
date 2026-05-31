@@ -2,6 +2,26 @@
 ((global) => {
     const LOCAL_VISITS_STORAGE_KEY = "paletteLocalVisits";
     const LOCAL_VISITS_MAX_ITEMS = 500;
+    const SETTINGS_STORAGE_KEY = "settings";
+    const DEFAULT_SEARCH_ENGINE = "google";
+    const SEARCH_ENGINES = {
+        brave: {
+            label: "Brave Search",
+            urlPrefix: "https://search.brave.com/search?q=",
+        },
+        duckduckgo: {
+            label: "DuckDuckGo",
+            urlPrefix: "https://duckduckgo.com/?q=",
+        },
+        google: {
+            label: "Google Search",
+            urlPrefix: "https://www.google.com/search?q=",
+        },
+        kagi: {
+            label: "Kagi",
+            urlPrefix: "https://kagi.com/search?q=",
+        },
+    };
     function chooseNeighborTabId(tabs, activeTabId, direction) {
         const orderedTabs = tabs
             .filter((tab) => Number.isFinite(tab.id))
@@ -39,7 +59,7 @@
                 ? (sources.visits ?? []).flatMap((visit) => localVisitPaletteResult(visit, normalizedQuery))
                 : []),
             ...(options.includeGenerated
-                ? generatedPaletteResults(normalizedQuery)
+                ? generatedPaletteResults(normalizedQuery, options.searchEngine)
                 : []),
         ];
         return dedupePaletteResults(results)
@@ -131,7 +151,7 @@
         const trimmedQuery = message.query.trim();
         const since = Date.now() - 1000 * 60 * 60 * 24 * 30;
         const sources = new Set(message.sources);
-        const [tabs, bookmarks, history, visits] = await Promise.all([
+        const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
             sources.has("tabs") && api.tabs
                 ? api.tabs.query({ currentWindow: true })
                 : Promise.resolve([]),
@@ -148,10 +168,12 @@
             sources.has("visits") && api.storage?.local
                 ? loadLocalVisits(api).then((items) => trimmedQuery ? items : items.slice(0, 12))
                 : Promise.resolve([]),
+            loadConfiguredSearchEngine(api),
         ]);
         return {
             results: searchPaletteResults({ bookmarks, history, tabs, visits }, message.query, {
                 includeGenerated: message.includeGenerated,
+                searchEngine,
                 sources: message.sources,
             }),
         };
@@ -406,7 +428,7 @@
             return null;
         }
     }
-    function generatedPaletteResults(query) {
+    function generatedPaletteResults(query, searchEngine = DEFAULT_SEARCH_ENGINE) {
         if (!query) {
             return [];
         }
@@ -422,13 +444,14 @@
                 url: directUrl,
             });
         }
+        const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
         results.push({
             id: `search:${query}`,
             kind: "search",
             score: directUrl ? 5 : 70,
-            subtitle: "Google Search",
+            subtitle: engine.label,
             title: `Search for "${query}"`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+            url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
         });
         return results;
     }
@@ -563,6 +586,23 @@
         return [nextVisit, ...visits.filter((visit) => visit.url !== url)]
             .sort((a, b) => b.lastVisitTime - a.lastVisitTime)
             .slice(0, maxItems);
+    }
+    async function loadConfiguredSearchEngine(api) {
+        if (!api.storage?.local) {
+            return DEFAULT_SEARCH_ENGINE;
+        }
+        const result = await api.storage.local.get(SETTINGS_STORAGE_KEY);
+        const settings = result[SETTINGS_STORAGE_KEY];
+        if (!settings || typeof settings !== "object") {
+            return DEFAULT_SEARCH_ENGINE;
+        }
+        const commandPalette = settings.commandPalette;
+        return searchEngineSetting(commandPalette?.searchEngine);
+    }
+    function searchEngineSetting(value) {
+        return typeof value === "string" && value in SEARCH_ENGINES
+            ? value
+            : DEFAULT_SEARCH_ENGINE;
     }
     function canonicalDestinationUrl(url) {
         const parsedUrl = new URL(url);

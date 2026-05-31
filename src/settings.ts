@@ -28,6 +28,9 @@
 
   const DEFAULT_EXTENSION_SETTINGS: SafariKeyboardNavigationExtensionSettings =
     {
+      commandPalette: {
+        searchEngine: "google",
+      },
       enabled: true,
       hintStyle: {
         backgroundColor: "#ffd84d",
@@ -119,6 +122,12 @@
     const defaultSettings = DEFAULT_EXTENSION_SETTINGS;
 
     return {
+      commandPalette: {
+        searchEngine: searchEngineSetting(
+          candidate.commandPalette?.searchEngine,
+          defaultSettings.commandPalette.searchEngine,
+        ),
+      },
       enabled:
         typeof candidate.enabled === "boolean"
           ? candidate.enabled
@@ -354,5 +363,20 @@
     return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
       ? value
       : fallback;
+  }
+
+  function searchEngineSetting(
+    value: unknown,
+    fallback: SafariKeyboardNavigationSearchEngine,
+  ): SafariKeyboardNavigationSearchEngine {
+    switch (value) {
+      case "google":
+      case "duckduckgo":
+      case "brave":
+      case "kagi":
+        return value;
+      default:
+        return fallback;
+    }
   }
 })();

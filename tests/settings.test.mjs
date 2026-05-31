@@ -43,6 +43,7 @@ test("normalizes missing and invalid settings to defaults", () => {
   });
 
   assert.equal(settings.enabled, DEFAULT_EXTENSION_SETTINGS.enabled);
+  assert.equal(settings.commandPalette.searchEngine, "google");
   assert.equal(settings.hintStyle.fontSize, 28);
   assert.equal(settings.hintStyle.opacity, 1);
   assert.equal(settings.hintStyle.textColor, "#111111");
@@ -59,6 +60,22 @@ test("normalizes missing and invalid settings to defaults", () => {
   assert.deepEqual(settings.siteAccess.allowlist, ["example.com"]);
   assert.deepEqual(settings.siteAccess.blocklist, ["docs.google.com"]);
   assert.equal(settings.siteAccess.mode, "allowlist");
+});
+
+test("normalizes command palette search engine settings", () => {
+  assert.equal(
+    normalizeExtensionSettings({
+      commandPalette: { searchEngine: "duckduckgo" },
+    }).commandPalette.searchEngine,
+    "duckduckgo",
+  );
+
+  assert.equal(
+    normalizeExtensionSettings({
+      commandPalette: { searchEngine: "not-a-search-engine" },
+    }).commandPalette.searchEngine,
+    DEFAULT_EXTENSION_SETTINGS.commandPalette.searchEngine,
+  );
 });
 
 test("matches single-key and shifted shortcut events", () => {

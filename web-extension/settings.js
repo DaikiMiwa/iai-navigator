@@ -3,6 +3,9 @@
     const SETTINGS_STORAGE_KEY = "settings";
     const SETTINGS_VERSION = 1;
     const DEFAULT_EXTENSION_SETTINGS = {
+        commandPalette: {
+            searchEngine: "google",
+        },
         enabled: true,
         hintStyle: {
             backgroundColor: "#ffd84d",
@@ -83,6 +86,9 @@
             : {};
         const defaultSettings = DEFAULT_EXTENSION_SETTINGS;
         return {
+            commandPalette: {
+                searchEngine: searchEngineSetting(candidate.commandPalette?.searchEngine, defaultSettings.commandPalette.searchEngine),
+            },
             enabled: typeof candidate.enabled === "boolean"
                 ? candidate.enabled
                 : defaultSettings.enabled,
@@ -235,5 +241,16 @@
         return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
             ? value
             : fallback;
+    }
+    function searchEngineSetting(value, fallback) {
+        switch (value) {
+            case "google":
+            case "duckduckgo":
+            case "brave":
+            case "kagi":
+                return value;
+            default:
+                return fallback;
+        }
     }
 })();

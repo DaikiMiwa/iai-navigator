@@ -6,6 +6,29 @@
 ) => {
   const LOCAL_VISITS_STORAGE_KEY = "paletteLocalVisits";
   const LOCAL_VISITS_MAX_ITEMS = 500;
+  const SETTINGS_STORAGE_KEY = "settings";
+  const DEFAULT_SEARCH_ENGINE: SafariKeyboardNavigationSearchEngine = "google";
+  const SEARCH_ENGINES: Record<
+    SafariKeyboardNavigationSearchEngine,
+    { label: string; urlPrefix: string }
+  > = {
+    brave: {
+      label: "Brave Search",
+      urlPrefix: "https://search.brave.com/search?q=",
+    },
+    duckduckgo: {
+      label: "DuckDuckGo",
+      urlPrefix: "https://duckduckgo.com/?q=",
+    },
+    google: {
+      label: "Google Search",
+      urlPrefix: "https://www.google.com/search?q=",
+    },
+    kagi: {
+      label: "Kagi",
+      urlPrefix: "https://kagi.com/search?q=",
+    },
+  };
 
   function chooseNeighborTabId(
     tabs: WebExtensionTab[],
@@ -43,7 +66,11 @@
       visits?: LocalVisitItem[];
     },
     query: string,
-    options: { includeGenerated?: boolean; sources?: PaletteSource[] } = {},
+    options: {
+      includeGenerated?: boolean;
+      searchEngine?: SafariKeyboardNavigationSearchEngine;
+      sources?: PaletteSource[];
+    } = {},
   ): PaletteResult[] {
     const normalizedQuery = normalizePaletteQuery(query);
     const sourceFilter = new Set<PaletteSource>(
@@ -69,7 +96,7 @@
           )
         : []),
       ...(options.includeGenerated
-        ? generatedPaletteResults(normalizedQuery)
+        ? generatedPaletteResults(normalizedQuery, options.searchEngine)
         : []),
     ];
 
@@ -191,7 +218,7 @@
     const trimmedQuery = message.query.trim();
     const since = Date.now() - 1000 * 60 * 60 * 24 * 30;
     const sources = new Set(message.sources);
-    const [tabs, bookmarks, history, visits] = await Promise.all([
+    const [tabs, bookmarks, history, visits, searchEngine] = await Promise.all([
       sources.has("tabs") && api.tabs
         ? api.tabs.query({ currentWindow: true })
         : Promise.resolve([]),
@@ -210,6 +237,7 @@
             trimmedQuery ? items : items.slice(0, 12),
           )
         : Promise.resolve([]),
+      loadConfiguredSearchEngine(api),
     ]);
 
     return {
@@ -218,6 +246,7 @@
         message.query,
         {
           includeGenerated: message.includeGenerated,
+          searchEngine,
           sources: message.sources,
         },
       ),
@@ -567,7 +596,10 @@
     }
   }
 
-  function generatedPaletteResults(query: string): PaletteResult[] {
+  function generatedPaletteResults(
+    query: string,
+    searchEngine: SafariKeyboardNavigationSearchEngine = DEFAULT_SEARCH_ENGINE,
+  ): PaletteResult[] {
     if (!query) {
       return [];
     }
@@ -585,13 +617,14 @@
       });
     }
 
+    const engine = SEARCH_ENGINES[searchEngine] ?? SEARCH_ENGINES.google;
     results.push({
       id: `search:${query}`,
       kind: "search",
       score: directUrl ? 5 : 70,
-      subtitle: "Google Search",
+      subtitle: engine.label,
       title: `Search for "${query}"`,
-      url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+      url: `${engine.urlPrefix}${encodeURIComponent(query)}`,
     });
 
     return results;
@@ -768,6 +801,33 @@
     return [nextVisit, ...visits.filter((visit) => visit.url !== url)]
       .sort((a, b) => b.lastVisitTime - a.lastVisitTime)
       .slice(0, maxItems);
+  }
+
+  async function loadConfiguredSearchEngine(
+    api: WebExtensionApi,
+  ): Promise<SafariKeyboardNavigationSearchEngine> {
+    if (!api.storage?.local) {
+      return DEFAULT_SEARCH_ENGINE;
+    }
+
+    const result = await api.storage.local.get(SETTINGS_STORAGE_KEY);
+    const settings = result[SETTINGS_STORAGE_KEY];
+    if (!settings || typeof settings !== "object") {
+      return DEFAULT_SEARCH_ENGINE;
+    }
+
+    const commandPalette = (
+      settings as Partial<SafariKeyboardNavigationExtensionSettings>
+    ).commandPalette;
+    return searchEngineSetting(commandPalette?.searchEngine);
+  }
+
+  function searchEngineSetting(
+    value: unknown,
+  ): SafariKeyboardNavigationSearchEngine {
+    return typeof value === "string" && value in SEARCH_ENGINES
+      ? (value as SafariKeyboardNavigationSearchEngine)
+      : DEFAULT_SEARCH_ENGINE;
   }
 
   function canonicalDestinationUrl(url: string): string {

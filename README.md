@@ -22,7 +22,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
-- `o` opens a browser navigation palette that searches open tabs, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches.
+- `o` opens a browser navigation palette that searches open tabs, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - `Shift+O` opens palette results in a new foreground tab.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs.

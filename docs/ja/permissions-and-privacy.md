@@ -18,7 +18,7 @@ browser navigation palette が有効な場合、拡張機能は keyboard から 
 - URL copy shortcut が押されたときに現在のページ URL をコピーする
 - tab を切り替える、または選択された link を新しい tab で開く
 - command palette が開いているときに、開いている tab、bookmark、recent history、ローカルで観測した page destination を検索する
-- ユーザーが生成された search result を明示的に選んだ場合に、入力された search query を Google Search で開く
+- ユーザーが生成された search result を明示的に選んだ場合に、入力された search query を設定した search engine で開く
 
 ## 収集しないもの
 
@@ -31,7 +31,7 @@ browser navigation palette が有効な場合、拡張機能は keyboard から 
 - input field に入力された text を記録する
 - settings を開発者管理の backend に同期する
 
-settings とローカルで観測した page index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出ます。
+settings とローカルで観測した page index は、ユーザーの端末上の Safari extension storage に保存する想定です。Command palette の検索結果は必要なときに生成され、開発者管理の service には同期されません。ユーザーが入力した web search は、生成された search result をユーザーが選んだ場合だけ端末外に出て、その送信先は設定した search engine だけです。
 
 ## Website access mode
 
