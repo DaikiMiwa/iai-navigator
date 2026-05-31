@@ -41,6 +41,8 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 English is the canonical language for project documentation. Japanese translations live under `docs/ja/` and are derived from the English source. If the English and Japanese documents disagree, follow the English version.
 
+For permission and privacy details, see [Permissions and Privacy](docs/permissions-and-privacy.md).
+
 Start here for Japanese documentation:
 
 - `docs/ja/README.md`
