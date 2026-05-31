@@ -287,6 +287,7 @@ interface SafariKeyboardNavigationCommandPalette {
   ): CommandPaletteHistoryNavigationResult;
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteCommandIds(): string[];
+  commandPaletteCommandSearchIds(query: string): string[];
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;

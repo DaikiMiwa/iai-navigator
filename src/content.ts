@@ -83,6 +83,7 @@
     | "open-settings";
 
   interface LocalPaletteCommand {
+    aliases?: string[];
     id: LocalPaletteCommandId;
     title: string;
     subtitle: string;
@@ -253,51 +254,61 @@
   ]);
   const LOCAL_PALETTE_COMMANDS: LocalPaletteCommand[] = [
     {
+      aliases: ["hint", "f"],
       id: "show-hints",
       title: "Show hints",
       subtitle: "Open link and control hints in the current tab",
     },
     {
+      aliases: ["hint new", "new hint", "shift f"],
       id: "show-new-tab-hints",
       title: "Show hints in new tab",
       subtitle: "Open link hints for foreground tabs",
     },
     {
+      aliases: ["copy address", "copy link", "yy", "yank"],
       id: "copy-url",
       title: "Copy current URL",
       subtitle: "Copy this page address to the clipboard",
     },
     {
+      aliases: ["new", "new page", "nt", "open tab", "create tab"],
       id: "new-tab",
       title: "New tab",
       subtitle: "Open a new foreground tab",
     },
     {
+      aliases: ["duplicate tab", "dup", "clone tab"],
       id: "duplicate-current-tab",
       title: "Duplicate current tab",
       subtitle: "Copy the current tab into a new foreground tab",
     },
     {
+      aliases: ["close tab", "delete tab", "remove tab", "x"],
       id: "close-current-tab",
       title: "Close current tab",
       subtitle: "Close this tab when another tab is available",
     },
     {
+      aliases: ["top", "gg"],
       id: "scroll-top",
       title: "Scroll to top",
       subtitle: "Jump to the top of the current scroll area",
     },
     {
+      aliases: ["bottom", "g", "end"],
       id: "scroll-bottom",
       title: "Scroll to bottom",
       subtitle: "Jump to the bottom of the current scroll area",
     },
     {
+      aliases: ["refresh"],
       id: "reload",
       title: "Reload page",
       subtitle: "Reload the current page",
     },
     {
+      aliases: ["options", "preferences", "config"],
       id: "open-settings",
       title: "Open settings",
       subtitle: "Configure shortcuts, sites, and hint appearance",
@@ -354,6 +365,7 @@
     COMMAND_PALETTE_FOOTER_HINTS,
     commandPaletteApplyPrefixValue,
     commandPaletteCommandIds,
+    commandPaletteCommandSearchIds,
     commandPaletteEditableResultValue,
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
@@ -1436,6 +1448,10 @@
     return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
   }
 
+  function commandPaletteCommandSearchIds(query: string): string[] {
+    return searchLocalPaletteCommands(query).map((result) => result.command);
+  }
+
   function localPaletteCommandScore(
     command: LocalPaletteCommand,
     query: string,
@@ -1444,13 +1460,25 @@
       return 1;
     }
 
+    const aliases = command.aliases ?? [];
     const haystack = `${command.title} ${command.subtitle}`.toLowerCase();
+    const haystackTokens = haystack.split(/[^a-z0-9]+/).filter(Boolean);
     const terms = query.split(/\s+/).filter(Boolean);
-    if (!terms.every((term) => haystack.includes(term))) {
+    if (
+      !terms.every(
+        (term) =>
+          commandTextMatchesTerm(haystack, haystackTokens, term) ||
+          aliases.some((alias) => commandAliasMatchesTerm(alias, term)),
+      )
+    ) {
       return null;
     }
 
     const title = command.title.toLowerCase();
+    const aliasScore = Math.max(
+      0,
+      ...aliases.map((alias) => commandAliasScore(alias, terms)),
+    );
     return terms.reduce((score, term) => {
       if (title.startsWith(term)) {
         return score + 60;
@@ -1459,7 +1487,41 @@
         return score + 40;
       }
       return score + 20;
-    }, 0);
+    }, aliasScore);
+  }
+
+  function commandAliasScore(alias: string, terms: string[]): number {
+    const normalizedAlias = alias.toLowerCase();
+    if (terms.join(" ") === normalizedAlias) {
+      return 90;
+    }
+
+    return terms.every((term) => commandAliasMatchesTerm(alias, term)) ? 50 : 0;
+  }
+
+  function commandTextMatchesTerm(
+    haystack: string,
+    haystackTokens: string[],
+    term: string,
+  ): boolean {
+    if (term.length <= 2) {
+      return haystackTokens.some(
+        (token) => token === term || token.startsWith(term),
+      );
+    }
+
+    return haystack.includes(term);
+  }
+
+  function commandAliasMatchesTerm(alias: string, term: string): boolean {
+    const normalizedAlias = alias.toLowerCase();
+    if (normalizedAlias === term) {
+      return true;
+    }
+
+    return normalizedAlias
+      .split(/\s+/)
+      .some((token) => token === term || token.startsWith(term));
   }
 
   function renderCommandPaletteResults(): void {
