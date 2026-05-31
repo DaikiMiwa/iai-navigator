@@ -388,6 +388,8 @@
       case "duckduckgo":
       case "brave":
       case "kagi":
+      case "youtube":
+      case "wikipedia":
       case "custom":
         return value;
       default:

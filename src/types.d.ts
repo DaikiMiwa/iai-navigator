@@ -124,6 +124,8 @@ type SafariKeyboardNavigationSearchEngine =
   | "duckduckgo"
   | "brave"
   | "kagi"
+  | "youtube"
+  | "wikipedia"
   | "custom";
 
 interface SafariKeyboardNavigationCommandPaletteSettings {
