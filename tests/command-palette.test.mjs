@@ -148,6 +148,24 @@ test("maps command palette activation keys", () => {
     { disposition: "new-tab", kind: "activate-index", index: 3 },
   );
   assert.deepEqual(
+    commandPaletteKeyAction(
+      key({ altKey: true, code: "Digit5", ctrlKey: true, key: "5" }),
+    ),
+    { disposition: "background-tab", kind: "activate-index", index: 4 },
+  );
+  assert.equal(
+    commandPaletteKeyAction(
+      key({
+        altKey: true,
+        code: "Digit6",
+        ctrlKey: true,
+        key: "6",
+        shiftKey: true,
+      }),
+    ),
+    null,
+  );
+  assert.deepEqual(
     commandPaletteKeyAction(key({ altKey: true, code: "KeyB", key: "∫" })),
     { kind: "apply-prefix", prefix: "book" },
   );
