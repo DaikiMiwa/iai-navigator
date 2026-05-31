@@ -4,15 +4,17 @@ Research date: 2026-05-24
 
 ## Executive Takeaway
 
-Do not implement the proposed `o` command as direct Safari bookmark and history search yet.
+Do not rely on the proposed `o` command as guaranteed direct Safari bookmark and history search yet.
 
 The WebExtensions model has `bookmarks` and `history` APIs, but current public compatibility data marks both APIs as unsupported in Safari, and Apple's `WKWebExtension.Permission` constants do not list `bookmarks` or `history`. A Safari Web Extension-only implementation would therefore either fail outright or depend on undocumented behavior.
 
-The next practical step is to split the feature into a smaller approved design:
+As of issue #62, the project has a guarded Browser Navigation Palette implementation. It uses the standard WebExtension `bookmarks` and `history` APIs only when those APIs exist at runtime, and it still works for open tabs and extension commands when they do not. Xcode packaging accepts the manifest permissions in a local Debug build, but real Safari bookmark/history runtime behavior still needs manual verification before this can be marketed as complete Safari bookmark/history search.
 
-- a URL/search command backed only by extension-maintained local data, if that narrower behavior is acceptable; or
-- a native app bridge design, if real Safari bookmark/history access is required; or
-- a deferred implementation until Safari exposes supported WebExtension APIs for this data.
+The next practical step is to keep the feature split into:
+
+- WebExtension palette search for open tabs, extension commands, and any bookmark/history APIs Safari exposes at runtime;
+- a native app bridge design, if real Safari bookmark/history access is required and Safari does not expose these APIs reliably; or
+- a deferred hard guarantee until Safari documents support for this data.
 
 ## What Was Checked
 
@@ -32,7 +34,7 @@ Sources checked on 2026-05-24:
 | `browser.history` available in Safari | Not supported according to MDN browser-compat-data. |
 | Required manifest permissions available | MDN documents `bookmarks` and `history`; Apple's current `WKWebExtension.Permission` constants do not list either one. |
 | Background script access | The project already uses a background service worker for supported APIs such as `tabs`; bookmark/history access is the blocked part. |
-| Xcode-packaged Safari extension viability | Not runtime-verified in this spike because the public API compatibility check already blocks the WebExtension-only design. |
+| Xcode-packaged Safari extension viability | A local Debug Xcode build accepted `bookmarks` and `history` permissions on 2026-05-31. Runtime behavior still needs Safari manual testing. |
 
 ## Privacy Impact
 
@@ -45,9 +47,10 @@ Bookmark and history access is high-sensitivity browser data. If this feature is
 
 ## Recommended Issue Split
 
-1. **Deferred direct bookmark/history search**
-   - Track direct `browser.bookmarks` and `browser.history` support.
-   - Revisit only when Safari documents and exposes the required APIs.
+1. **Guarded direct bookmark/history search**
+   - Use `browser.bookmarks` and `browser.history` only when present.
+   - Keep the palette useful with tabs and extension commands if Safari omits either API.
+   - Do not promise full Safari bookmark/history search until runtime testing proves it.
 
 2. **Extension-maintained open command**
    - Optional smaller feature: `o` searches pages the extension has locally observed while enabled.

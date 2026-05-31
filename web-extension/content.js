@@ -12,6 +12,7 @@
     const scroll = maybeScroll;
     const settingsApi = maybeSettings;
     const HELP_OVERLAY_ID = "skne-help-overlay";
+    const COMMAND_PALETTE_OVERLAY_ID = "skne-command-palette-overlay";
     const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const MENU_TRIGGER_TARGET_SELECTOR = [
@@ -73,6 +74,43 @@
         "text",
         "url",
     ]);
+    const LOCAL_PALETTE_COMMANDS = [
+        {
+            id: "show-hints",
+            title: "Show hints",
+            subtitle: "Open link and control hints in the current tab",
+        },
+        {
+            id: "show-new-tab-hints",
+            title: "Show hints in new tab",
+            subtitle: "Open link hints for foreground tabs",
+        },
+        {
+            id: "copy-url",
+            title: "Copy current URL",
+            subtitle: "Copy this page address to the clipboard",
+        },
+        {
+            id: "scroll-top",
+            title: "Scroll to top",
+            subtitle: "Jump to the top of the current scroll area",
+        },
+        {
+            id: "scroll-bottom",
+            title: "Scroll to bottom",
+            subtitle: "Jump to the bottom of the current scroll area",
+        },
+        {
+            id: "reload",
+            title: "Reload page",
+            subtitle: "Reload the current page",
+        },
+        {
+            id: "open-settings",
+            title: "Open settings",
+            subtitle: "Configure shortcuts, sites, and hint appearance",
+        },
+    ];
     globalThis.SafariKeyboardNavigationHintTargets = {
         canClickMenuTriggerCandidate,
         isSafeMediaControlCandidate,
@@ -88,6 +126,7 @@
     };
     let hintState = null;
     let helpState = null;
+    let commandPaletteState = null;
     let lastGPressAt = 0;
     let lastYPressAt = 0;
     let urlCopyToastTimer = 0;
@@ -100,6 +139,7 @@
     window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopMovement, true);
     window.addEventListener("pagehide", closeHelpOverlay, true);
+    window.addEventListener("pagehide", closeCommandPalette, true);
     window.addEventListener("pagehide", stopMovement, true);
     function initializeExtensionSettings() {
         void settingsApi
@@ -118,11 +158,16 @@
             applyHintStyleSettings();
             if (!settingsApi.isExtensionEnabledForUrl(extensionSettings, location.href)) {
                 cancelHintMode();
+                closeCommandPalette();
                 stopMovement();
             }
         });
     }
     function handleKeyDown(event) {
+        if (commandPaletteState) {
+            handleCommandPaletteKeyDown(event);
+            return;
+        }
         if (hintState) {
             handleHintKeyDown(event);
             return;
@@ -169,6 +214,13 @@
             event.preventDefault();
             event.stopPropagation();
             showHelpOverlay();
+            return;
+        }
+        const commandPaletteOptions = commandPaletteOptionsForEvent(event);
+        if (commandPaletteOptions) {
+            event.preventDefault();
+            event.stopPropagation();
+            openCommandPalette(commandPaletteOptions);
             return;
         }
         if (!event.repeat && hintActivationMode && isSupportedWebPage()) {
@@ -228,11 +280,7 @@
         if (isBottomCommand(event)) {
             event.preventDefault();
             event.stopPropagation();
-            const surface = findScrollSurface({ key: "G", dx: 0, dy: 1, speedX: 0, speedY: 0 }, { requireCanMove: false });
-            scrollToSurfacePosition(surface, {
-                top: maxScrollTop(surface),
-                left: currentScrollX(surface),
-            });
+            scrollToBottom();
         }
     }
     function handleHelpKeyDown(event) {
@@ -529,6 +577,291 @@
         }
         helpState.overlay.remove();
         helpState = null;
+    }
+    function openCommandPalette(options) {
+        stopMovement();
+        cancelHintMode();
+        closeHelpOverlay();
+        closeCommandPalette();
+        const overlay = document.createElement("div");
+        overlay.id = COMMAND_PALETTE_OVERLAY_ID;
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-label", "Command palette");
+        const panel = document.createElement("div");
+        panel.className = "skne-command-palette-panel";
+        const input = document.createElement("input");
+        input.className = "skne-command-palette-input";
+        input.type = "search";
+        input.autocapitalize = "off";
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.placeholder = options.placeholder;
+        input.setAttribute("aria-label", "Search commands and browser items");
+        panel.appendChild(input);
+        const list = document.createElement("div");
+        list.className = "skne-command-palette-list";
+        list.setAttribute("role", "listbox");
+        panel.appendChild(list);
+        overlay.appendChild(panel);
+        document.documentElement.appendChild(overlay);
+        commandPaletteState = {
+            activeIndex: 0,
+            disposition: options.disposition,
+            includeCommands: options.includeCommands,
+            includeGenerated: options.includeGenerated,
+            input,
+            list,
+            overlay,
+            results: [],
+            searchId: 0,
+            sources: options.sources,
+        };
+        input.addEventListener("input", () => {
+            void refreshCommandPaletteResults();
+        });
+        input.focus();
+        void refreshCommandPaletteResults();
+    }
+    function closeCommandPalette() {
+        if (!commandPaletteState) {
+            return;
+        }
+        commandPaletteState.overlay.remove();
+        commandPaletteState = null;
+    }
+    function handleCommandPaletteKeyDown(event) {
+        if (!commandPaletteState) {
+            return;
+        }
+        if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            closeCommandPalette();
+            return;
+        }
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            event.stopPropagation();
+            moveCommandPaletteSelection(1);
+            return;
+        }
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            event.stopPropagation();
+            moveCommandPaletteSelection(-1);
+            return;
+        }
+        if (event.key === "Enter") {
+            event.preventDefault();
+            event.stopPropagation();
+            activateCommandPaletteSelection();
+        }
+    }
+    async function refreshCommandPaletteResults() {
+        const state = commandPaletteState;
+        if (!state) {
+            return;
+        }
+        const query = state.input.value;
+        const searchId = state.searchId + 1;
+        state.searchId = searchId;
+        const [localResults, browserResults] = await Promise.all([
+            Promise.resolve(state.includeCommands ? searchLocalPaletteCommands(query) : []),
+            searchBrowserPaletteResults(query),
+        ]);
+        if (!commandPaletteState || commandPaletteState.searchId !== searchId) {
+            return;
+        }
+        commandPaletteState.results = [...localResults, ...browserResults]
+            .sort(compareCommandPaletteResults)
+            .slice(0, 24);
+        commandPaletteState.activeIndex = 0;
+        renderCommandPaletteResults();
+    }
+    async function searchBrowserPaletteResults(query) {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return [];
+        }
+        const state = commandPaletteState;
+        if (!state) {
+            return [];
+        }
+        try {
+            const response = (await browser.runtime.sendMessage({
+                type: "palette-search",
+                includeGenerated: state.includeGenerated,
+                query,
+                sources: state.sources,
+            }));
+            return Array.isArray(response?.results) ? response.results : [];
+        }
+        catch {
+            return [];
+        }
+    }
+    function searchLocalPaletteCommands(query) {
+        const normalizedQuery = query.trim().toLowerCase();
+        return LOCAL_PALETTE_COMMANDS.flatMap((command) => {
+            const score = localPaletteCommandScore(command, normalizedQuery);
+            if (score === null) {
+                return [];
+            }
+            return [
+                {
+                    command: command.id,
+                    id: `command:${command.id}`,
+                    kind: "command",
+                    score: score + 30,
+                    subtitle: command.subtitle,
+                    title: command.title,
+                },
+            ];
+        });
+    }
+    function localPaletteCommandScore(command, query) {
+        if (!query) {
+            return 1;
+        }
+        const haystack = `${command.title} ${command.subtitle}`.toLowerCase();
+        const terms = query.split(/\s+/).filter(Boolean);
+        if (!terms.every((term) => haystack.includes(term))) {
+            return null;
+        }
+        const title = command.title.toLowerCase();
+        return terms.reduce((score, term) => {
+            if (title.startsWith(term)) {
+                return score + 60;
+            }
+            if (title.includes(term)) {
+                return score + 40;
+            }
+            return score + 20;
+        }, 0);
+    }
+    function renderCommandPaletteResults() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const state = commandPaletteState;
+        state.list.replaceChildren();
+        if (state.results.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "skne-command-palette-empty";
+            empty.textContent = "No results";
+            state.list.appendChild(empty);
+            return;
+        }
+        state.results.forEach((result, index) => {
+            const row = document.createElement("button");
+            row.className = "skne-command-palette-result";
+            row.type = "button";
+            row.dataset.active = index === state.activeIndex ? "true" : "false";
+            row.setAttribute("role", "option");
+            row.setAttribute("aria-selected", index === state.activeIndex ? "true" : "false");
+            row.addEventListener("click", () => {
+                if (!commandPaletteState) {
+                    return;
+                }
+                commandPaletteState.activeIndex = index;
+                activateCommandPaletteSelection();
+            });
+            const kind = document.createElement("span");
+            kind.className = "skne-command-palette-kind";
+            kind.textContent = result.kind;
+            row.appendChild(kind);
+            const text = document.createElement("span");
+            text.className = "skne-command-palette-text";
+            const title = document.createElement("span");
+            title.className = "skne-command-palette-title";
+            title.textContent = result.title;
+            text.appendChild(title);
+            const subtitle = document.createElement("span");
+            subtitle.className = "skne-command-palette-subtitle";
+            subtitle.textContent = result.subtitle;
+            text.appendChild(subtitle);
+            row.appendChild(text);
+            state.list.appendChild(row);
+        });
+    }
+    function moveCommandPaletteSelection(delta) {
+        if (!commandPaletteState || commandPaletteState.results.length === 0) {
+            return;
+        }
+        const length = commandPaletteState.results.length;
+        commandPaletteState.activeIndex =
+            (commandPaletteState.activeIndex + delta + length) % length;
+        renderCommandPaletteResults();
+    }
+    function activateCommandPaletteSelection() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const result = commandPaletteState.results[commandPaletteState.activeIndex];
+        if (!result) {
+            return;
+        }
+        const { disposition } = commandPaletteState;
+        closeCommandPalette();
+        if (result.kind === "command") {
+            executeLocalPaletteCommand(result.command);
+            return;
+        }
+        void executeBrowserPaletteResult(result, disposition);
+    }
+    function executeLocalPaletteCommand(command) {
+        switch (command) {
+            case "show-hints":
+                if (isSupportedWebPage()) {
+                    startHintMode("current-tab");
+                }
+                return;
+            case "show-new-tab-hints":
+                if (isSupportedWebPage()) {
+                    startHintMode("new-tab");
+                }
+                return;
+            case "copy-url":
+                void copyCurrentUrl();
+                return;
+            case "scroll-top":
+                scrollToTop();
+                return;
+            case "scroll-bottom":
+                scrollToBottom();
+                return;
+            case "reload":
+                reloadPage();
+                return;
+            case "open-settings":
+                void openExtensionSettings();
+                return;
+        }
+    }
+    async function executeBrowserPaletteResult(result, disposition) {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        await browser.runtime
+            .sendMessage({
+            type: "palette-execute",
+            disposition,
+            result,
+        })
+            .catch(() => undefined);
+    }
+    async function openExtensionSettings() {
+        if (typeof browser === "undefined" || !browser.runtime) {
+            return;
+        }
+        await browser.runtime
+            .sendMessage({ type: "open-options" })
+            .catch(() => undefined);
+    }
+    function compareCommandPaletteResults(a, b) {
+        if (a.score !== b.score) {
+            return b.score - a.score;
+        }
+        return a.title.localeCompare(b.title);
     }
     function scheduleMenuRevealStep(callback, delayMs) {
         cancelPendingMenuReveal();
@@ -1336,11 +1669,7 @@
         const key = event.key.toLowerCase();
         if (isPendingSequenceKey(lastGPressAt, key, sequence, TOP_SEQUENCE_WINDOW_MS)) {
             lastGPressAt = 0;
-            const surface = findScrollSurface({ key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 }, { requireCanMove: false });
-            scrollToSurfacePosition(surface, {
-                top: 0,
-                left: currentScrollX(surface),
-            });
+            scrollToTop();
             return;
         }
         if (key !== sequence[0]) {
@@ -1390,6 +1719,20 @@
     }
     function clearUrlCopySequence() {
         lastYPressAt = 0;
+    }
+    function scrollToTop() {
+        const surface = findScrollSurface({ key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 }, { requireCanMove: false });
+        scrollToSurfacePosition(surface, {
+            top: 0,
+            left: currentScrollX(surface),
+        });
+    }
+    function scrollToBottom() {
+        const surface = findScrollSurface({ key: "G", dx: 0, dy: 1, speedX: 0, speedY: 0 }, { requireCanMove: false });
+        scrollToSurfacePosition(surface, {
+            top: maxScrollTop(surface),
+            left: currentScrollX(surface),
+        });
     }
     function isPendingSequenceKey(startedAt, key, sequence, windowMs) {
         return (startedAt !== 0 &&
@@ -1467,6 +1810,54 @@
     }
     function isReloadCommand(event) {
         return settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.reload);
+    }
+    function commandPaletteOptionsForEvent(event) {
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.commandPalette)) {
+            return {
+                disposition: "current-tab",
+                includeCommands: true,
+                includeGenerated: true,
+                placeholder: "Search tabs, bookmarks, history, commands, URLs",
+                sources: ["tabs", "bookmarks", "history"],
+            };
+        }
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.commandPaletteNewTab)) {
+            return {
+                disposition: "new-tab",
+                includeCommands: true,
+                includeGenerated: true,
+                placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
+                sources: ["tabs", "bookmarks", "history"],
+            };
+        }
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.bookmarkPalette)) {
+            return {
+                disposition: "current-tab",
+                includeCommands: false,
+                includeGenerated: false,
+                placeholder: "Search bookmarks",
+                sources: ["bookmarks"],
+            };
+        }
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.bookmarkPaletteNewTab)) {
+            return {
+                disposition: "new-tab",
+                includeCommands: false,
+                includeGenerated: false,
+                placeholder: "Open bookmark in new tab",
+                sources: ["bookmarks"],
+            };
+        }
+        if (settingsApi.isShortcutEvent(event, extensionSettings.shortcuts.tabPalette)) {
+            return {
+                disposition: "current-tab",
+                includeCommands: false,
+                includeGenerated: false,
+                placeholder: "Search open tabs",
+                sources: ["tabs"],
+            };
+        }
+        return null;
     }
     function navigateHistory(direction) {
         stopMovement();

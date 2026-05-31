@@ -6,13 +6,17 @@ Safari Keyboard Navigation runs locally in Safari. It does not include analytics
 
 When a user grants website access in Safari, the content script can read the page structure on those websites. This includes visible links, buttons, form controls, media controls, element positions, and the current page URL.
 
+When the browser navigation palette is enabled, the extension also requests browser-level access to open tabs, bookmarks, and recent history so the user can search and open those destinations from the keyboard.
+
 The extension uses this access to:
 
 - draw keyboard hint labels near visible targets;
 - focus or click the selected target after a hint is typed;
 - move the current page with keyboard shortcuts;
 - copy the current page URL when the user presses the URL copy shortcut;
-- switch tabs or open a selected link in a new tab.
+- switch tabs or open a selected link in a new tab;
+- search open tabs, bookmarks, and recent history locally when the command palette is open.
+- open a user-entered search query in Google Search when the user explicitly selects a generated search result.
 
 ## What the Extension Does Not Collect
 
@@ -25,7 +29,7 @@ The extension does not:
 - record typed text from input fields;
 - sync settings to a developer-controlled backend.
 
-Settings are intended to be stored in Safari extension storage on the user's device.
+Settings are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. User-entered web searches leave the device only when the user chooses the generated search result.
 
 ## Website Access Modes
 
@@ -44,4 +48,4 @@ For App Store distribution, local file support should either:
 
 ## App Review Note Draft
 
-This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The app does not send page content, browsing data, shortcut activity, or form values to any external server.
+This app contains a Safari Web Extension for keyboard-first page navigation. The extension reads visible page elements only on websites where the user grants Safari extension access. Page structure is processed locally to display keyboard hint labels and run keyboard commands. The extension also uses Safari's tabs, bookmarks, and history APIs locally so users can search browser destinations from a command palette. The app does not send page content, browsing data, shortcut activity, or form values to any external server.

@@ -14,6 +14,11 @@
     | "reload"
     | "historyBack"
     | "historyForward"
+    | "commandPalette"
+    | "commandPaletteNewTab"
+    | "bookmarkPalette"
+    | "bookmarkPaletteNewTab"
+    | "tabPalette"
     | "tabPrevious"
     | "tabNext"
     | "help";
@@ -35,6 +40,10 @@
       shortcuts: {
         bottom: "G",
         copyUrl: "yy",
+        commandPalette: "o",
+        commandPaletteNewTab: "Shift+O",
+        bookmarkPalette: "b",
+        bookmarkPaletteNewTab: "Shift+B",
         down: "j",
         halfPageDown: "d",
         halfPageUp: "u",
@@ -46,6 +55,7 @@
         newTabHint: "Shift+F",
         reload: "r",
         right: "l",
+        tabPalette: "Shift+T",
         tabNext: "Shift+K",
         tabPrevious: "Shift+J",
         top: "gg",
@@ -74,6 +84,11 @@
     "reload",
     "historyBack",
     "historyForward",
+    "commandPalette",
+    "commandPaletteNewTab",
+    "bookmarkPalette",
+    "bookmarkPaletteNewTab",
+    "tabPalette",
     "tabPrevious",
     "tabNext",
     "help",

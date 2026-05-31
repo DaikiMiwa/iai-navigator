@@ -91,6 +91,11 @@ interface SafariKeyboardNavigationShortcutSettings {
   reload: string;
   historyBack: string;
   historyForward: string;
+  commandPalette: string;
+  commandPaletteNewTab: string;
+  bookmarkPalette: string;
+  bookmarkPaletteNewTab: string;
+  tabPalette: string;
   tabPrevious: string;
   tabNext: string;
   help: string;
@@ -200,11 +205,54 @@ interface OpenTabMessage {
   active: boolean;
 }
 
-type SafariKeyboardNavigationMessage = TabSwitchMessage | OpenTabMessage;
+type PaletteResultKind = "tab" | "bookmark" | "history" | "url" | "search";
+type PaletteSource = "tabs" | "bookmarks" | "history";
+type PaletteDisposition = "current-tab" | "new-tab";
+
+interface PaletteResult {
+  id: string;
+  kind: PaletteResultKind;
+  title: string;
+  subtitle: string;
+  url?: string;
+  tabId?: number;
+  score: number;
+}
+
+interface PaletteSearchMessage {
+  type: "palette-search";
+  query: string;
+  sources: PaletteSource[];
+  includeGenerated: boolean;
+}
+
+interface PaletteExecuteMessage {
+  type: "palette-execute";
+  disposition: PaletteDisposition;
+  result: PaletteResult;
+}
+
+interface OpenOptionsMessage {
+  type: "open-options";
+}
+
+interface PaletteSearchResponse {
+  results: PaletteResult[];
+}
+
+type SafariKeyboardNavigationMessage =
+  | TabSwitchMessage
+  | OpenTabMessage
+  | PaletteSearchMessage
+  | PaletteExecuteMessage
+  | OpenOptionsMessage;
 
 interface WebExtensionTab {
+  active?: boolean;
   id?: number;
   index: number;
+  title?: string;
+  url?: string;
 }
 
 interface WebExtensionTabQuery {
@@ -214,6 +262,7 @@ interface WebExtensionTabQuery {
 
 interface WebExtensionTabUpdate {
   active?: boolean;
+  url?: string;
 }
 
 interface WebExtensionTabCreate {
@@ -223,11 +272,39 @@ interface WebExtensionTabCreate {
 
 interface WebExtensionRuntime {
   sendMessage(message: SafariKeyboardNavigationMessage): Promise<unknown>;
+  openOptionsPage?(): Promise<void>;
   onMessage?: {
     addListener(
       listener: (message: unknown) => Promise<unknown> | unknown | undefined,
     ): void;
   };
+}
+
+interface WebExtensionBookmarkTreeNode {
+  id: string;
+  title: string;
+  url?: string;
+}
+
+interface WebExtensionBookmarks {
+  search(query: string): Promise<WebExtensionBookmarkTreeNode[]>;
+}
+
+interface WebExtensionHistoryItem {
+  id: string;
+  lastVisitTime?: number;
+  title?: string;
+  url?: string;
+}
+
+interface WebExtensionHistoryQuery {
+  maxResults?: number;
+  startTime?: number;
+  text: string;
+}
+
+interface WebExtensionHistory {
+  search(query: WebExtensionHistoryQuery): Promise<WebExtensionHistoryItem[]>;
 }
 
 interface WebExtensionCommands {
@@ -268,7 +345,9 @@ interface WebExtensionTabs {
 }
 
 interface WebExtensionApi {
+  bookmarks?: WebExtensionBookmarks;
   commands?: WebExtensionCommands;
+  history?: WebExtensionHistory;
   runtime?: WebExtensionRuntime;
   storage?: WebExtensionStorage;
   tabs?: WebExtensionTabs;
@@ -281,6 +360,15 @@ interface SafariKeyboardNavigationTabs {
     direction: TabSwitchDirection,
   ): number | null;
   isSupportedNewTabUrl(url: string): boolean;
+  searchPaletteResults(
+    sources: {
+      bookmarks: WebExtensionBookmarkTreeNode[];
+      history: WebExtensionHistoryItem[];
+      tabs: WebExtensionTab[];
+    },
+    query: string,
+    options?: { includeGenerated?: boolean; sources?: PaletteSource[] },
+  ): PaletteResult[];
   tabSwitchDirectionForCommand(command: string): TabSwitchDirection | null;
 }
 
