@@ -814,7 +814,9 @@
         }
     }
     function commandPaletteResultIndexForKey(candidate) {
-        if (!candidate.altKey || candidate.ctrlKey || candidate.metaKey) {
+        if (!candidate.altKey ||
+            candidate.metaKey ||
+            (candidate.ctrlKey && candidate.shiftKey)) {
             return null;
         }
         const digit = candidate.code?.match(/^Digit([1-9])$/)?.[1] ?? "";
@@ -826,7 +828,10 @@
             index: Number(key) - 1,
             kind: "activate-index",
         };
-        if (candidate.shiftKey) {
+        if (candidate.ctrlKey) {
+            action.disposition = "background-tab";
+        }
+        else if (candidate.shiftKey) {
             action.disposition = "new-tab";
         }
         return action;

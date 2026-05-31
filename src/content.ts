@@ -1208,7 +1208,11 @@
   function commandPaletteResultIndexForKey(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteResultIndexAction | null {
-    if (!candidate.altKey || candidate.ctrlKey || candidate.metaKey) {
+    if (
+      !candidate.altKey ||
+      candidate.metaKey ||
+      (candidate.ctrlKey && candidate.shiftKey)
+    ) {
       return null;
     }
 
@@ -1222,7 +1226,9 @@
       index: Number(key) - 1,
       kind: "activate-index",
     };
-    if (candidate.shiftKey) {
+    if (candidate.ctrlKey) {
+      action.disposition = "background-tab";
+    } else if (candidate.shiftKey) {
       action.disposition = "new-tab";
     }
 
