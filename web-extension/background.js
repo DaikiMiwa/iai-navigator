@@ -193,6 +193,7 @@
                     active: disposition === "new-tab",
                     url: result.url,
                 });
+                await recordPaletteActivation(api, result);
                 return;
             }
             await api.tabs.update(result.tabId, { active: true });
@@ -201,6 +202,7 @@
                     ?.update(result.windowId, { focused: true })
                     .catch(() => undefined);
             }
+            await recordPaletteActivation(api, result);
             return;
         }
         if (!result.url || !isSupportedNewTabUrl(result.url)) {
@@ -211,6 +213,7 @@
                 active: disposition === "new-tab",
                 url: result.url,
             });
+            await recordPaletteActivation(api, result);
             return;
         }
         const activeTabs = await api.tabs.query({
@@ -220,9 +223,11 @@
         const activeTabId = activeTabs[0]?.id;
         if (typeof activeTabId === "number") {
             await api.tabs.update(activeTabId, { url: result.url });
+            await recordPaletteActivation(api, result);
             return;
         }
         await api.tabs.create({ url: result.url, active: true });
+        await recordPaletteActivation(api, result);
     }
     async function observePage(api, message) {
         if (!api.storage?.local || !isSupportedNewTabUrl(message.url)) {
@@ -230,6 +235,17 @@
         }
         const visits = await loadLocalVisits(api);
         const nextVisits = recordLocalVisit(visits, message, Date.now());
+        await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
+    }
+    async function recordPaletteActivation(api, result) {
+        if (result.kind === "search" ||
+            !api.storage?.local ||
+            !result.url ||
+            !isSupportedNewTabUrl(result.url)) {
+            return;
+        }
+        const visits = await loadLocalVisits(api);
+        const nextVisits = recordLocalVisit(visits, { title: result.title, url: result.url }, Date.now());
         await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
     }
     function isTabSwitchMessage(message) {

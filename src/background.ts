@@ -276,6 +276,7 @@
           active: disposition === "new-tab",
           url: result.url,
         });
+        await recordPaletteActivation(api, result);
         return;
       }
 
@@ -285,6 +286,7 @@
           ?.update(result.windowId, { focused: true })
           .catch(() => undefined);
       }
+      await recordPaletteActivation(api, result);
       return;
     }
 
@@ -297,6 +299,7 @@
         active: disposition === "new-tab",
         url: result.url,
       });
+      await recordPaletteActivation(api, result);
       return;
     }
 
@@ -307,10 +310,12 @@
     const activeTabId = activeTabs[0]?.id;
     if (typeof activeTabId === "number") {
       await api.tabs.update(activeTabId, { url: result.url });
+      await recordPaletteActivation(api, result);
       return;
     }
 
     await api.tabs.create({ url: result.url, active: true });
+    await recordPaletteActivation(api, result);
   }
 
   async function observePage(
@@ -323,6 +328,29 @@
 
     const visits = await loadLocalVisits(api);
     const nextVisits = recordLocalVisit(visits, message, Date.now());
+
+    await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
+  }
+
+  async function recordPaletteActivation(
+    api: WebExtensionApi,
+    result: PaletteResult,
+  ): Promise<void> {
+    if (
+      result.kind === "search" ||
+      !api.storage?.local ||
+      !result.url ||
+      !isSupportedNewTabUrl(result.url)
+    ) {
+      return;
+    }
+
+    const visits = await loadLocalVisits(api);
+    const nextVisits = recordLocalVisit(
+      visits,
+      { title: result.title, url: result.url },
+      Date.now(),
+    );
 
     await api.storage.local.set({ [LOCAL_VISITS_STORAGE_KEY]: nextVisits });
   }
