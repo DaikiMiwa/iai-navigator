@@ -37,7 +37,7 @@
   min-height: 20px;
   padding: 3px 7px;
   border-radius: 4px;
-  font-size: 15px;
+  font-size: var(--skne-hint-media-font-size, 15px);
   line-height: 1.05;
   transform: translate(-50%, -85%);
   box-shadow: 0 2px 6px rgb(0 0 0 / 38%);
