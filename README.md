@@ -24,6 +24,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - The default `o` palette can surface recent bookmark suggestions before typing, alongside open tabs, recent history, and locally observed destinations.
+- The `v` history palette shows recent history before typing, with locally observed pages as a fallback when browser history does not return empty-query results.
 - The empty `o` / `Shift+O` palette can show recent palette queries; choosing one fills the input and reruns that search without closing the palette.
 - `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
 - `gE` opens the command palette with the current page URL prefilled as `url: ...` and defaults activation to a new foreground tab.
@@ -148,6 +149,7 @@ Useful checks:
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
 - Press `o` from normal page focus before typing and verify recent bookmark suggestions can appear in the all-source palette.
+- Press `o` from normal page focus before typing and verify open tabs and recent history can appear in the all-source palette.
 - Press `o` from normal page focus after using the palette, verify recent query suggestions can appear before typing, and verify selecting one fills the input and refreshes results without closing the palette.
 - Press `ge` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input.
 - Press `gE` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input, then `Enter` opens the edited URL in a new foreground tab.
@@ -175,6 +177,7 @@ Useful checks:
 - In the palette, press `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`; then press `Alt+A` / `Option+A` and verify it changes back to `docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
+- Press `v` before typing and verify recent history candidates appear; if Safari does not return browser history for an empty query, verify locally observed pages appear as fallback candidates after browsing with the extension.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify bookmark suggestions appear before typing, only bookmarks are searched, and `Shift+B` opens the selected bookmark in a new foreground tab.
 - In the bookmark palette, type a bookmark folder name and verify bookmarks inside that folder appear with the folder path shown in the subtitle.

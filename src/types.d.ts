@@ -656,6 +656,9 @@ interface SafariKeyboardNavigationTabs {
     disposition: PaletteDisposition,
   ): Promise<void>;
   isSupportedNewTabUrl(url: string): boolean;
+  localVisitsAsHistoryItems(
+    visits: LocalVisitItem[],
+  ): WebExtensionHistoryItem[];
   paletteTabQueryInfo(): WebExtensionTabQuery;
   recordLocalVisit(
     visits: LocalVisitItem[],

@@ -108,6 +108,7 @@
         searchPaletteResults,
         shouldLoadPaletteBookmarks,
         tabSwitchDirectionForCommand,
+        localVisitsAsHistoryItems,
     };
     const api = global.browser;
     if (!api?.tabs) {
@@ -208,8 +209,15 @@
                 : Promise.resolve([]),
             loadConfiguredSearchSettings(api),
         ]);
+        const historyResults = sources.has("history") && !trimmedQuery && history.length === 0
+            ? localVisitsAsHistoryItems(visits.length > 0
+                ? visits
+                : api.storage?.local
+                    ? await loadLocalVisits(api).then((items) => items.slice(0, 12))
+                    : [])
+            : history;
         return {
-            results: searchPaletteResults({ bookmarks, history, tabs, visits }, message.query, {
+            results: searchPaletteResults({ bookmarks, history: historyResults, tabs, visits }, message.query, {
                 customSearchUrlTemplate: searchSettings.customSearchUrlTemplate,
                 includeGenerated: message.includeGenerated,
                 generatedKinds: message.generatedKinds ?? PALETTE_GENERATED_KINDS,
@@ -613,6 +621,15 @@
                 url: visit.url,
             },
         ];
+    }
+    function localVisitsAsHistoryItems(visits) {
+        return visits.map((visit) => ({
+            id: `local-visit:${visit.url}`,
+            lastVisitTime: visit.lastVisitTime,
+            title: visit.title,
+            url: visit.url,
+            visitCount: visit.visitCount,
+        }));
     }
     function comparePaletteResults(a, b) {
         if (a.score !== b.score) {
