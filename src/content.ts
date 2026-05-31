@@ -76,6 +76,12 @@
     href: string;
   }
 
+  interface MediaControlRevealCandidate {
+    activationMode: HintActivationMode;
+    hasRevealableMediaSurfaces: boolean;
+    hasVisibleMediaControls: boolean;
+  }
+
   interface Movement {
     key: string;
     dx: number;
@@ -128,6 +134,7 @@
   const HINT_TRIGGER = "f";
   const NEW_TAB_HINT_TRIGGER_CODE = "KeyF";
   const HELP_OVERLAY_ID = "skne-help-overlay";
+  const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
   const NATIVE_HINT_TARGET_SELECTOR =
     "a[href], button, input, select, textarea";
   const MENU_TRIGGER_TARGET_SELECTOR = [
@@ -208,6 +215,14 @@
     isSupportedPdfCandidate,
     isSupportedWebPageCandidate,
   };
+  (
+    globalThis as typeof globalThis & {
+      SafariKeyboardNavigationMediaReveal?: SafariKeyboardNavigationMediaReveal;
+    }
+  ).SafariKeyboardNavigationMediaReveal = {
+    isRevealableMediaControlsCandidate,
+    shouldPreRevealMediaControlsCandidate,
+  };
 
   let hintState: HintState | null = null;
   let helpState: HelpState | null = null;
@@ -216,6 +231,7 @@
   let urlCopyToastTimer = 0;
   let movementState: MovementState | null = null;
   let menuRevealTimer = 0;
+  const revealedMediaControlSurfaces = new Set<HTMLElement>();
 
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("keyup", handleKeyUp, true);
@@ -523,11 +539,25 @@
     );
   }
 
-  function startHintMode(activationMode: HintActivationMode): void {
+  function startHintMode(
+    activationMode: HintActivationMode,
+    options: { allowMediaControlPreReveal?: boolean } = {},
+  ): void {
     cancelPendingMenuReveal();
+
+    if (
+      options.allowMediaControlPreReveal !== false &&
+      revealMediaControlsBeforeHintCollection(activationMode)
+    ) {
+      scheduleMenuRevealStep(() => {
+        startHintMode(activationMode, { allowMediaControlPreReveal: false });
+      }, MEDIA_SURFACE_RESCAN_DELAY_MS);
+      return;
+    }
 
     const targets = collectHintTargets(activationMode);
     if (targets.length === 0) {
+      clearRevealedMediaControlSurfaces();
       return;
     }
 
@@ -542,7 +572,10 @@
     const entries = targets.map((target, index): HintEntry => {
       const hint = hintValues[index];
       const label = document.createElement("span");
-      label.className = "skne-hint";
+      label.className =
+        target.kind === "media-control"
+          ? "skne-hint skne-hint-media-control"
+          : "skne-hint";
       label.dataset.hint = hint;
       label.style.left = `${Math.round(target.rect.left)}px`;
       label.style.top = `${Math.round(target.rect.top)}px`;
@@ -624,6 +657,7 @@
 
     hintState.overlay.remove();
     hintState = null;
+    clearRevealedMediaControlSurfaces();
     cancelPendingMenuReveal();
     window.removeEventListener("scroll", cancelHintMode, true);
     window.removeEventListener("resize", cancelHintMode, true);
@@ -890,18 +924,22 @@
       for (const element of surface.querySelectorAll<HTMLElement>(
         MEDIA_CONTROL_TARGET_SELECTOR,
       )) {
-        if (seen.has(element) || !isVisibleMediaControlTarget(element)) {
+        const targetElement = mediaControlTargetElement(element, surface);
+        if (
+          seen.has(targetElement) ||
+          !isVisibleMediaControlTarget(targetElement)
+        ) {
           continue;
         }
 
-        const rect = visibleRectForMediaControlTarget(element);
+        const rect = visibleRectForMediaControlTarget(targetElement);
         if (!rect) {
           continue;
         }
 
-        seen.add(element);
+        seen.add(targetElement);
         addedControl = true;
-        targets.push({ kind: "media-control", element, rect });
+        targets.push({ kind: "media-control", element: targetElement, rect });
       }
     }
 
@@ -995,6 +1033,102 @@
 
   function isVisibleMediaSurfaceTarget(element: HTMLElement): boolean {
     return isVisibleElementWithAncestors(element) && hasMediaElement(element);
+  }
+
+  function revealMediaControlsBeforeHintCollection(
+    activationMode: HintActivationMode,
+  ): boolean {
+    const surfaces = revealableMediaSurfaceTargets();
+    if (
+      !shouldPreRevealMediaControlsCandidate({
+        activationMode,
+        hasRevealableMediaSurfaces: surfaces.length > 0,
+        hasVisibleMediaControls: hasVisibleMediaControlTargets(),
+      })
+    ) {
+      return false;
+    }
+
+    for (const surface of surfaces) {
+      revealMediaControlSurface(surface);
+      dispatchMediaSurfaceRevealEvent(surface);
+    }
+
+    return true;
+  }
+
+  function shouldPreRevealMediaControlsCandidate(
+    candidate: MediaControlRevealCandidate,
+  ): boolean {
+    return (
+      candidate.activationMode === "current-tab" &&
+      candidate.hasRevealableMediaSurfaces
+    );
+  }
+
+  function isRevealableMediaControlsCandidate(
+    candidate: MediaControlRevealCandidate,
+  ): boolean {
+    return (
+      candidate.activationMode === "current-tab" &&
+      candidate.hasRevealableMediaSurfaces &&
+      !candidate.hasVisibleMediaControls
+    );
+  }
+
+  function hasVisibleMediaControlTargets(): boolean {
+    for (const surface of document.querySelectorAll<HTMLElement>(
+      MEDIA_CONTROL_SURFACE_SELECTOR,
+    )) {
+      if (!isVisibleElementWithAncestors(surface)) {
+        continue;
+      }
+
+      for (const element of surface.querySelectorAll<HTMLElement>(
+        MEDIA_CONTROL_TARGET_SELECTOR,
+      )) {
+        if (
+          isVisibleMediaControlTarget(element) &&
+          visibleRectForMediaControlTarget(element)
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  function revealableMediaSurfaceTargets(): HTMLElement[] {
+    const surfaces: HTMLElement[] = [];
+    const seen = new Set<HTMLElement>();
+    for (const element of document.querySelectorAll<HTMLElement>(
+      MEDIA_SURFACE_TARGET_SELECTOR,
+    )) {
+      if (seen.has(element) || !isVisibleMediaSurfaceTarget(element)) {
+        continue;
+      }
+
+      seen.add(element);
+      surfaces.push(element);
+    }
+
+    return surfaces;
+  }
+
+  function revealMediaControlSurface(element: HTMLElement): void {
+    document.documentElement.classList.add(MEDIA_CONTROLS_REVEALED_CLASS);
+    element.classList.add(MEDIA_CONTROLS_REVEALED_CLASS);
+    revealedMediaControlSurfaces.add(element);
+  }
+
+  function clearRevealedMediaControlSurfaces(): void {
+    document.documentElement.classList.remove(MEDIA_CONTROLS_REVEALED_CLASS);
+    for (const surface of revealedMediaControlSurfaces) {
+      surface.classList.remove(MEDIA_CONTROLS_REVEALED_CLASS);
+    }
+
+    revealedMediaControlSurfaces.clear();
   }
 
   function isVisibleSemanticActionTarget(element: HTMLElement): boolean {
@@ -1148,6 +1282,18 @@
     };
   }
 
+  function mediaControlTargetElement(
+    element: HTMLElement,
+    surface: HTMLElement,
+  ): HTMLElement {
+    const youtubeButton = element.closest<HTMLElement>(".ytp-button");
+    if (youtubeButton && surface.contains(youtubeButton)) {
+      return youtubeButton;
+    }
+
+    return element;
+  }
+
   function isSafeMediaControlCandidate(
     candidate: SafariKeyboardNavigationMediaControlCandidate,
   ): boolean {
@@ -1222,7 +1368,7 @@
   ): HintPosition | null {
     const ownRect = visibleRectForElement(element);
     if (ownRect) {
-      return ownRect;
+      return centerTopHintPositionForElement(element, ownRect);
     }
 
     return visibleContentRectForElement(element);
@@ -1265,6 +1411,21 @@
     }
 
     return null;
+  }
+
+  function centerTopHintPositionForElement(
+    element: Element,
+    fallback: HintPosition,
+  ): HintPosition {
+    const rect = element.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
+      return fallback;
+    }
+
+    return {
+      left: clamp(rect.left + rect.width / 2, 0, window.innerWidth - 1),
+      top: clamp(rect.top, 0, window.innerHeight - 1),
+    };
   }
 
   function intersectsViewport(rect: DOMRect): boolean {
@@ -1365,15 +1526,32 @@
       0,
       Math.min(window.innerHeight - 1, rect.top + rect.height / 2),
     );
-    const event = new MouseEvent("mousemove", {
-      bubbles: true,
-      cancelable: true,
-      clientX,
-      clientY,
-      view: window,
-    });
+    for (const type of ["mouseover", "mouseenter", "mousemove"]) {
+      element.dispatchEvent(
+        new MouseEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX,
+          clientY,
+          view: window,
+        }),
+      );
+    }
 
-    element.dispatchEvent(event);
+    if (typeof PointerEvent === "function") {
+      for (const type of ["pointerover", "pointerenter", "pointermove"]) {
+        element.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            clientX,
+            clientY,
+            pointerType: "mouse",
+            view: window,
+          }),
+        );
+      }
+    }
   }
 
   function activateLinkTarget(
