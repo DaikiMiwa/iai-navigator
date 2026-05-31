@@ -86,6 +86,8 @@
     textarea("allowlist").value = settings.siteAccess.allowlist.join("\n");
     textarea("blocklist").value = settings.siteAccess.blocklist.join("\n");
     select("search-engine").value = settings.commandPalette.searchEngine;
+    input("custom-search-url-template").value =
+      settings.commandPalette.customSearchUrlTemplate;
 
     for (const [name, shortcutInput] of shortcutInputs) {
       shortcutInput.value = settings.shortcuts[name];
@@ -108,6 +110,7 @@
     const nextSettings = settingsApi.normalizeExtensionSettings({
       enabled: input("enabled").checked,
       commandPalette: {
+        customSearchUrlTemplate: input("custom-search-url-template").value,
         searchEngine: select("search-engine").value,
       },
       hintStyle: {

@@ -574,6 +574,34 @@ test("adds direct URL and search results for open palette queries", () => {
     duckDuckGoResults[0].url,
     "https://duckduckgo.com/?q=private%20search",
   );
+
+  const customResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "private search",
+    {
+      customSearchUrlTemplate: "https://search.example.com/?q={query}",
+      includeGenerated: true,
+      searchEngine: "custom",
+    },
+  );
+
+  assert.equal(customResults[0].subtitle, "Custom Search");
+  assert.equal(
+    customResults[0].url,
+    "https://search.example.com/?q=private%20search",
+  );
+
+  const unsafeCustomResults = searchPaletteResults(
+    { bookmarks: [], history: [], tabs: [] },
+    "private search",
+    {
+      customSearchUrlTemplate: "javascript:alert({query})",
+      includeGenerated: true,
+      searchEngine: "custom",
+    },
+  );
+
+  assert.equal(unsafeCustomResults[0].subtitle, "Google Search");
 });
 
 test("filters generated palette results by generated kind", () => {

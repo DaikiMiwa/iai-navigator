@@ -31,7 +31,7 @@ The extension does not:
 - record typed text from input fields;
 - sync settings to a developer-controlled backend.
 
-Settings, recent command palette queries, and the local observed-page and selected-destination index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. Users can forget individual recalled palette queries and extension-owned local visit results from the command palette. User-entered web searches leave the device only when the user chooses the generated search result, and then only to the configured search engine. Generated web search results are not stored in the local destination index.
+Settings, recent command palette queries, and the local observed-page and selected-destination index are intended to be stored in Safari extension storage on the user's device. Command palette search results are generated on demand and are not synced to a developer-controlled service. Users can forget individual recalled palette queries and extension-owned local visit results from the command palette. User-entered web searches leave the device only when the user chooses the generated search result, and then only to the configured search engine or custom search URL template. Generated web search results are not stored in the local destination index.
 
 ## Website Access Modes
 

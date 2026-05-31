@@ -4,6 +4,7 @@
     const SETTINGS_VERSION = 1;
     const DEFAULT_EXTENSION_SETTINGS = {
         commandPalette: {
+            customSearchUrlTemplate: "",
             searchEngine: "google",
         },
         enabled: true,
@@ -87,6 +88,7 @@
         const defaultSettings = DEFAULT_EXTENSION_SETTINGS;
         return {
             commandPalette: {
+                customSearchUrlTemplate: customSearchUrlTemplateSetting(candidate.commandPalette?.customSearchUrlTemplate, defaultSettings.commandPalette.customSearchUrlTemplate),
                 searchEngine: searchEngineSetting(candidate.commandPalette?.searchEngine, defaultSettings.commandPalette.searchEngine),
             },
             enabled: typeof candidate.enabled === "boolean"
@@ -248,9 +250,28 @@
             case "duckduckgo":
             case "brave":
             case "kagi":
+            case "custom":
                 return value;
             default:
                 return fallback;
+        }
+    }
+    function customSearchUrlTemplateSetting(value, fallback) {
+        if (typeof value !== "string") {
+            return fallback;
+        }
+        const template = value.trim();
+        if (!template || template.length > 2048 || !template.includes("{query}")) {
+            return "";
+        }
+        try {
+            const url = new URL(template.split("{query}").join("test"));
+            return url.protocol === "http:" || url.protocol === "https:"
+                ? template
+                : "";
+        }
+        catch {
+            return "";
         }
     }
 })();

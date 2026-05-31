@@ -44,6 +44,7 @@ test("normalizes missing and invalid settings to defaults", () => {
 
   assert.equal(settings.enabled, DEFAULT_EXTENSION_SETTINGS.enabled);
   assert.equal(settings.commandPalette.searchEngine, "google");
+  assert.equal(settings.commandPalette.customSearchUrlTemplate, "");
   assert.equal(settings.hintStyle.fontSize, 28);
   assert.equal(settings.hintStyle.opacity, 1);
   assert.equal(settings.hintStyle.textColor, "#111111");
@@ -75,6 +76,28 @@ test("normalizes command palette search engine settings", () => {
       commandPalette: { searchEngine: "not-a-search-engine" },
     }).commandPalette.searchEngine,
     DEFAULT_EXTENSION_SETTINGS.commandPalette.searchEngine,
+  );
+
+  const customSettings = normalizeExtensionSettings({
+    commandPalette: {
+      customSearchUrlTemplate: " https://search.example.com/?q={query} ",
+      searchEngine: "custom",
+    },
+  }).commandPalette;
+  assert.equal(customSettings.searchEngine, "custom");
+  assert.equal(
+    customSettings.customSearchUrlTemplate,
+    "https://search.example.com/?q={query}",
+  );
+
+  assert.equal(
+    normalizeExtensionSettings({
+      commandPalette: {
+        customSearchUrlTemplate: "javascript:alert({query})",
+        searchEngine: "custom",
+      },
+    }).commandPalette.customSearchUrlTemplate,
+    "",
   );
 });
 
