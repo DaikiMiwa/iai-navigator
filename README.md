@@ -24,13 +24,14 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - Command palette extension commands include page history actions plus tab operations such as New tab, Duplicate current tab, Previous/Next tab, and Close current tab.
-- Command palette commands also match aliases such as `nt`, `dup`, `close tab`, `options`, and `gg`.
+- Command palette commands also match aliases such as `nt`, `dup`, `close tab`, `options`, `gg`, and `ge`.
 - Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, and `k:` force Google, DuckDuckGo, Brave Search, and Kagi for a single query.
 - Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
 - Palette destination queries can target fields with `title:<term>`, `url:<term>`, and `domain:<term>` / `host:<term>`, including phrases and negative filters such as `title:"project docs" domain:github.com -url:archive`.
 - `Option+C` copies the selected command palette browser destination URL without opening it.
 - `Option+Y` copies the selected command palette browser destination as a Markdown link without opening it.
 - `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
+- The `Edit current URL` command puts the current page address back into the input as `url: ...` so it can be edited before opening.
 - `Option+D` narrows the command palette query to the selected destination's domain without closing the palette.
 - `Option+F` narrows the command palette query to the selected destination's title without closing the palette.
 - `Option+Backspace` forgets the selected local visit result, removes the selected history result, or forgets the currently recalled palette query.
@@ -143,6 +144,7 @@ Useful checks:
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
 - Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
 - In the palette, type `back`, `forward`, `prev tab`, or `next tab` and verify the selected command runs the matching navigation or tab-switch action.
+- In the palette, type `ge` or `edit current url`, activate the command, and verify the input changes to `url: <current page URL>` without closing the palette.
 - In the palette, type `"project docs"` to verify the phrase is matched as one term, and type `docs -archive` to verify matching archive destinations are excluded.
 - In the palette, type `title:"project docs" domain:github.com -url:archive` to verify destination results can be narrowed by title, URL, and domain fields.
 - In the palette, type `u: example.com` and verify only a direct URL result appears; type `s: example.com` and verify only a web search result appears. Repeat with the long `url:` and `search:` prefixes.

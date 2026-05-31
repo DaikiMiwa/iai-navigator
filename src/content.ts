@@ -74,6 +74,7 @@
     | "show-hints"
     | "show-new-tab-hints"
     | "copy-url"
+    | "edit-current-url"
     | "history-back"
     | "history-forward"
     | "new-tab"
@@ -277,6 +278,12 @@
       subtitle: "Copy this page address to the clipboard",
     },
     {
+      aliases: ["edit url", "edit address", "current url", "ge"],
+      id: "edit-current-url",
+      title: "Edit current URL",
+      subtitle: "Put this page address in the palette input before opening",
+    },
+    {
       aliases: ["back", "go back", "history back", "h"],
       id: "history-back",
       title: "Go back",
@@ -401,6 +408,7 @@
     commandPaletteApplyPrefixValue,
     commandPaletteCommandIds,
     commandPaletteCommandSearchIds,
+    commandPaletteCurrentUrlEditValue,
     commandPaletteDomainFilterValue,
     commandPaletteEditableResultValue,
     commandPaletteHistoryNavigation,
@@ -1983,6 +1991,19 @@
     };
   }
 
+  function commandPaletteCurrentUrlEditValue(href: string): string | null {
+    try {
+      const url = new URL(href.trim());
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        return null;
+      }
+
+      return `url: ${url.toString()}`;
+    } catch {
+      return null;
+    }
+  }
+
   function commandPaletteFilterPhraseValue(value: string | undefined): string {
     return (value ?? "").replace(/"/g, " ").replace(/\s+/g, " ").trim();
   }
@@ -2172,6 +2193,11 @@
 
     const disposition = dispositionOverride ?? commandPaletteState.disposition;
     const query = commandPaletteState.input.value;
+    if (result.kind === "command" && result.command === "edit-current-url") {
+      executeLocalPaletteCommand(result.command);
+      return;
+    }
+
     if (
       commandPaletteShouldCloseAfterActivation({
         disposition,
@@ -2644,6 +2670,9 @@
       case "copy-url":
         void copyCurrentUrl();
         return;
+      case "edit-current-url":
+        editCurrentUrlInCommandPalette();
+        return;
       case "history-back":
         navigateHistory("back");
         return;
@@ -2674,6 +2703,27 @@
         void openExtensionSettings();
         return;
     }
+  }
+
+  function editCurrentUrlInCommandPalette(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const nextValue = commandPaletteCurrentUrlEditValue(location.href);
+    if (!nextValue) {
+      showUrlCopyToast("Current URL cannot be edited");
+      return;
+    }
+
+    commandPaletteState.input.value = nextValue;
+    commandPaletteState.input.setSelectionRange(
+      nextValue.length,
+      nextValue.length,
+    );
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
   }
 
   async function executeBrowserPaletteResult(
