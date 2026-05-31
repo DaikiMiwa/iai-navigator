@@ -8,6 +8,7 @@ const {
   isExtensionEnabledForUrl,
   isShortcutEvent,
   normalizeExtensionSettings,
+  shortcutKeySequence,
   shortcutSequence,
 } = globalThis.SafariKeyboardNavigationSettings;
 
@@ -56,6 +57,7 @@ test("normalizes missing and invalid settings to defaults", () => {
   assert.equal(settings.shortcuts.commandPalette, "o");
   assert.equal(settings.shortcuts.commandPaletteNewTab, "Shift+O");
   assert.equal(settings.shortcuts.editCurrentUrlPalette, "ge");
+  assert.equal(settings.shortcuts.editCurrentUrlPaletteNewTab, "gE");
   assert.equal(settings.shortcuts.bookmarkPalette, "b");
   assert.equal(settings.shortcuts.bookmarkPaletteNewTab, "Shift+B");
   assert.equal(settings.shortcuts.historyPalette, "v");
@@ -128,8 +130,30 @@ test("matches single-key and shifted shortcut events", () => {
 test("returns plain shortcut sequences for multi-key commands", () => {
   assert.deepEqual(shortcutSequence("gg"), ["g", "g"]);
   assert.deepEqual(shortcutSequence("ge"), ["g", "e"]);
+  assert.deepEqual(shortcutSequence("gE"), ["g", "e"]);
   assert.deepEqual(shortcutSequence("yy"), ["y", "y"]);
   assert.equal(shortcutSequence("Shift+F"), null);
+});
+
+test("returns shifted key-aware shortcut sequences", () => {
+  assert.deepEqual(shortcutKeySequence("gg"), [
+    { key: "g", shiftKey: false },
+    { key: "g", shiftKey: false },
+  ]);
+  assert.deepEqual(shortcutKeySequence("ge"), [
+    { key: "g", shiftKey: false },
+    { key: "e", shiftKey: false },
+  ]);
+  assert.deepEqual(shortcutKeySequence("gE"), [
+    { key: "g", shiftKey: false },
+    { key: "e", shiftKey: true },
+  ]);
+  assert.deepEqual(shortcutKeySequence("GE"), [
+    { key: "g", shiftKey: true },
+    { key: "e", shiftKey: true },
+  ]);
+  assert.equal(shortcutKeySequence("Shift+F"), null);
+  assert.equal(shortcutKeySequence("Alt+g"), null);
 });
 
 test("applies site access mode and blocklist rules", () => {

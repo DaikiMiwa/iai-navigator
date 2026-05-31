@@ -152,7 +152,10 @@
     frameId: number;
   }
 
-  type PageSequenceAction = "top" | "edit-current-url-palette";
+  type PageSequenceAction =
+    | "top"
+    | "edit-current-url-palette"
+    | "edit-current-url-palette-new-tab";
 
   type ScrollAxis = "x" | "y";
   type ScrollSurface = Window | Element;
@@ -427,7 +430,9 @@
   let hintState: HintState | null = null;
   let helpState: HelpState | null = null;
   let commandPaletteState: CommandPaletteState | null = null;
-  let pendingPageSequence: { key: string; startedAt: number } | null = null;
+  let pendingPageSequence:
+    | (ShortcutSequenceKey & { startedAt: number })
+    | null = null;
   let lastYPressAt = 0;
   let urlCopyToastTimer = 0;
   let movementState: MovementState | null = null;
@@ -2748,7 +2753,7 @@
     void refreshCommandPaletteResults();
   }
 
-  function openCurrentUrlEditPalette(): void {
+  function openCurrentUrlEditPalette(disposition: PaletteDisposition): void {
     const initialQuery = commandPaletteCurrentUrlEditValue(location.href);
     if (!initialQuery) {
       showUrlCopyToast("Current URL cannot be edited");
@@ -2756,7 +2761,7 @@
     }
 
     openCommandPalette({
-      disposition: "current-tab",
+      disposition,
       generatedKinds: ["url"],
       includeCommands: false,
       includeGenerated: true,
@@ -3932,19 +3937,16 @@
   function pageSequenceActionForEvent(
     event: KeyboardEvent,
   ): PageSequenceAction | "pending" | null {
-    if (
-      event.repeat ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey
-    ) {
+    if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
       pendingPageSequence = null;
       return null;
     }
 
     const now = performance.now();
-    const key = event.key.toLowerCase();
+    const key: ShortcutSequenceKey = {
+      key: event.key.toLowerCase(),
+      shiftKey: event.shiftKey,
+    };
     const candidates = pageSequenceCandidates();
 
     if (
@@ -3953,8 +3955,12 @@
     ) {
       const match = candidates.find(
         (candidate) =>
-          candidate.sequence[0] === pendingPageSequence?.key &&
-          candidate.sequence[1] === key,
+          pendingPageSequence &&
+          shortcutSequenceKeyMatches(
+            candidate.sequence[0],
+            pendingPageSequence,
+          ) &&
+          shortcutSequenceKeyMatches(candidate.sequence[1], key),
       );
       pendingPageSequence = null;
       if (match) {
@@ -3962,15 +3968,15 @@
       }
     }
 
-    const startsSequence = candidates.some(
-      (candidate) => candidate.sequence[0] === key,
+    const startsSequence = candidates.some((candidate) =>
+      shortcutSequenceKeyMatches(candidate.sequence[0], key),
     );
     if (!startsSequence) {
       pendingPageSequence = null;
       return null;
     }
 
-    pendingPageSequence = { key, startedAt: now };
+    pendingPageSequence = { ...key, startedAt: now };
     window.setTimeout(() => {
       if (
         pendingPageSequence &&
@@ -3985,20 +3991,28 @@
 
   function pageSequenceCandidates(): Array<{
     action: PageSequenceAction;
-    sequence: string[];
+    sequence: ShortcutSequenceKey[];
   }> {
     const candidates: Array<{
       action: PageSequenceAction;
-      sequence: string[] | null;
+      sequence: ShortcutSequenceKey[] | null;
     }> = [
       {
         action: "top",
-        sequence: settingsApi.shortcutSequence(extensionSettings.shortcuts.top),
+        sequence: settingsApi.shortcutKeySequence(
+          extensionSettings.shortcuts.top,
+        ),
       },
       {
         action: "edit-current-url-palette",
-        sequence: settingsApi.shortcutSequence(
+        sequence: settingsApi.shortcutKeySequence(
           extensionSettings.shortcuts.editCurrentUrlPalette,
+        ),
+      },
+      {
+        action: "edit-current-url-palette-new-tab",
+        sequence: settingsApi.shortcutKeySequence(
+          extensionSettings.shortcuts.editCurrentUrlPaletteNewTab,
         ),
       },
     ];
@@ -4008,6 +4022,13 @@
         ? [{ action: candidate.action, sequence: candidate.sequence }]
         : [],
     );
+  }
+
+  function shortcutSequenceKeyMatches(
+    expected: ShortcutSequenceKey,
+    actual: ShortcutSequenceKey,
+  ): boolean {
+    return expected.key === actual.key && expected.shiftKey === actual.shiftKey;
   }
 
   function handlePageSequenceAction(
@@ -4020,7 +4041,10 @@
         scrollToTop();
         return;
       case "edit-current-url-palette":
-        openCurrentUrlEditPalette();
+        openCurrentUrlEditPalette("current-tab");
+        return;
+      case "edit-current-url-palette-new-tab":
+        openCurrentUrlEditPalette("new-tab");
         return;
     }
   }
