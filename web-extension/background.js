@@ -448,7 +448,7 @@
         }
         const haystack = `${title} ${url}`.toLowerCase();
         const terms = query.split(/\s+/).filter(Boolean);
-        if (!terms.every((term) => haystack.includes(term))) {
+        if (!terms.every((term) => paletteTermMatches(term, haystack))) {
             return null;
         }
         const titleLower = title.toLowerCase();
@@ -466,8 +466,42 @@
             if (urlLower.includes(term)) {
                 return score + 20;
             }
-            return score;
+            const titleFuzzyScore = fuzzyMatchScore(term, titleLower);
+            const urlFuzzyScore = fuzzyMatchScore(term, urlLower);
+            return score + Math.max(titleFuzzyScore ?? 0, urlFuzzyScore ?? 0);
         }, 0);
+    }
+    function paletteTermMatches(term, haystack) {
+        return haystack.includes(term) || fuzzyMatchScore(term, haystack) !== null;
+    }
+    function fuzzyMatchScore(term, haystack) {
+        if (!term) {
+            return 0;
+        }
+        let termIndex = 0;
+        let previousMatchIndex = -1;
+        let score = 0;
+        for (let index = 0; index < haystack.length; index += 1) {
+            if (haystack[index] !== term[termIndex]) {
+                continue;
+            }
+            score += index === previousMatchIndex + 1 ? 3 : 1;
+            if (isWordBoundary(haystack, index)) {
+                score += 2;
+            }
+            previousMatchIndex = index;
+            termIndex += 1;
+            if (termIndex === term.length) {
+                return score;
+            }
+        }
+        return null;
+    }
+    function isWordBoundary(value, index) {
+        if (index === 0) {
+            return true;
+        }
+        return /[\s/._:#?-]/.test(value[index - 1] ?? "");
     }
     function normalizePaletteQuery(query) {
         return query.trim().toLowerCase();
