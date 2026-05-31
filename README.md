@@ -27,6 +27,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+C` copies the selected command palette browser destination URL without opening it.
 - `Option+Backspace` forgets the selected local visit result, or the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
+- `Option+1` through `Option+9` activate the corresponding visible command palette result.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
@@ -132,6 +133,7 @@ Useful checks:
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, or the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
+- In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
 - Press `b` / `Shift+B` and verify only bookmarks are searched, with `Shift+B` opening the selected bookmark in a new foreground tab.

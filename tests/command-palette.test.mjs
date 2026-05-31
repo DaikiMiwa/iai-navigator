@@ -117,6 +117,18 @@ test("maps command palette activation keys", () => {
     commandPaletteKeyAction(key({ altKey: true, key: "W" })),
     "close-tab",
   );
+  assert.deepEqual(
+    commandPaletteKeyAction(key({ altKey: true, code: "Digit1", key: "1" })),
+    { kind: "activate-index", index: 0 },
+  );
+  assert.deepEqual(
+    commandPaletteKeyAction(key({ altKey: true, code: "Digit9", key: "9" })),
+    { kind: "activate-index", index: 8 },
+  );
+  assert.deepEqual(
+    commandPaletteKeyAction(key({ altKey: true, code: "Digit3", key: "£" })),
+    { kind: "activate-index", index: 2 },
+  );
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "Backspace" })),
     "forget-palette-entry",
@@ -138,6 +150,13 @@ test("maps command palette activation keys", () => {
 test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
+  assert.equal(commandPaletteKeyAction(key({ key: "1" })), null);
+  assert.equal(
+    commandPaletteKeyAction(
+      key({ altKey: true, code: "Digit1", key: "1", shiftKey: true }),
+    ),
+    null,
+  );
 });
 
 test("describes command palette activation and source-prefix hints", () => {
@@ -148,6 +167,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+C/);
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
+  assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
