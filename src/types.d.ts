@@ -93,6 +93,7 @@ interface SafariKeyboardNavigationShortcutSettings {
   historyForward: string;
   commandPalette: string;
   commandPaletteNewTab: string;
+  editCurrentUrlPalette: string;
   bookmarkPalette: string;
   bookmarkPaletteNewTab: string;
   historyPalette: string;

@@ -90,6 +90,7 @@ test("lists the supported shortcut groups in the help overlay", () => {
     "Shift+K",
     "r",
     "yy",
+    "ge",
     "?",
     "Esc",
   ]) {

@@ -22,6 +22,7 @@
         ["historyForward", "History forward"],
         ["commandPalette", "Command palette"],
         ["commandPaletteNewTab", "Command palette in new tab"],
+        ["editCurrentUrlPalette", "Edit current URL palette"],
         ["bookmarkPalette", "Bookmark palette"],
         ["bookmarkPaletteNewTab", "Bookmark palette in new tab"],
         ["historyPalette", "History palette"],

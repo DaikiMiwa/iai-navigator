@@ -16,6 +16,7 @@
     | "historyForward"
     | "commandPalette"
     | "commandPaletteNewTab"
+    | "editCurrentUrlPalette"
     | "bookmarkPalette"
     | "bookmarkPaletteNewTab"
     | "historyPalette"
@@ -48,6 +49,7 @@
         copyUrl: "yy",
         commandPalette: "o",
         commandPaletteNewTab: "Shift+O",
+        editCurrentUrlPalette: "ge",
         bookmarkPalette: "b",
         bookmarkPaletteNewTab: "Shift+B",
         historyPalette: "v",
@@ -94,6 +96,7 @@
     "historyForward",
     "commandPalette",
     "commandPaletteNewTab",
+    "editCurrentUrlPalette",
     "bookmarkPalette",
     "bookmarkPaletteNewTab",
     "historyPalette",

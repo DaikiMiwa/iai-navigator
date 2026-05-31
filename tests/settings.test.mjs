@@ -55,6 +55,7 @@ test("normalizes missing and invalid settings to defaults", () => {
   );
   assert.equal(settings.shortcuts.commandPalette, "o");
   assert.equal(settings.shortcuts.commandPaletteNewTab, "Shift+O");
+  assert.equal(settings.shortcuts.editCurrentUrlPalette, "ge");
   assert.equal(settings.shortcuts.bookmarkPalette, "b");
   assert.equal(settings.shortcuts.bookmarkPaletteNewTab, "Shift+B");
   assert.equal(settings.shortcuts.historyPalette, "v");
@@ -114,6 +115,7 @@ test("matches single-key and shifted shortcut events", () => {
 
 test("returns plain shortcut sequences for multi-key commands", () => {
   assert.deepEqual(shortcutSequence("gg"), ["g", "g"]);
+  assert.deepEqual(shortcutSequence("ge"), ["g", "e"]);
   assert.deepEqual(shortcutSequence("yy"), ["y", "y"]);
   assert.equal(shortcutSequence("Shift+F"), null);
 });
