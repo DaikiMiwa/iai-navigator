@@ -193,6 +193,7 @@ type CommandPaletteNamedKeyAction =
   | "first"
   | "last"
   | "clear-query"
+  | "delete-previous-word"
   | "activate-current-tab"
   | "activate-new-tab"
   | "activate-background-tab"
@@ -305,6 +306,18 @@ interface CommandPaletteTitleFilterCandidate {
   title?: string;
 }
 
+interface CommandPaletteDeletePreviousWordCandidate {
+  selectionEnd: number;
+  selectionStart: number;
+  value: string;
+}
+
+interface CommandPaletteDeletePreviousWordResult {
+  selectionEnd: number;
+  selectionStart: number;
+  value: string;
+}
+
 interface SafariKeyboardNavigationCommandPalette {
   COMMAND_PALETTE_FOOTER_HINTS: readonly string[];
   commandPaletteApplyPrefixValue(
@@ -323,6 +336,9 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
+  commandPaletteDeletePreviousWordValue(
+    candidate: CommandPaletteDeletePreviousWordCandidate,
+  ): CommandPaletteDeletePreviousWordResult;
   commandPaletteMarkdownLinkValue(
     result: CommandPaletteMarkdownResultCandidate,
   ): string | null;

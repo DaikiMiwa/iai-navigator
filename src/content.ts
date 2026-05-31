@@ -356,6 +356,7 @@
     "Option+W close tab",
     "Option+1-9 open result",
     "Ctrl+J/K move",
+    "Ctrl+U/W edit",
     "Option+↑/↓ query history",
     "Option+A/T/B/H/V/S/U/M source",
     "tab: book: history: visit: search: g: ddg: br: k: url: cmd:",
@@ -404,6 +405,7 @@
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
     commandPaletteKeyAction,
+    commandPaletteDeletePreviousWordValue,
     commandPaletteMarkdownLinkValue,
     commandPaletteNextIndexAfterActivation,
     commandPaletteQueryScope,
@@ -1199,6 +1201,14 @@
       return "clear-query";
     }
 
+    if (
+      candidate.ctrlKey &&
+      !candidate.altKey &&
+      candidate.key.toLowerCase() === "w"
+    ) {
+      return "delete-previous-word";
+    }
+
     if (candidate.key === "Enter") {
       if (candidate.altKey) {
         return "activate-background-tab";
@@ -1292,6 +1302,9 @@
         return;
       case "clear-query":
         clearCommandPaletteQuery();
+        return;
+      case "delete-previous-word":
+        deleteCommandPalettePreviousWord();
         return;
       case "activate-current-tab":
         activateCommandPaletteSelection();
@@ -1742,6 +1755,26 @@
     void refreshCommandPaletteResults();
   }
 
+  function deleteCommandPalettePreviousWord(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const input = commandPaletteState.input;
+    const selectionStart = input.selectionStart ?? input.value.length;
+    const selectionEnd = input.selectionEnd ?? selectionStart;
+    const next = commandPaletteDeletePreviousWordValue({
+      selectionEnd,
+      selectionStart,
+      value: input.value,
+    });
+    input.value = next.value;
+    input.setSelectionRange(next.selectionStart, next.selectionEnd);
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
+  }
+
   function appendCommandPaletteHighlightedText(
     element: HTMLElement,
     value: string,
@@ -1882,6 +1915,54 @@
     const prefix = commandPaletteSourcePrefixForValue(value);
     const nextQuery = `title:"${title}"`;
     return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
+  }
+
+  function commandPaletteDeletePreviousWordValue(
+    candidate: CommandPaletteDeletePreviousWordCandidate,
+  ): CommandPaletteDeletePreviousWordResult {
+    const selectionStart = clamp(
+      Math.min(candidate.selectionStart, candidate.selectionEnd),
+      0,
+      candidate.value.length,
+    );
+    const selectionEnd = clamp(
+      Math.max(candidate.selectionStart, candidate.selectionEnd),
+      0,
+      candidate.value.length,
+    );
+
+    if (selectionStart !== selectionEnd) {
+      return {
+        selectionEnd: selectionStart,
+        selectionStart,
+        value:
+          candidate.value.slice(0, selectionStart) +
+          candidate.value.slice(selectionEnd),
+      };
+    }
+
+    let deleteStart = selectionStart;
+    while (
+      deleteStart > 0 &&
+      /\s/.test(candidate.value.charAt(deleteStart - 1))
+    ) {
+      deleteStart -= 1;
+    }
+
+    while (
+      deleteStart > 0 &&
+      !/\s/.test(candidate.value.charAt(deleteStart - 1))
+    ) {
+      deleteStart -= 1;
+    }
+
+    return {
+      selectionEnd: deleteStart,
+      selectionStart: deleteStart,
+      value:
+        candidate.value.slice(0, deleteStart) +
+        candidate.value.slice(selectionEnd),
+    };
   }
 
   function commandPaletteFilterPhraseValue(value: string | undefined): string {
