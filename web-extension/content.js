@@ -12,6 +12,7 @@
     const scroll = maybeScroll;
     const settingsApi = maybeSettings;
     const HELP_OVERLAY_ID = "skne-help-overlay";
+    const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
     const NATIVE_HINT_TARGET_SELECTOR = "a[href], button, input, select, textarea";
     const MENU_TRIGGER_TARGET_SELECTOR = [
         "[aria-haspopup]",
@@ -81,6 +82,10 @@
         isSupportedPdfCandidate,
         isSupportedWebPageCandidate,
     };
+    globalThis.SafariKeyboardNavigationMediaReveal = {
+        isRevealableMediaControlsCandidate,
+        shouldPreRevealMediaControlsCandidate,
+    };
     let hintState = null;
     let helpState = null;
     let lastGPressAt = 0;
@@ -89,6 +94,7 @@
     let movementState = null;
     let menuRevealTimer = 0;
     let extensionSettings = settingsApi.DEFAULT_EXTENSION_SETTINGS;
+    const revealedMediaControlSurfaces = new Set();
     initializeExtensionSettings();
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
@@ -154,7 +160,7 @@
         if (isUrlCopyCommand(event)) {
             event.preventDefault();
             event.stopPropagation();
-            handleUrlCopyCommand();
+            handleUrlCopyCommand(event);
             return;
         }
         clearUrlCopySequence();
@@ -216,7 +222,7 @@
         if (isTopCommand(event)) {
             event.preventDefault();
             event.stopPropagation();
-            handleTopCommand();
+            handleTopCommand(event);
             return;
         }
         if (isBottomCommand(event)) {
@@ -341,10 +347,18 @@
         return (candidate.contentType === "application/pdf" ||
             /\.pdf(?:[?#]|$)/i.test(candidate.href));
     }
-    function startHintMode(activationMode) {
+    function startHintMode(activationMode, options = {}) {
         cancelPendingMenuReveal();
+        if (options.allowMediaControlPreReveal !== false &&
+            revealMediaControlsBeforeHintCollection(activationMode)) {
+            scheduleMenuRevealStep(() => {
+                startHintMode(activationMode, { allowMediaControlPreReveal: false });
+            }, MEDIA_SURFACE_RESCAN_DELAY_MS);
+            return;
+        }
         const targets = collectHintTargets(activationMode);
         if (targets.length === 0) {
+            clearRevealedMediaControlSurfaces();
             return;
         }
         const hintValues = hints.generateHints(targets.length);
@@ -357,7 +371,10 @@
         const entries = targets.map((target, index) => {
             const hint = hintValues[index];
             const label = document.createElement("span");
-            label.className = "skne-hint";
+            label.className =
+                target.kind === "media-control"
+                    ? "skne-hint skne-hint-media-control"
+                    : "skne-hint";
             label.dataset.hint = hint;
             label.style.left = `${Math.round(target.rect.left)}px`;
             label.style.top = `${Math.round(target.rect.top)}px`;
@@ -431,6 +448,7 @@
         }
         hintState.overlay.remove();
         hintState = null;
+        clearRevealedMediaControlSurfaces();
         cancelPendingMenuReveal();
         window.removeEventListener("scroll", cancelHintMode, true);
         window.removeEventListener("resize", cancelHintMode, true);
@@ -628,16 +646,18 @@
                 continue;
             }
             for (const element of surface.querySelectorAll(MEDIA_CONTROL_TARGET_SELECTOR)) {
-                if (seen.has(element) || !isVisibleMediaControlTarget(element)) {
+                const targetElement = mediaControlTargetElement(element, surface);
+                if (seen.has(targetElement) ||
+                    !isVisibleMediaControlTarget(targetElement)) {
                     continue;
                 }
-                const rect = visibleRectForMediaControlTarget(element);
+                const rect = visibleRectForMediaControlTarget(targetElement);
                 if (!rect) {
                     continue;
                 }
-                seen.add(element);
+                seen.add(targetElement);
                 addedControl = true;
-                targets.push({ kind: "media-control", element, rect });
+                targets.push({ kind: "media-control", element: targetElement, rect });
             }
         }
         return addedControl;
@@ -700,6 +720,68 @@
     }
     function isVisibleMediaSurfaceTarget(element) {
         return isVisibleElementWithAncestors(element) && hasMediaElement(element);
+    }
+    function revealMediaControlsBeforeHintCollection(activationMode) {
+        const surfaces = revealableMediaSurfaceTargets();
+        if (!shouldPreRevealMediaControlsCandidate({
+            activationMode,
+            hasRevealableMediaSurfaces: surfaces.length > 0,
+            hasVisibleMediaControls: hasVisibleMediaControlTargets(),
+        })) {
+            return false;
+        }
+        for (const surface of surfaces) {
+            revealMediaControlSurface(surface);
+            dispatchMediaSurfaceRevealEvent(surface);
+        }
+        return true;
+    }
+    function shouldPreRevealMediaControlsCandidate(candidate) {
+        return (candidate.activationMode === "current-tab" &&
+            candidate.hasRevealableMediaSurfaces);
+    }
+    function isRevealableMediaControlsCandidate(candidate) {
+        return (candidate.activationMode === "current-tab" &&
+            candidate.hasRevealableMediaSurfaces &&
+            !candidate.hasVisibleMediaControls);
+    }
+    function hasVisibleMediaControlTargets() {
+        for (const surface of document.querySelectorAll(MEDIA_CONTROL_SURFACE_SELECTOR)) {
+            if (!isVisibleElementWithAncestors(surface)) {
+                continue;
+            }
+            for (const element of surface.querySelectorAll(MEDIA_CONTROL_TARGET_SELECTOR)) {
+                if (isVisibleMediaControlTarget(element) &&
+                    visibleRectForMediaControlTarget(element)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    function revealableMediaSurfaceTargets() {
+        const surfaces = [];
+        const seen = new Set();
+        for (const element of document.querySelectorAll(MEDIA_SURFACE_TARGET_SELECTOR)) {
+            if (seen.has(element) || !isVisibleMediaSurfaceTarget(element)) {
+                continue;
+            }
+            seen.add(element);
+            surfaces.push(element);
+        }
+        return surfaces;
+    }
+    function revealMediaControlSurface(element) {
+        document.documentElement.classList.add(MEDIA_CONTROLS_REVEALED_CLASS);
+        element.classList.add(MEDIA_CONTROLS_REVEALED_CLASS);
+        revealedMediaControlSurfaces.add(element);
+    }
+    function clearRevealedMediaControlSurfaces() {
+        document.documentElement.classList.remove(MEDIA_CONTROLS_REVEALED_CLASS);
+        for (const surface of revealedMediaControlSurfaces) {
+            surface.classList.remove(MEDIA_CONTROLS_REVEALED_CLASS);
+        }
+        revealedMediaControlSurfaces.clear();
     }
     function isVisibleSemanticActionTarget(element) {
         if (!isVisibleElement(element) ||
@@ -805,6 +887,13 @@
             tagName,
         };
     }
+    function mediaControlTargetElement(element, surface) {
+        const youtubeButton = element.closest(".ytp-button");
+        if (youtubeButton && surface.contains(youtubeButton)) {
+            return youtubeButton;
+        }
+        return element;
+    }
     function isSafeMediaControlCandidate(candidate) {
         if (!candidate.isInMediaControlSurface ||
             candidate.isAriaDisabled ||
@@ -853,7 +942,7 @@
     function visibleRectForMediaControlTarget(element) {
         const ownRect = visibleRectForElement(element);
         if (ownRect) {
-            return ownRect;
+            return centerTopHintPositionForElement(element, ownRect);
         }
         return visibleContentRectForElement(element);
     }
@@ -885,6 +974,16 @@
             };
         }
         return null;
+    }
+    function centerTopHintPositionForElement(element, fallback) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0 || !intersectsViewport(rect)) {
+            return fallback;
+        }
+        return {
+            left: clamp(rect.left + rect.width / 2, 0, window.innerWidth - 1),
+            top: clamp(rect.top, 0, window.innerHeight - 1),
+        };
     }
     function intersectsViewport(rect) {
         return (rect.right > 0 &&
@@ -956,14 +1055,27 @@
         const rect = element.getBoundingClientRect();
         const clientX = Math.max(0, Math.min(window.innerWidth - 1, rect.left + rect.width / 2));
         const clientY = Math.max(0, Math.min(window.innerHeight - 1, rect.top + rect.height / 2));
-        const event = new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-            clientX,
-            clientY,
-            view: window,
-        });
-        element.dispatchEvent(event);
+        for (const type of ["mouseover", "mouseenter", "mousemove"]) {
+            element.dispatchEvent(new MouseEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                clientX,
+                clientY,
+                view: window,
+            }));
+        }
+        if (typeof PointerEvent === "function") {
+            for (const type of ["pointerover", "pointerenter", "pointermove"]) {
+                element.dispatchEvent(new PointerEvent(type, {
+                    bubbles: true,
+                    cancelable: true,
+                    clientX,
+                    clientY,
+                    pointerType: "mouse",
+                    view: window,
+                }));
+            }
+        }
     }
     function activateLinkTarget(element, activationMode) {
         if (activationMode === "new-tab") {
@@ -1209,24 +1321,30 @@
     }
     function isTopCommand(event) {
         const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.top);
+        const key = event.key.toLowerCase();
         return (!event.repeat &&
             sequence?.length === 2 &&
-            event.key.toLowerCase() === sequence[0]);
+            (key === sequence[0] ||
+                isPendingSequenceKey(lastGPressAt, key, sequence, TOP_SEQUENCE_WINDOW_MS)));
     }
-    function handleTopCommand() {
+    function handleTopCommand(event) {
         const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.top);
         if (!sequence || sequence.length !== 2) {
             return;
         }
         const now = performance.now();
-        if (now - lastGPressAt <= TOP_SEQUENCE_WINDOW_MS &&
-            sequence[1] === sequence[0]) {
+        const key = event.key.toLowerCase();
+        if (isPendingSequenceKey(lastGPressAt, key, sequence, TOP_SEQUENCE_WINDOW_MS)) {
             lastGPressAt = 0;
             const surface = findScrollSurface({ key: "g", dx: 0, dy: -1, speedX: 0, speedY: 0 }, { requireCanMove: false });
             scrollToSurfacePosition(surface, {
                 top: 0,
                 left: currentScrollX(surface),
             });
+            return;
+        }
+        if (key !== sequence[0]) {
+            lastGPressAt = 0;
             return;
         }
         lastGPressAt = now;
@@ -1238,23 +1356,29 @@
     }
     function isUrlCopyCommand(event) {
         const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.copyUrl);
+        const key = event.key.toLowerCase();
         return (!event.repeat &&
             sequence?.length === 2 &&
-            event.key.toLowerCase() === sequence[0]);
+            (key === sequence[0] ||
+                isPendingSequenceKey(lastYPressAt, key, sequence, URL_COPY_SEQUENCE_WINDOW_MS)));
     }
     function isUrlCopyCancelCommand(event) {
         return lastYPressAt !== 0 && event.key === "Escape";
     }
-    function handleUrlCopyCommand() {
+    function handleUrlCopyCommand(event) {
         const sequence = settingsApi.shortcutSequence(extensionSettings.shortcuts.copyUrl);
         if (!sequence || sequence.length !== 2) {
             return;
         }
         const now = performance.now();
-        if (now - lastYPressAt <= URL_COPY_SEQUENCE_WINDOW_MS &&
-            sequence[1] === sequence[0]) {
+        const key = event.key.toLowerCase();
+        if (isPendingSequenceKey(lastYPressAt, key, sequence, URL_COPY_SEQUENCE_WINDOW_MS)) {
             clearUrlCopySequence();
             void copyCurrentUrl();
+            return;
+        }
+        if (key !== sequence[0]) {
+            clearUrlCopySequence();
             return;
         }
         lastYPressAt = now;
@@ -1266,6 +1390,11 @@
     }
     function clearUrlCopySequence() {
         lastYPressAt = 0;
+    }
+    function isPendingSequenceKey(startedAt, key, sequence, windowMs) {
+        return (startedAt !== 0 &&
+            performance.now() - startedAt <= windowMs &&
+            key === sequence[1]);
     }
     async function copyCurrentUrl() {
         stopMovement();

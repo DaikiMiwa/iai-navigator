@@ -149,6 +149,21 @@ interface SafariKeyboardNavigationSettingsApi {
   shortcutSequence(shortcut: string): string[] | null;
 }
 
+interface SafariKeyboardNavigationMediaControlRevealCandidate {
+  activationMode: "current-tab" | "new-tab";
+  hasRevealableMediaSurfaces: boolean;
+  hasVisibleMediaControls: boolean;
+}
+
+interface SafariKeyboardNavigationMediaReveal {
+  isRevealableMediaControlsCandidate(
+    candidate: SafariKeyboardNavigationMediaControlRevealCandidate,
+  ): boolean;
+  shouldPreRevealMediaControlsCandidate(
+    candidate: SafariKeyboardNavigationMediaControlRevealCandidate,
+  ): boolean;
+}
+
 interface ScrollSurfaceCandidate {
   id: string;
   kind: "probe" | "window" | "visible";

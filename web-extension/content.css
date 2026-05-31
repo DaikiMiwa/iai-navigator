@@ -32,6 +32,17 @@
   box-shadow: 0 1px 3px rgb(0 0 0 / 32%);
 }
 
+#skne-hint-overlay .skne-hint-media-control {
+  min-width: 22px;
+  min-height: 20px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 15px;
+  line-height: 1.05;
+  transform: translate(-50%, -85%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 38%);
+}
+
 #skne-hint-overlay .skne-hint[data-hidden="true"] {
   display: none;
 }
@@ -176,6 +187,30 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 1.35;
+}
+
+.html5-video-player.skne-media-controls-revealed .ytp-chrome-top,
+.html5-video-player.skne-media-controls-revealed .ytp-chrome-bottom,
+.html5-video-player.skne-media-controls-revealed .ytp-gradient-top,
+.html5-video-player.skne-media-controls-revealed .ytp-gradient-bottom,
+#movie_player.skne-media-controls-revealed .ytp-chrome-top,
+#movie_player.skne-media-controls-revealed .ytp-chrome-bottom,
+#movie_player.skne-media-controls-revealed .ytp-gradient-top,
+#movie_player.skne-media-controls-revealed .ytp-gradient-bottom,
+html.skne-media-controls-revealed .html5-video-player .ytp-chrome-top,
+html.skne-media-controls-revealed .html5-video-player .ytp-chrome-bottom,
+html.skne-media-controls-revealed .html5-video-player .ytp-gradient-top,
+html.skne-media-controls-revealed .html5-video-player .ytp-gradient-bottom,
+html.skne-media-controls-revealed #movie_player .ytp-chrome-top,
+html.skne-media-controls-revealed #movie_player .ytp-chrome-bottom,
+html.skne-media-controls-revealed #movie_player .ytp-gradient-top,
+html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
+  /* biome-ignore lint/complexity/noImportantStyles: YouTube autohide uses page-level player chrome styles that the extension must override while hint mode is active. */
+  opacity: 1 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: YouTube autohide uses page-level player chrome styles that the extension must override while hint mode is active. */
+  pointer-events: auto !important;
+  /* biome-ignore lint/complexity/noImportantStyles: YouTube autohide uses page-level player chrome styles that the extension must override while hint mode is active. */
+  visibility: visible !important;
 }
 
 @media (max-width: 520px) {

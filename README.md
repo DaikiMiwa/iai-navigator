@@ -86,7 +86,7 @@ Useful checks:
 - Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
 - Completing hints for semantic custom controls fires normal click/focus behavior.
 - Completing hints for visible media controls fires normal click/focus behavior.
-- On a YouTube watch page, visible play/pause, mute, captions, settings, theater/miniplayer, and fullscreen controls receive hints; when controls are hidden, choosing the player-surface hint should reveal controls and rescan where Safari and YouTube accept the synthetic reveal event.
+- On a YouTube watch page, pressing `f` should reveal hidden player controls before collecting hints where Safari and YouTube accept the synthetic reveal event; visible play/pause, mute, captions, settings, theater/miniplayer, and fullscreen controls receive hints.
 - Disabled, hidden, and offscreen controls do not receive hints.
 - Wrapped links receive one hint.
 - Hidden links do not receive hints.
