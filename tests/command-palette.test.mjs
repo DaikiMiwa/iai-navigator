@@ -107,6 +107,14 @@ test("maps command palette navigation keys", () => {
     "next",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "i" })),
+    "next",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "I" })),
+    "next",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "j" })),
     "next",
   );
@@ -514,6 +522,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
+  assert.match(hints, /Tab\/Ctrl\+I/);
   assert.match(hints, /Ctrl\+J\/K/);
   assert.match(hints, /Ctrl\+F\/B/);
   assert.match(hints, /Ctrl\+A\/D\/E\/H\/L\/U\/W/);

@@ -384,6 +384,7 @@
     "Option+⌫ forget local/query",
     "Option+W close tab",
     "Option+1-9 open result",
+    "Tab/Ctrl+I next",
     "Ctrl+J/K move",
     "Ctrl+F/B page",
     "Ctrl+A/D/E/H/L/U/W edit",
@@ -1290,6 +1291,7 @@
     if (
       candidate.key === "ArrowDown" ||
       (candidate.ctrlKey && candidate.key.toLowerCase() === "n") ||
+      (candidate.ctrlKey && candidate.key.toLowerCase() === "i") ||
       (candidate.ctrlKey && candidate.key.toLowerCase() === "j") ||
       (candidate.key === "Tab" && !candidate.shiftKey)
     ) {
