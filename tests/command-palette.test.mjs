@@ -37,6 +37,8 @@ const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteIsImeConfirmEnter } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteDeleteNextCharacterValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteDeletePreviousCharacterValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteDeletePreviousWordValue } =
@@ -184,6 +186,14 @@ test("maps command palette navigation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "L" })),
     "select-query",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "d" })),
+    "delete-next-character",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "D" })),
+    "delete-next-character",
   );
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "h" })),
@@ -506,7 +516,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
   assert.match(hints, /Ctrl\+F\/B/);
-  assert.match(hints, /Ctrl\+A\/E\/H\/L\/U\/W/);
+  assert.match(hints, /Ctrl\+A\/D\/E\/H\/L\/U\/W/);
   assert.match(hints, /Option\+R/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/M/);
@@ -843,6 +853,41 @@ test("deletes the previous command palette character", () => {
       value: "docs",
     }),
     { selectionEnd: 3, selectionStart: 3, value: "doc" },
+  );
+});
+
+test("deletes the next command palette character", () => {
+  assert.deepEqual(
+    commandPaletteDeleteNextCharacterValue({
+      selectionEnd: 0,
+      selectionStart: 0,
+      value: "docs",
+    }),
+    { selectionEnd: 0, selectionStart: 0, value: "ocs" },
+  );
+  assert.deepEqual(
+    commandPaletteDeleteNextCharacterValue({
+      selectionEnd: 13,
+      selectionStart: 5,
+      value: "book: project docs",
+    }),
+    { selectionEnd: 5, selectionStart: 5, value: "book: docs" },
+  );
+  assert.deepEqual(
+    commandPaletteDeleteNextCharacterValue({
+      selectionEnd: 4,
+      selectionStart: 4,
+      value: "docs",
+    }),
+    { selectionEnd: 4, selectionStart: 4, value: "docs" },
+  );
+  assert.deepEqual(
+    commandPaletteDeleteNextCharacterValue({
+      selectionEnd: 999,
+      selectionStart: 999,
+      value: "docs",
+    }),
+    { selectionEnd: 4, selectionStart: 4, value: "docs" },
   );
 });
 
