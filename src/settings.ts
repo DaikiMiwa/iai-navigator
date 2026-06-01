@@ -264,6 +264,10 @@
       return false;
     }
 
+    if (event.isComposing || event.keyCode === 229) {
+      return false;
+    }
+
     return (
       event.altKey === parsed.altKey &&
       event.ctrlKey === parsed.ctrlKey &&

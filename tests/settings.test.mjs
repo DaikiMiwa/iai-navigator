@@ -16,7 +16,9 @@ function keyboardEvent(overrides = {}) {
   return {
     altKey: false,
     ctrlKey: false,
+    isComposing: false,
     key: "",
+    keyCode: 0,
     metaKey: false,
     repeat: false,
     shiftKey: false,
@@ -125,6 +127,17 @@ test("matches single-key and shifted shortcut events", () => {
     true,
   );
   assert.equal(isShortcutEvent(keyboardEvent({ key: "f" }), "Shift+F"), false);
+});
+
+test("does not match shortcut events that belong to IME composition", () => {
+  assert.equal(
+    isShortcutEvent(keyboardEvent({ isComposing: true, key: "o" }), "o"),
+    false,
+  );
+  assert.equal(
+    isShortcutEvent(keyboardEvent({ key: "o", keyCode: 229 }), "o"),
+    false,
+  );
 });
 
 test("returns plain shortcut sequences for multi-key commands", () => {

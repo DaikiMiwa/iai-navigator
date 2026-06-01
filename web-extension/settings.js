@@ -166,6 +166,9 @@
         if (!options.allowRepeat && event.repeat) {
             return false;
         }
+        if (event.isComposing || event.keyCode === 229) {
+            return false;
+        }
         return (event.altKey === parsed.altKey &&
             event.ctrlKey === parsed.ctrlKey &&
             event.metaKey === parsed.metaKey &&
