@@ -187,7 +187,7 @@
         "Ctrl+J/K move",
         "Ctrl+F/V/B page",
         "Ctrl+A/D/E/H/L/U/W edit",
-        "Option+R refresh",
+        "Ctrl+R/Option+R refresh",
         "Option+↑/↓ query history",
         "Option+A/T/B/H/V/S/M source",
         "Shift+Option+U URL source",
@@ -976,7 +976,8 @@
         if (candidate.altKey && candidate.key.toLowerCase() === "u") {
             return "narrow-to-url";
         }
-        if (candidate.altKey && candidate.key.toLowerCase() === "r") {
+        if ((candidate.altKey || (candidate.ctrlKey && !candidate.altKey)) &&
+            candidate.key.toLowerCase() === "r") {
             return "refresh-results";
         }
         if (candidate.altKey && candidate.key.toLowerCase() === "w") {
