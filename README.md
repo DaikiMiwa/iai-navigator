@@ -46,6 +46,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
 - `Ctrl+m` activates the selected command palette result like `Enter`; `Ctrl+[` and `Ctrl+g` close the palette like `Esc`.
+- `Ctrl+i` moves to the next command palette result like `Tab`.
 - `Ctrl+j` and `Ctrl+k` move the command palette selection down and up while plain `j` and `k` keep typing into the input.
 - `Ctrl+f` and `Ctrl+b` move the command palette selection by a page without leaving the input.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
@@ -169,7 +170,7 @@ Useful checks:
 - In the palette, type `title:"project docs" domain:github.com -url:archive` to verify destination results can be narrowed by title, URL, and domain fields.
 - In the palette, type `u: example.com` and verify only a direct URL result appears; type `s: example.com` and verify only a web search result appears. Repeat with the long `url:` and `search:` prefixes.
 - In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, `k:`, `yt:`, and `w:`.
-- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette. Verify `PageDown` / `PageUp` move by a larger step, `Home` / `End` jump to the first and last result, and the selected row stays visible while moving through a long result list.
+- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Ctrl+i`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette. Verify `PageDown` / `PageUp` move by a larger step, `Home` / `End` jump to the first and last result, and the selected row stays visible while moving through a long result list.
 - In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
 - In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it, keeps the palette open, and moves selection to the next result.
 - In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
@@ -182,7 +183,7 @@ Useful checks:
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
 - In the palette, verify `Ctrl+m` activates the selected result like `Enter`, and `Ctrl+[` / `Ctrl+g` close the palette like `Esc`.
-- In the palette, verify `Ctrl+j` and `Ctrl+k` move the selected result down and up, while plain `j` and `k` type into the input.
+- In the palette, verify `Ctrl+i` moves to the next selected result like `Tab`, and verify `Ctrl+j` and `Ctrl+k` move the selected result down and up while plain `j` and `k` type into the input.
 - In the palette, verify `Ctrl+f` and `Ctrl+b` page the selected result down and up while focus stays in the input.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - In the palette, type `book: project docs`, press `Ctrl+a`, and verify the caret moves to the beginning without changing the query. Press `Ctrl+e` and verify the caret moves to the end.
