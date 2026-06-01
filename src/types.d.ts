@@ -554,6 +554,7 @@ interface WebExtensionHistoryItem {
   lastVisitTime?: number;
   title?: string;
   url?: string;
+  visitCount?: number;
 }
 
 interface WebExtensionHistoryQuery {

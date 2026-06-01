@@ -25,6 +25,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
 - The default `o` palette can surface recent bookmark suggestions before typing, alongside open tabs, recent history, and locally observed destinations.
 - The `v` history palette shows recent history before typing, with locally observed pages as a fallback when browser history does not return empty-query results.
+- History results are ranked with a bounded visit-frequency boost in addition to recency, so frequently opened destinations are easier to reach.
 - The empty `o` / `Shift+O` palette can show recent palette queries; choosing one fills the input and reruns that search without closing the palette.
 - `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
 - `gE` opens the command palette with the current page URL prefilled as `url: ...` and defaults activation to a new foreground tab.
