@@ -384,6 +384,7 @@
     "Option+W close tab",
     "Option+1-9 open result",
     "Ctrl+J/K move",
+    "Ctrl+F/B page",
     "Ctrl+A/E/L/U/W edit",
     "Option+R refresh",
     "Option+↑/↓ query history",
@@ -1281,11 +1282,21 @@
       return "previous";
     }
 
-    if (candidate.key === "PageDown") {
+    if (
+      candidate.key === "PageDown" ||
+      (candidate.ctrlKey &&
+        !candidate.altKey &&
+        candidate.key.toLowerCase() === "f")
+    ) {
       return "page-next";
     }
 
-    if (candidate.key === "PageUp") {
+    if (
+      candidate.key === "PageUp" ||
+      (candidate.ctrlKey &&
+        !candidate.altKey &&
+        candidate.key.toLowerCase() === "b")
+    ) {
       return "page-previous";
     }
 
