@@ -808,6 +808,39 @@ test("shows recent history for empty history-only palette queries", () => {
   assert.equal(results[0]?.title, "Recent History");
 });
 
+test("boosts history palette results by visit frequency", () => {
+  const now = Date.now();
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [
+        {
+          id: "history-recent",
+          lastVisitTime: now,
+          title: "Docs",
+          url: "https://example.com/recent-docs",
+          visitCount: 1,
+        },
+        {
+          id: "history-frequent",
+          lastVisitTime: now / 2,
+          title: "Docs",
+          url: "https://example.com/frequent-docs",
+          visitCount: 20,
+        },
+      ],
+      tabs: [],
+    },
+    "docs",
+    { sources: ["history"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.url),
+    ["https://example.com/frequent-docs", "https://example.com/recent-docs"],
+  );
+});
+
 test("can use local visits as recent history fallback items", () => {
   const historyItems = localVisitsAsHistoryItems([
     {

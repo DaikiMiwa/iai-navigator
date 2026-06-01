@@ -589,11 +589,14 @@
         const recencyBoost = historyItem.lastVisitTime
             ? Math.min(8, Math.max(0, historyItem.lastVisitTime / Date.now()) * 8)
             : 0;
+        const frequencyBoost = typeof historyItem.visitCount === "number"
+            ? Math.min(6, Math.max(0, historyItem.visitCount))
+            : 0;
         return [
             {
                 id: `history:${historyItem.id}`,
                 kind: "history",
-                score: score + recencyBoost,
+                score: score + recencyBoost + frequencyBoost,
                 subtitle: historyItem.url,
                 title,
                 url: historyItem.url,
