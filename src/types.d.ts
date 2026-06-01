@@ -264,7 +264,9 @@ interface CommandPaletteKeyCandidate {
   altKey: boolean;
   code?: string;
   ctrlKey: boolean;
+  ignoreNextEnterAfterComposition?: boolean;
   isComposing?: boolean;
+  isComposingQuery?: boolean;
   key: string;
   keyCode?: number;
   metaKey: boolean;
@@ -357,6 +359,9 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteKeyAction(
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null;
+  commandPaletteIsImeConfirmEnter(
+    candidate: CommandPaletteKeyCandidate,
+  ): boolean;
   commandPaletteDeletePreviousWordValue(
     candidate: CommandPaletteDeletePreviousWordCandidate,
   ): CommandPaletteDeletePreviousWordResult;

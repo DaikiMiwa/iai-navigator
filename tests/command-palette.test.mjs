@@ -35,6 +35,8 @@ await import("../web-extension/content.js");
 
 const { commandPaletteKeyAction } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteIsImeConfirmEnter } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteDeletePreviousWordValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteMarkdownLinkValue } =
@@ -177,7 +179,27 @@ test("maps command palette activation keys", () => {
     null,
   );
   assert.equal(
+    commandPaletteKeyAction(
+      key({ isComposingQuery: true, key: "Enter", keyCode: 13 }),
+    ),
+    null,
+  );
+  assert.equal(
+    commandPaletteKeyAction(
+      key({
+        ignoreNextEnterAfterComposition: true,
+        key: "Enter",
+        keyCode: 13,
+      }),
+    ),
+    null,
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ isComposing: true, key: "a" })),
+    null,
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ isComposing: true, key: "ArrowDown" })),
     null,
   );
   assert.equal(
@@ -319,6 +341,41 @@ test("maps command palette activation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "ArrowDown" })),
     "history-next",
+  );
+});
+
+test("detects IME confirmation Enter variants", () => {
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(key({ isComposing: true, key: "Enter" })),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(key({ key: "Enter", keyCode: 229 })),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(
+      key({ isComposingQuery: true, key: "Enter", keyCode: 13 }),
+    ),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(
+      key({
+        ignoreNextEnterAfterComposition: true,
+        key: "Enter",
+        keyCode: 13,
+      }),
+    ),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(key({ key: "Enter", keyCode: 13 })),
+    false,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(key({ isComposing: true, key: "a" })),
+    false,
   );
 });
 
