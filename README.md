@@ -45,6 +45,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
+- `Ctrl+m` activates the selected command palette result like `Enter`; `Ctrl+[` closes the palette like `Esc`.
 - `Ctrl+j` and `Ctrl+k` move the command palette selection down and up while plain `j` and `k` keep typing into the input.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
 - `Ctrl+a` and `Ctrl+e` move the command palette input caret to the beginning and end without changing the query.
@@ -175,6 +176,7 @@ Useful checks:
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
+- In the palette, verify `Ctrl+m` activates the selected result like `Enter`, and `Ctrl+[` closes the palette like `Esc`.
 - In the palette, verify `Ctrl+j` and `Ctrl+k` move the selected result down and up, while plain `j` and `k` type into the input.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
 - In the palette, type `book: project docs`, press `Ctrl+a`, and verify the caret moves to the beginning without changing the query. Press `Ctrl+e` and verify the caret moves to the end.

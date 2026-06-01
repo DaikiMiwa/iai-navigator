@@ -189,6 +189,14 @@ test("maps command palette activation keys", () => {
     "activate-background-tab",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ key: "m", ctrlKey: true })),
+    "activate-current-tab",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ key: "M", ctrlKey: true })),
+    "activate-current-tab",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ isComposing: true, key: "Enter" })),
     null,
   );
@@ -399,6 +407,10 @@ test("detects IME confirmation Enter variants", () => {
 
 test("maps command palette close and ignores text input keys", () => {
   assert.equal(commandPaletteKeyAction(key({ key: "Escape" })), "close");
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "[" })),
+    "close",
+  );
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "j" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "k" })), null);
@@ -414,6 +426,9 @@ test("maps command palette close and ignores text input keys", () => {
 test("describes command palette activation and source-prefix hints", () => {
   const hints = COMMAND_PALETTE_FOOTER_HINTS.join(" ");
   assert.match(hints, /Enter/);
+  assert.match(hints, /Ctrl\+M/);
+  assert.match(hints, /Esc/);
+  assert.match(hints, /Ctrl\+\[/);
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);
