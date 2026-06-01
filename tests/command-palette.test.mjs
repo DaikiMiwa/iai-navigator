@@ -239,6 +239,16 @@ test("maps command palette activation keys", () => {
   assert.equal(
     commandPaletteKeyAction(
       key({
+        hasPendingImeConfirmation: true,
+        key: "Enter",
+        keyCode: 13,
+      }),
+    ),
+    null,
+  );
+  assert.equal(
+    commandPaletteKeyAction(
+      key({
         ignoreNextEnterAfterComposition: true,
         key: "Enter",
         keyCode: 13,
@@ -408,6 +418,16 @@ test("detects IME confirmation Enter variants", () => {
   assert.equal(
     commandPaletteIsImeConfirmEnter(
       key({ isComposingQuery: true, key: "Enter", keyCode: 13 }),
+    ),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(
+      key({
+        hasPendingImeConfirmation: true,
+        key: "Enter",
+        keyCode: 13,
+      }),
     ),
     true,
   );
