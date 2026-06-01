@@ -43,6 +43,8 @@ const { commandPaletteDomainFilterValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteTitleFilterValue } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteUrlFilterValue } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteNextIndexAfterActivation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteApplyPrefixValue } =
@@ -219,6 +221,18 @@ test("maps command palette activation keys", () => {
     "narrow-to-title",
   );
   assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "u" })),
+    "narrow-to-url",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ altKey: true, key: "U" })),
+    "narrow-to-url",
+  );
+  assert.deepEqual(
+    commandPaletteKeyAction(key({ altKey: true, key: "U", shiftKey: true })),
+    { kind: "apply-prefix", prefix: "url" },
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ altKey: true, key: "r" })),
     "refresh-results",
   );
@@ -332,6 +346,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+E/);
   assert.match(hints, /Option\+D/);
   assert.match(hints, /Option\+F/);
+  assert.match(hints, /Option\+U/);
   assert.match(hints, /Option\+⌫/);
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
@@ -339,7 +354,8 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Ctrl\+U\/W/);
   assert.match(hints, /Option\+R/);
   assert.match(hints, /Option\+↑\/↓/);
-  assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/U\/M/);
+  assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/M/);
+  assert.match(hints, /Shift\+Option\+U/);
   assert.match(hints, /tab:/);
   assert.match(hints, /book:/);
   assert.match(hints, /history:/);
@@ -564,6 +580,45 @@ test("formats command palette title filter values", () => {
     null,
   );
   assert.equal(commandPaletteTitleFilterValue("docs", { title: "  " }), null);
+});
+
+test("formats command palette URL filter values", () => {
+  assert.equal(
+    commandPaletteUrlFilterValue("docs", {
+      kind: "history",
+      url: "https://example.com/docs",
+    }),
+    "url:https://example.com/docs",
+  );
+  assert.equal(
+    commandPaletteUrlFilterValue("book: docs", {
+      kind: "bookmark",
+      url: "https://docs.example.com/path?q=1",
+    }),
+    "book: url:https://docs.example.com/path?q=1",
+  );
+  assert.equal(
+    commandPaletteUrlFilterValue("url: https://example.com", {
+      kind: "url",
+      url: "https://docs.example.com/path",
+    }),
+    "url:https://docs.example.com/path",
+  );
+  assert.equal(
+    commandPaletteUrlFilterValue("docs", {
+      kind: "command",
+      url: "https://example.com/options",
+    }),
+    null,
+  );
+  assert.equal(
+    commandPaletteUrlFilterValue("docs", {
+      kind: "history",
+      url: "javascript:alert(1)",
+    }),
+    null,
+  );
+  assert.equal(commandPaletteUrlFilterValue("docs", {}), null);
 });
 
 test("deletes the previous command palette word", () => {

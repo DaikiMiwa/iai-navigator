@@ -214,6 +214,7 @@ type CommandPaletteNamedKeyAction =
   | "edit-result-url"
   | "narrow-to-domain"
   | "narrow-to-title"
+  | "narrow-to-url"
   | "forget-palette-entry"
   | "close-tab"
   | "history-previous"
@@ -320,6 +321,11 @@ interface CommandPaletteTitleFilterCandidate {
   title?: string;
 }
 
+interface CommandPaletteUrlFilterCandidate {
+  kind?: string;
+  url?: string;
+}
+
 interface CommandPaletteDeletePreviousWordCandidate {
   selectionEnd: number;
   selectionStart: number;
@@ -364,6 +370,10 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteTitleFilterValue(
     value: string,
     result: CommandPaletteTitleFilterCandidate,
+  ): string | null;
+  commandPaletteUrlFilterValue(
+    value: string,
+    result: CommandPaletteUrlFilterCandidate,
   ): string | null;
   commandPaletteQueryScope(
     query: string,

@@ -375,6 +375,7 @@
     "Option+E edit URL",
     "Option+D same domain",
     "Option+F title filter",
+    "Option+U URL filter",
     "Option+⌫ forget local/query",
     "Option+W close tab",
     "Option+1-9 open result",
@@ -382,7 +383,8 @@
     "Ctrl+U/W edit",
     "Option+R refresh",
     "Option+↑/↓ query history",
-    "Option+A/T/B/H/V/S/U/M source",
+    "Option+A/T/B/H/V/S/M source",
+    "Shift+Option+U URL source",
     "tab: book: history: visit: search: g: ddg: br: k: yt: w: url: cmd:",
   ] as const;
   const COMMAND_PALETTE_GENERATED_KINDS: PaletteGeneratedKind[] = [
@@ -437,6 +439,7 @@
     recentPaletteQueryResultTitles,
     commandPaletteShouldCloseAfterActivation,
     commandPaletteTitleFilterValue,
+    commandPaletteUrlFilterValue,
   };
 
   let hintState: HintState | null = null;
@@ -1275,6 +1278,18 @@
       return "narrow-to-title";
     }
 
+    if (
+      candidate.altKey &&
+      candidate.shiftKey &&
+      candidate.key.toLowerCase() === "u"
+    ) {
+      return { kind: "apply-prefix", prefix: "url" };
+    }
+
+    if (candidate.altKey && candidate.key.toLowerCase() === "u") {
+      return "narrow-to-url";
+    }
+
     if (candidate.altKey && candidate.key.toLowerCase() === "r") {
       return "refresh-results";
     }
@@ -1372,6 +1387,9 @@
         return;
       case "narrow-to-title":
         narrowCommandPaletteSelectionToTitle();
+        return;
+      case "narrow-to-url":
+        narrowCommandPaletteSelectionToUrl();
         return;
       case "forget-palette-entry":
         void forgetCommandPaletteEntry();
@@ -2023,6 +2041,33 @@
     return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
   }
 
+  function commandPaletteUrlFilterValue(
+    value: string,
+    result: CommandPaletteUrlFilterCandidate,
+  ): string | null {
+    if (result.kind === "command") {
+      return null;
+    }
+
+    const url = result.url?.trim();
+    if (!url) {
+      return null;
+    }
+
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+
+    const prefix = commandPaletteSourcePrefixForValue(value);
+    const nextQuery = `url:${url}`;
+    return prefix ? `${prefix}: ${nextQuery}` : nextQuery;
+  }
+
   function commandPaletteDeletePreviousWordValue(
     candidate: CommandPaletteDeletePreviousWordCandidate,
   ): CommandPaletteDeletePreviousWordResult {
@@ -2482,6 +2527,35 @@
     );
     if (!nextValue) {
       showUrlCopyToast("No title to filter");
+      return;
+    }
+
+    commandPaletteState.input.value = nextValue;
+    commandPaletteState.input.setSelectionRange(
+      commandPaletteState.input.value.length,
+      commandPaletteState.input.value.length,
+    );
+    commandPaletteState.historyCursor = null;
+    commandPaletteState.inputBeforeHistory = "";
+    void refreshCommandPaletteResults();
+  }
+
+  function narrowCommandPaletteSelectionToUrl(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const result = commandPaletteState.results[commandPaletteState.activeIndex];
+    if (!result) {
+      return;
+    }
+
+    const nextValue = commandPaletteUrlFilterValue(
+      commandPaletteState.input.value,
+      { kind: result.kind, url: "url" in result ? result.url : undefined },
+    );
+    if (!nextValue) {
+      showUrlCopyToast("No URL to filter");
       return;
     }
 
