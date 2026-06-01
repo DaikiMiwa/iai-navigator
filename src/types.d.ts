@@ -270,12 +270,14 @@ interface CommandPaletteKeyCandidate {
   code?: string;
   ctrlKey: boolean;
   hasPendingImeConfirmation?: boolean;
+  hasImeRiskFromOpeningShortcut?: boolean;
   ignoreNextEnterAfterComposition?: boolean;
   isComposing?: boolean;
   isComposingQuery?: boolean;
   key: string;
   keyCode?: number;
   metaKey: boolean;
+  query?: string;
   shiftKey: boolean;
 }
 

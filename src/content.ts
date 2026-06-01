@@ -125,6 +125,7 @@
     historyCursor: number | null;
     includeCommands: boolean;
     includeGenerated: boolean;
+    hasImeRiskFromOpeningShortcut: boolean;
     input: HTMLInputElement;
     inputBeforeHistory: string;
     isComposingQuery: boolean;
@@ -1084,6 +1085,7 @@
   function openCommandPalette(options: {
     disposition: PaletteDisposition;
     generatedKinds: PaletteGeneratedKind[];
+    hasImeRiskFromOpeningShortcut?: boolean;
     includeCommands: boolean;
     includeGenerated: boolean;
     initialQuery?: string;
@@ -1129,6 +1131,8 @@
       generatedKinds: options.generatedKinds,
       history: [],
       historyCursor: null,
+      hasImeRiskFromOpeningShortcut:
+        options.hasImeRiskFromOpeningShortcut ?? false,
       includeCommands: options.includeCommands,
       includeGenerated: options.includeGenerated,
       input,
@@ -1225,12 +1229,14 @@
       altKey: event.altKey,
       ctrlKey: event.ctrlKey,
       hasPendingImeConfirmation: state.hasPendingImeConfirmation,
+      hasImeRiskFromOpeningShortcut: state.hasImeRiskFromOpeningShortcut,
       ignoreNextEnterAfterComposition: state.ignoreNextEnterAfterComposition,
       isComposing: event.isComposing,
       isComposingQuery: state.isComposingQuery,
       key: event.key,
       keyCode: event.keyCode,
       metaKey: event.metaKey,
+      query: state.input.value,
       shiftKey: event.shiftKey,
     };
 
@@ -1245,8 +1251,13 @@
         state.sawEnterDuringComposition = true;
       }
       state.hasPendingImeConfirmation = false;
+      state.hasImeRiskFromOpeningShortcut = false;
       state.ignoreNextEnterAfterComposition = false;
       return;
+    }
+
+    if (event.key === "Enter") {
+      state.hasImeRiskFromOpeningShortcut = false;
     }
 
     const action = commandPaletteKeyAction(candidate);
@@ -1476,8 +1487,14 @@
         candidate.keyCode === 229 ||
         candidate.hasPendingImeConfirmation === true ||
         candidate.isComposingQuery === true ||
-        candidate.ignoreNextEnterAfterComposition === true)
+        candidate.ignoreNextEnterAfterComposition === true ||
+        (candidate.hasImeRiskFromOpeningShortcut === true &&
+          commandPaletteQueryLooksImeGenerated(candidate.query ?? "")))
     );
+  }
+
+  function commandPaletteQueryLooksImeGenerated(query: string): boolean {
+    return [...query].some((character) => character.charCodeAt(0) > 0x7f);
   }
 
   function commandPaletteInputEventIsComposing(event: Event): boolean {
@@ -4796,12 +4813,16 @@
   function commandPaletteOptionsForEvent(event: KeyboardEvent): {
     disposition: PaletteDisposition;
     generatedKinds: PaletteGeneratedKind[];
+    hasImeRiskFromOpeningShortcut?: boolean;
     includeCommands: boolean;
     includeGenerated: boolean;
     initialQuery?: string;
     placeholder: string;
     sources: PaletteSource[];
   } | null {
+    const hasImeRiskFromOpeningShortcut =
+      commandPaletteOpeningShortcutHasImeRisk(event);
+
     if (
       settingsApi.isShortcutEvent(
         event,
@@ -4811,6 +4832,7 @@
       return {
         disposition: "current-tab",
         generatedKinds: COMMAND_PALETTE_GENERATED_KINDS,
+        hasImeRiskFromOpeningShortcut,
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Search tabs, bookmarks, history, commands, URLs",
@@ -4827,6 +4849,7 @@
       return {
         disposition: "new-tab",
         generatedKinds: COMMAND_PALETTE_GENERATED_KINDS,
+        hasImeRiskFromOpeningShortcut,
         includeCommands: true,
         includeGenerated: true,
         placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
@@ -4843,6 +4866,7 @@
       return {
         disposition: "current-tab",
         generatedKinds: [],
+        hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Search bookmarks",
@@ -4859,6 +4883,7 @@
       return {
         disposition: "new-tab",
         generatedKinds: [],
+        hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Open bookmark in new tab",
@@ -4875,6 +4900,7 @@
       return {
         disposition: "current-tab",
         generatedKinds: [],
+        hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Search recent history",
@@ -4891,6 +4917,7 @@
       return {
         disposition: "new-tab",
         generatedKinds: [],
+        hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Open recent history in new tab",
@@ -4904,6 +4931,7 @@
       return {
         disposition: "current-tab",
         generatedKinds: [],
+        hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
         placeholder: "Search open tabs",
@@ -4912,6 +4940,17 @@
     }
 
     return null;
+  }
+
+  function commandPaletteOpeningShortcutHasImeRisk(
+    event: KeyboardEvent,
+  ): boolean {
+    return (
+      event.key.length === 1 &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey
+    );
   }
 
   function navigateHistory(direction: "back" | "forward"): void {
