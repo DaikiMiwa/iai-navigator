@@ -130,7 +130,23 @@ test("maps command palette navigation keys", () => {
   );
   assert.equal(commandPaletteKeyAction(key({ key: "PageDown" })), "page-next");
   assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "f" })),
+    "page-next",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "F" })),
+    "page-next",
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ key: "PageUp" })),
+    "page-previous",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "b" })),
+    "page-previous",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "B" })),
     "page-previous",
   );
   assert.equal(commandPaletteKeyAction(key({ key: "Home" })), "first");
@@ -451,6 +467,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
+  assert.match(hints, /Ctrl\+F\/B/);
   assert.match(hints, /Ctrl\+A\/E\/L\/U\/W/);
   assert.match(hints, /Option\+R/);
   assert.match(hints, /Option\+↑\/↓/);
