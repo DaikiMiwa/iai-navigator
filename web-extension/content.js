@@ -185,7 +185,7 @@
         "Option+1-9 open result",
         "Ctrl+J/K move",
         "Ctrl+F/B page",
-        "Ctrl+A/E/L/U/W edit",
+        "Ctrl+A/E/H/L/U/W edit",
         "Option+R refresh",
         "Option+↑/↓ query history",
         "Option+A/T/B/H/V/S/M source",
@@ -215,6 +215,7 @@
         commandPaletteCommandIds,
         commandPaletteCommandSearchIds,
         commandPaletteCurrentUrlEditValue,
+        commandPaletteDeletePreviousCharacterValue,
         commandPaletteDomainFilterValue,
         commandPaletteEditableResultValue,
         commandPaletteHistoryNavigation,
@@ -922,6 +923,11 @@
         }
         if (candidate.ctrlKey &&
             !candidate.altKey &&
+            candidate.key.toLowerCase() === "h") {
+            return "delete-previous-character";
+        }
+        if (candidate.ctrlKey &&
+            !candidate.altKey &&
             candidate.key.toLowerCase() === "w") {
             return "delete-previous-word";
         }
@@ -1030,6 +1036,9 @@
                 return;
             case "clear-query":
                 clearCommandPaletteQuery();
+                return;
+            case "delete-previous-character":
+                deleteCommandPalettePreviousCharacter();
                 return;
             case "delete-previous-word":
                 deleteCommandPalettePreviousWord();
@@ -1447,6 +1456,24 @@
         commandPaletteState.inputBeforeHistory = "";
         void refreshCommandPaletteResults();
     }
+    function deleteCommandPalettePreviousCharacter() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const input = commandPaletteState.input;
+        const selectionStart = input.selectionStart ?? input.value.length;
+        const selectionEnd = input.selectionEnd ?? selectionStart;
+        const next = commandPaletteDeletePreviousCharacterValue({
+            selectionEnd,
+            selectionStart,
+            value: input.value,
+        });
+        input.value = next.value;
+        input.setSelectionRange(next.selectionStart, next.selectionEnd);
+        commandPaletteState.historyCursor = null;
+        commandPaletteState.inputBeforeHistory = "";
+        void refreshCommandPaletteResults();
+    }
     function moveCommandPaletteInputCaret(index) {
         if (!commandPaletteState) {
             return;
@@ -1623,6 +1650,28 @@
             !/\s/.test(candidate.value.charAt(deleteStart - 1))) {
             deleteStart -= 1;
         }
+        return {
+            selectionEnd: deleteStart,
+            selectionStart: deleteStart,
+            value: candidate.value.slice(0, deleteStart) +
+                candidate.value.slice(selectionEnd),
+        };
+    }
+    function commandPaletteDeletePreviousCharacterValue(candidate) {
+        const selectionStart = clamp(Math.min(candidate.selectionStart, candidate.selectionEnd), 0, candidate.value.length);
+        const selectionEnd = clamp(Math.max(candidate.selectionStart, candidate.selectionEnd), 0, candidate.value.length);
+        if (selectionStart !== selectionEnd) {
+            return {
+                selectionEnd: selectionStart,
+                selectionStart,
+                value: candidate.value.slice(0, selectionStart) +
+                    candidate.value.slice(selectionEnd),
+            };
+        }
+        if (selectionStart === 0) {
+            return { selectionEnd: 0, selectionStart: 0, value: candidate.value };
+        }
+        const deleteStart = selectionStart - 1;
         return {
             selectionEnd: deleteStart,
             selectionStart: deleteStart,

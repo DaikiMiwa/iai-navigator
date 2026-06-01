@@ -204,6 +204,7 @@ type CommandPaletteNamedKeyAction =
   | "first"
   | "last"
   | "clear-query"
+  | "delete-previous-character"
   | "delete-previous-word"
   | "move-query-start"
   | "move-query-end"
@@ -332,6 +333,18 @@ interface CommandPaletteUrlFilterCandidate {
   url?: string;
 }
 
+interface CommandPaletteDeletePreviousCharacterCandidate {
+  selectionEnd: number;
+  selectionStart: number;
+  value: string;
+}
+
+interface CommandPaletteDeletePreviousCharacterResult {
+  selectionEnd: number;
+  selectionStart: number;
+  value: string;
+}
+
 interface CommandPaletteDeletePreviousWordCandidate {
   selectionEnd: number;
   selectionStart: number;
@@ -368,6 +381,9 @@ interface SafariKeyboardNavigationCommandPalette {
   commandPaletteIsImeConfirmEnter(
     candidate: CommandPaletteKeyCandidate,
   ): boolean;
+  commandPaletteDeletePreviousCharacterValue(
+    candidate: CommandPaletteDeletePreviousCharacterCandidate,
+  ): CommandPaletteDeletePreviousCharacterResult;
   commandPaletteDeletePreviousWordValue(
     candidate: CommandPaletteDeletePreviousWordCandidate,
   ): CommandPaletteDeletePreviousWordResult;
