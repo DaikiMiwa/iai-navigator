@@ -128,6 +128,7 @@
     input: HTMLInputElement;
     inputBeforeHistory: string;
     isComposingQuery: boolean;
+    hasPendingImeConfirmation: boolean;
     ignoreNextEnterAfterComposition: boolean;
     list: HTMLDivElement;
     overlay: HTMLDivElement;
@@ -1130,6 +1131,7 @@
       input,
       inputBeforeHistory: "",
       isComposingQuery: false,
+      hasPendingImeConfirmation: false,
       ignoreNextEnterAfterComposition: false,
       list,
       overlay,
@@ -1146,6 +1148,7 @@
       }
 
       commandPaletteState.isComposingQuery = true;
+      commandPaletteState.hasPendingImeConfirmation = true;
       commandPaletteState.ignoreNextEnterAfterComposition = false;
       commandPaletteState.sawEnterDuringComposition = false;
     });
@@ -1155,12 +1158,22 @@
       }
 
       commandPaletteState.isComposingQuery = false;
+      commandPaletteState.hasPendingImeConfirmation =
+        !commandPaletteState.sawEnterDuringComposition;
       commandPaletteState.ignoreNextEnterAfterComposition =
         !commandPaletteState.sawEnterDuringComposition;
       commandPaletteState.sawEnterDuringComposition = false;
     });
-    input.addEventListener("input", () => {
+    input.addEventListener("beforeinput", (event) => {
+      if (commandPaletteState && commandPaletteInputEventIsComposing(event)) {
+        commandPaletteState.hasPendingImeConfirmation = true;
+      }
+    });
+    input.addEventListener("input", (event) => {
       if (commandPaletteState) {
+        if (commandPaletteInputEventIsComposing(event)) {
+          commandPaletteState.hasPendingImeConfirmation = true;
+        }
         commandPaletteState.historyCursor = null;
         commandPaletteState.inputBeforeHistory = "";
       }
@@ -1208,6 +1221,7 @@
     const candidate: CommandPaletteKeyCandidate = {
       altKey: event.altKey,
       ctrlKey: event.ctrlKey,
+      hasPendingImeConfirmation: state.hasPendingImeConfirmation,
       ignoreNextEnterAfterComposition: state.ignoreNextEnterAfterComposition,
       isComposing: event.isComposing,
       isComposingQuery: state.isComposingQuery,
@@ -1220,10 +1234,14 @@
     if (commandPaletteIsImeConfirmEnter(candidate)) {
       if (
         event.key === "Enter" &&
-        (state.isComposingQuery || event.isComposing || event.keyCode === 229)
+        (state.isComposingQuery ||
+          state.hasPendingImeConfirmation ||
+          event.isComposing ||
+          event.keyCode === 229)
       ) {
         state.sawEnterDuringComposition = true;
       }
+      state.hasPendingImeConfirmation = false;
       state.ignoreNextEnterAfterComposition = false;
       return;
     }
@@ -1432,9 +1450,16 @@
       candidate.key === "Enter" &&
       (candidate.isComposing === true ||
         candidate.keyCode === 229 ||
+        candidate.hasPendingImeConfirmation === true ||
         candidate.isComposingQuery === true ||
         candidate.ignoreNextEnterAfterComposition === true)
     );
+  }
+
+  function commandPaletteInputEventIsComposing(event: Event): boolean {
+    const inputEvent = event as InputEvent;
+    const inputType = inputEvent.inputType?.toLowerCase() ?? "";
+    return inputEvent.isComposing === true || inputType.includes("composition");
   }
 
   function handleCommandPaletteKeyAction(

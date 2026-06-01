@@ -267,6 +267,7 @@ interface CommandPaletteKeyCandidate {
   altKey: boolean;
   code?: string;
   ctrlKey: boolean;
+  hasPendingImeConfirmation?: boolean;
   ignoreNextEnterAfterComposition?: boolean;
   isComposing?: boolean;
   isComposingQuery?: boolean;
