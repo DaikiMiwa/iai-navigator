@@ -439,6 +439,7 @@
     function shouldIgnoreKeyboardCommand(event) {
         return (event.defaultPrevented ||
             event.isComposing ||
+            event.keyCode === 229 ||
             isEditableEventTarget(event));
     }
     function isEditableEventTarget(event) {
