@@ -437,6 +437,14 @@ test("maps command palette close and ignores text input keys", () => {
     commandPaletteKeyAction(key({ ctrlKey: true, key: "[" })),
     "close",
   );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "g" })),
+    "close",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "G" })),
+    "close",
+  );
   assert.equal(commandPaletteKeyAction(key({ key: "a" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "j" })), null);
   assert.equal(commandPaletteKeyAction(key({ key: "k" })), null);
@@ -454,7 +462,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Enter/);
   assert.match(hints, /Ctrl\+M/);
   assert.match(hints, /Esc/);
-  assert.match(hints, /Ctrl\+\[/);
+  assert.match(hints, /Ctrl\+\[\/G/);
   assert.match(hints, /Shift\+Enter/);
   assert.match(hints, /Option\+Enter/);
   assert.match(hints, /Option\+C/);

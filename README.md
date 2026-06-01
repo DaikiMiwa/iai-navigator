@@ -45,7 +45,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
 - Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
-- `Ctrl+m` activates the selected command palette result like `Enter`; `Ctrl+[` closes the palette like `Esc`.
+- `Ctrl+m` activates the selected command palette result like `Enter`; `Ctrl+[` and `Ctrl+g` close the palette like `Esc`.
 - `Ctrl+j` and `Ctrl+k` move the command palette selection down and up while plain `j` and `k` keep typing into the input.
 - `Ctrl+f` and `Ctrl+b` move the command palette selection by a page without leaving the input.
 - `Option+Up` and `Option+Down` recall recent command palette queries.
@@ -179,7 +179,7 @@ Useful checks:
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
-- In the palette, verify `Ctrl+m` activates the selected result like `Enter`, and `Ctrl+[` closes the palette like `Esc`.
+- In the palette, verify `Ctrl+m` activates the selected result like `Enter`, and `Ctrl+[` / `Ctrl+g` close the palette like `Esc`.
 - In the palette, verify `Ctrl+j` and `Ctrl+k` move the selected result down and up, while plain `j` and `k` type into the input.
 - In the palette, verify `Ctrl+f` and `Ctrl+b` page the selected result down and up while focus stays in the input.
 - In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
