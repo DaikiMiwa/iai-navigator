@@ -57,6 +57,8 @@ const { commandPaletteHistoryNavigation } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteHighlightRanges } =
   globalThis.SafariKeyboardNavigationCommandPalette;
+const { commandPaletteMoveCaretRange } =
+  globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteCommandIds } =
   globalThis.SafariKeyboardNavigationCommandPalette;
 const { commandPaletteCommandSearchIds } =
@@ -138,6 +140,22 @@ test("maps command palette navigation keys", () => {
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "U" })),
     "clear-query",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "a" })),
+    "move-query-start",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "A" })),
+    "move-query-start",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "e" })),
+    "move-query-end",
+  );
+  assert.equal(
+    commandPaletteKeyAction(key({ ctrlKey: true, key: "E" })),
+    "move-query-end",
   );
   assert.equal(
     commandPaletteKeyAction(key({ ctrlKey: true, key: "w" })),
@@ -408,7 +426,7 @@ test("describes command palette activation and source-prefix hints", () => {
   assert.match(hints, /Option\+W/);
   assert.match(hints, /Option\+1-9/);
   assert.match(hints, /Ctrl\+J\/K/);
-  assert.match(hints, /Ctrl\+U\/W/);
+  assert.match(hints, /Ctrl\+A\/E\/U\/W/);
   assert.match(hints, /Option\+R/);
   assert.match(hints, /Option\+↑\/↓/);
   assert.match(hints, /Option\+A\/T\/B\/H\/V\/S\/M/);
@@ -711,6 +729,28 @@ test("deletes the previous command palette word", () => {
     }),
     { selectionEnd: 0, selectionStart: 0, value: "" },
   );
+});
+
+test("moves the command palette input caret without changing query text", () => {
+  const query = "tab: project docs";
+
+  assert.deepEqual(commandPaletteMoveCaretRange(query, 0), {
+    start: 0,
+    end: 0,
+  });
+  assert.deepEqual(commandPaletteMoveCaretRange(query, query.length), {
+    start: query.length,
+    end: query.length,
+  });
+  assert.deepEqual(commandPaletteMoveCaretRange(query, -10), {
+    start: 0,
+    end: 0,
+  });
+  assert.deepEqual(commandPaletteMoveCaretRange(query, query.length + 10), {
+    start: query.length,
+    end: query.length,
+  });
+  assert.equal(query, "tab: project docs");
 });
 
 test("formats the current URL for command palette editing", () => {

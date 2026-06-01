@@ -383,7 +383,7 @@
     "Option+W close tab",
     "Option+1-9 open result",
     "Ctrl+J/K move",
-    "Ctrl+U/W edit",
+    "Ctrl+A/E/U/W edit",
     "Option+R refresh",
     "Option+↑/↓ query history",
     "Option+A/T/B/H/V/S/M source",
@@ -436,6 +436,7 @@
     commandPaletteHighlightRanges,
     commandPaletteIsImeConfirmEnter,
     commandPaletteKeyAction,
+    commandPaletteMoveCaretRange,
     commandPaletteDeletePreviousWordValue,
     commandPaletteMarkdownLinkValue,
     commandPaletteNextIndexAfterActivation,
@@ -1297,6 +1298,22 @@
     if (
       candidate.ctrlKey &&
       !candidate.altKey &&
+      candidate.key.toLowerCase() === "a"
+    ) {
+      return "move-query-start";
+    }
+
+    if (
+      candidate.ctrlKey &&
+      !candidate.altKey &&
+      candidate.key.toLowerCase() === "e"
+    ) {
+      return "move-query-end";
+    }
+
+    if (
+      candidate.ctrlKey &&
+      !candidate.altKey &&
       candidate.key.toLowerCase() === "w"
     ) {
       return "delete-previous-word";
@@ -1426,6 +1443,12 @@
         return;
       case "delete-previous-word":
         deleteCommandPalettePreviousWord();
+        return;
+      case "move-query-start":
+        moveCommandPaletteInputCaret(0);
+        return;
+      case "move-query-end":
+        moveCommandPaletteInputCaretToEnd();
         return;
       case "refresh-results":
         refreshCommandPaletteLiveQuery();
@@ -1953,6 +1976,32 @@
     commandPaletteState.historyCursor = null;
     commandPaletteState.inputBeforeHistory = "";
     void refreshCommandPaletteResults();
+  }
+
+  function moveCommandPaletteInputCaret(index: number): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    const input = commandPaletteState.input;
+    const range = commandPaletteMoveCaretRange(input.value, index);
+    input.setSelectionRange(range.start, range.end);
+  }
+
+  function moveCommandPaletteInputCaretToEnd(): void {
+    if (!commandPaletteState) {
+      return;
+    }
+
+    moveCommandPaletteInputCaret(commandPaletteState.input.value.length);
+  }
+
+  function commandPaletteMoveCaretRange(
+    value: string,
+    index: number,
+  ): TextRange {
+    const nextIndex = clamp(index, 0, value.length);
+    return { start: nextIndex, end: nextIndex };
   }
 
   function refreshCommandPaletteLiveQuery(): void {
