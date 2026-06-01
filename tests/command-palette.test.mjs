@@ -293,6 +293,17 @@ test("maps command palette activation keys", () => {
     null,
   );
   assert.equal(
+    commandPaletteKeyAction(
+      key({
+        hasImeRiskFromOpeningShortcut: true,
+        key: "Enter",
+        keyCode: 13,
+        query: "お",
+      }),
+    ),
+    null,
+  );
+  assert.equal(
     commandPaletteKeyAction(key({ isComposing: true, key: "a" })),
     null,
   );
@@ -484,6 +495,28 @@ test("detects IME confirmation Enter variants", () => {
       }),
     ),
     true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(
+      key({
+        hasImeRiskFromOpeningShortcut: true,
+        key: "Enter",
+        keyCode: 13,
+        query: "お",
+      }),
+    ),
+    true,
+  );
+  assert.equal(
+    commandPaletteIsImeConfirmEnter(
+      key({
+        hasImeRiskFromOpeningShortcut: true,
+        key: "Enter",
+        keyCode: 13,
+        query: "docs",
+      }),
+    ),
+    false,
   );
   assert.equal(
     commandPaletteIsImeConfirmEnter(key({ key: "Enter", keyCode: 13 })),
