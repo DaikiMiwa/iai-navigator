@@ -40,6 +40,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - The `Edit current URL` command puts the current page address back into the input as `url: ...` so it can be edited before opening.
 - `Option+D` narrows the command palette query to the selected destination's domain without closing the palette.
 - `Option+F` narrows the command palette query to the selected destination's title without closing the palette.
+- `Option+U` narrows the command palette query to the selected destination's URL without closing the palette.
 - `Option+Backspace` forgets the selected local visit result, removes the selected history result, or forgets the currently recalled palette query.
 - `Option+W` closes the selected open-tab result from the command palette.
 - `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
@@ -49,7 +50,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Ctrl+u` clears the current command palette query without closing the palette.
 - `Ctrl+w` deletes the previous command palette query word without closing the palette.
 - `Option+R` refreshes command palette results without closing the palette or changing the query.
-- `Option+A/T/B/H/V/S/U/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, URL, or commands while preserving the current query.
+- `Option+A/T/B/H/V/S/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, or commands while preserving the current query. `Shift+Option+U` switches to direct URL generation.
 - `b` opens a bookmark-only palette with suggestions before typing, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
 - Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
@@ -169,6 +170,7 @@ Useful checks:
 - In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+D` / `Option+D` changes the input to `domain:<selected host>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+F` / `Option+F` changes the input to `title:"<selected title>"` for a selected browser destination without closing the palette.
+- In the palette, verify `Alt+U` / `Option+U` changes the input to `url:<selected URL>` for a selected browser destination without closing the palette.
 - In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
 - In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
 - In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
