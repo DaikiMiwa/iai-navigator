@@ -52,6 +52,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Ctrl+a` and `Ctrl+e` move the command palette input caret to the beginning and end without changing the query.
 - `Ctrl+l` selects the whole command palette query without closing the palette.
 - `Ctrl+u` clears the current command palette query without closing the palette.
+- `Ctrl+d` deletes the next command palette query character, or the selected query text, without closing the palette.
 - `Ctrl+h` deletes the previous command palette query character, or the selected query text, without closing the palette.
 - `Ctrl+w` deletes the previous command palette query word without closing the palette.
 - `Option+R` refreshes command palette results without closing the palette or changing the query.
@@ -187,6 +188,7 @@ Useful checks:
 - In the palette, type `book: project docs`, press `Ctrl+a`, and verify the caret moves to the beginning without changing the query. Press `Ctrl+e` and verify the caret moves to the end.
 - In the palette, type `history: project docs`, press `Ctrl+l`, and verify the whole query is selected while the palette stays open.
 - In the palette, type a query, press `Ctrl+u`, and verify the input clears while the palette stays open.
+- In the palette, type `book: project docs`, press `Ctrl+a`, then `Ctrl+d`, and verify the first character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+d`, and verify the selected text is deleted.
 - In the palette, type `book: project docs`, press `Ctrl+h`, and verify the previous character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+h`, and verify the selected text is deleted.
 - In the palette, type `book: project docs`, press `Ctrl+w`, and verify the previous word is deleted while the palette stays open and results refresh.
 - In the palette, press `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
