@@ -184,7 +184,7 @@
         "Option+W close tab",
         "Option+1-9 open result",
         "Ctrl+J/K move",
-        "Ctrl+A/E/U/W edit",
+        "Ctrl+A/E/L/U/W edit",
         "Option+R refresh",
         "Option+↑/↓ query history",
         "Option+A/T/B/H/V/S/M source",
@@ -221,6 +221,7 @@
         commandPaletteIsImeConfirmEnter,
         commandPaletteKeyAction,
         commandPaletteMoveCaretRange,
+        commandPaletteSelectAllRange,
         commandPaletteDeletePreviousWordValue,
         commandPaletteMarkdownLinkValue,
         commandPaletteNextIndexAfterActivation,
@@ -889,6 +890,11 @@
         }
         if (candidate.ctrlKey &&
             !candidate.altKey &&
+            candidate.key.toLowerCase() === "l") {
+            return "select-query";
+        }
+        if (candidate.ctrlKey &&
+            !candidate.altKey &&
             candidate.key.toLowerCase() === "w") {
             return "delete-previous-word";
         }
@@ -1000,6 +1006,9 @@
                 return;
             case "move-query-end":
                 moveCommandPaletteInputCaretToEnd();
+                return;
+            case "select-query":
+                selectCommandPaletteQuery();
                 return;
             case "refresh-results":
                 refreshCommandPaletteLiveQuery();
@@ -1419,9 +1428,20 @@
         }
         moveCommandPaletteInputCaret(commandPaletteState.input.value.length);
     }
+    function selectCommandPaletteQuery() {
+        if (!commandPaletteState) {
+            return;
+        }
+        const input = commandPaletteState.input;
+        const range = commandPaletteSelectAllRange(input.value);
+        input.setSelectionRange(range.start, range.end);
+    }
     function commandPaletteMoveCaretRange(value, index) {
         const nextIndex = clamp(index, 0, value.length);
         return { start: nextIndex, end: nextIndex };
+    }
+    function commandPaletteSelectAllRange(value) {
+        return { start: 0, end: value.length };
     }
     function refreshCommandPaletteLiveQuery() {
         if (!commandPaletteState) {
