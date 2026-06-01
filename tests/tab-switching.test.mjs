@@ -516,6 +516,39 @@ test("preserves window context on open tab palette results", () => {
   assert.equal(results[0]?.windowId, 20);
 });
 
+test("boosts open tab palette results by last access time", () => {
+  const now = Date.now();
+  const results = searchPaletteResults(
+    {
+      bookmarks: [],
+      history: [],
+      tabs: [
+        {
+          id: 10,
+          index: 0,
+          lastAccessed: now / 2,
+          title: "Docs",
+          url: "https://example.com/older-tab",
+        },
+        {
+          id: 11,
+          index: 1,
+          lastAccessed: now,
+          title: "Docs",
+          url: "https://example.com/recent-tab",
+        },
+      ],
+    },
+    "docs",
+    { sources: ["tabs"] },
+  );
+
+  assert.deepEqual(
+    results.map((result) => result.url),
+    ["https://example.com/recent-tab", "https://example.com/older-tab"],
+  );
+});
+
 test("can restrict palette search to bookmarks only", () => {
   const results = searchPaletteResults(
     {

@@ -57,6 +57,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, YouTube, Wikipedia, or a custom URL template with `{query}`.
 - `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
 - `Shift+T` searches open tabs across browser windows.
+- Open-tab palette results use browser-provided last-accessed time when available, so recently used tabs are easier to switch back to.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
 - `?` opens a keyboard shortcut help overlay, and `Esc` closes it.
 - Text inputs, textareas, selects, and editable content keep normal typing behavior.

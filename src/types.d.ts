@@ -506,6 +506,7 @@ interface WebExtensionTab {
   active?: boolean;
   id?: number;
   index: number;
+  lastAccessed?: number;
   title?: string;
   url?: string;
   windowId?: number;
