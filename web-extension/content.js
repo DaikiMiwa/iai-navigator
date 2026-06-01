@@ -185,7 +185,7 @@
         "Option+1-9 open result",
         "Tab/Ctrl+I next",
         "Ctrl+J/K move",
-        "Ctrl+F/B page",
+        "Ctrl+F/V/B page",
         "Ctrl+A/D/E/H/L/U/W edit",
         "Option+R refresh",
         "Option+↑/↓ query history",
@@ -891,7 +891,8 @@
         if (candidate.key === "PageDown" ||
             (candidate.ctrlKey &&
                 !candidate.altKey &&
-                candidate.key.toLowerCase() === "f")) {
+                (candidate.key.toLowerCase() === "f" ||
+                    candidate.key.toLowerCase() === "v"))) {
             return "page-next";
         }
         if (candidate.key === "PageUp" ||
