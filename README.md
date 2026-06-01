@@ -56,7 +56,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Ctrl+d` deletes the next command palette query character, or the selected query text, without closing the palette.
 - `Ctrl+h` deletes the previous command palette query character, or the selected query text, without closing the palette.
 - `Ctrl+w` deletes the previous command palette query word without closing the palette.
-- `Option+R` refreshes command palette results without closing the palette or changing the query.
+- `Ctrl+r` / `Option+R` refreshes command palette results without closing the palette or changing the query.
 - `Option+A/T/B/H/V/S/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, or commands while preserving the current query. `Shift+Option+U` switches to direct URL generation.
 - `b` opens a bookmark-only palette with suggestions before typing, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
 - Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
@@ -192,7 +192,7 @@ Useful checks:
 - In the palette, type `book: project docs`, press `Ctrl+a`, then `Ctrl+d`, and verify the first character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+d`, and verify the selected text is deleted.
 - In the palette, type `book: project docs`, press `Ctrl+h`, and verify the previous character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+h`, and verify the selected text is deleted.
 - In the palette, type `book: project docs`, press `Ctrl+w`, and verify the previous word is deleted while the palette stays open and results refresh.
-- In the palette, press `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
+- In the palette, press `Ctrl+r` or `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`; then press `Alt+A` / `Option+A` and verify it changes back to `docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
 - Press `v` before typing and verify recent history candidates appear; if Safari does not return browser history for an empty query, verify locally observed pages appear as fallback candidates after browsing with the extension.
