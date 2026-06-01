@@ -170,7 +170,8 @@
         },
     ];
     const COMMAND_PALETTE_FOOTER_HINTS = [
-        "Enter open",
+        "Enter/Ctrl+M open",
+        "Esc/Ctrl+[ close",
         "Shift+Enter new tab",
         "Option+Enter background",
         "Option+C copy URL",
@@ -838,7 +839,8 @@
         if (commandPaletteIsImeConfirmEnter(candidate)) {
             return null;
         }
-        if (candidate.key === "Escape") {
+        if (candidate.key === "Escape" ||
+            (candidate.ctrlKey && !candidate.altKey && candidate.key === "[")) {
             return "close";
         }
         if (candidate.altKey && candidate.key === "ArrowUp") {
@@ -888,6 +890,11 @@
             !candidate.altKey &&
             candidate.key.toLowerCase() === "w") {
             return "delete-previous-word";
+        }
+        if (candidate.ctrlKey &&
+            !candidate.altKey &&
+            candidate.key.toLowerCase() === "m") {
+            return "activate-current-tab";
         }
         if (candidate.key === "Enter") {
             if (candidate.altKey) {
