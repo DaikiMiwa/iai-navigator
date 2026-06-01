@@ -716,11 +716,15 @@
     if (score === null) {
       return [];
     }
+    const recencyBoost =
+      typeof tab.lastAccessed === "number"
+        ? Math.min(8, Math.max(0, tab.lastAccessed / Date.now()) * 8)
+        : 0;
 
     const result: PaletteResult = {
       id: `tab:${tab.id}`,
       kind: "tab",
-      score: score + 20 + (tab.active ? 2 : 0),
+      score: score + 20 + (tab.active ? 2 : 0) + recencyBoost,
       subtitle: tab.url ?? "Open tab",
       tabId: tab.id,
       title,
