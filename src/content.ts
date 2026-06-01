@@ -127,10 +127,13 @@
     includeGenerated: boolean;
     input: HTMLInputElement;
     inputBeforeHistory: string;
+    isComposingQuery: boolean;
+    ignoreNextEnterAfterComposition: boolean;
     list: HTMLDivElement;
     overlay: HTMLDivElement;
     results: CommandPaletteResult[];
     searchId: number;
+    sawEnterDuringComposition: boolean;
     sources: PaletteSource[];
   }
 
@@ -431,6 +434,7 @@
     commandPaletteEditableResultValue,
     commandPaletteHistoryNavigation,
     commandPaletteHighlightRanges,
+    commandPaletteIsImeConfirmEnter,
     commandPaletteKeyAction,
     commandPaletteDeletePreviousWordValue,
     commandPaletteMarkdownLinkValue,
@@ -1120,14 +1124,36 @@
       includeGenerated: options.includeGenerated,
       input,
       inputBeforeHistory: "",
+      isComposingQuery: false,
+      ignoreNextEnterAfterComposition: false,
       list,
       overlay,
       results: [],
       searchId: 0,
+      sawEnterDuringComposition: false,
       sources: options.sources,
     };
     input.value = options.initialQuery ?? "";
 
+    input.addEventListener("compositionstart", () => {
+      if (!commandPaletteState) {
+        return;
+      }
+
+      commandPaletteState.isComposingQuery = true;
+      commandPaletteState.ignoreNextEnterAfterComposition = false;
+      commandPaletteState.sawEnterDuringComposition = false;
+    });
+    input.addEventListener("compositionend", () => {
+      if (!commandPaletteState) {
+        return;
+      }
+
+      commandPaletteState.isComposingQuery = false;
+      commandPaletteState.ignoreNextEnterAfterComposition =
+        !commandPaletteState.sawEnterDuringComposition;
+      commandPaletteState.sawEnterDuringComposition = false;
+    });
     input.addEventListener("input", () => {
       if (commandPaletteState) {
         commandPaletteState.historyCursor = null;
@@ -1169,11 +1195,35 @@
   }
 
   function handleCommandPaletteKeyDown(event: KeyboardEvent): void {
-    if (!commandPaletteState) {
+    const state = commandPaletteState;
+    if (!state) {
       return;
     }
 
-    const action = commandPaletteKeyAction(event);
+    const candidate: CommandPaletteKeyCandidate = {
+      altKey: event.altKey,
+      ctrlKey: event.ctrlKey,
+      ignoreNextEnterAfterComposition: state.ignoreNextEnterAfterComposition,
+      isComposing: event.isComposing,
+      isComposingQuery: state.isComposingQuery,
+      key: event.key,
+      keyCode: event.keyCode,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+    };
+
+    if (commandPaletteIsImeConfirmEnter(candidate)) {
+      if (
+        event.key === "Enter" &&
+        (state.isComposingQuery || event.isComposing || event.keyCode === 229)
+      ) {
+        state.sawEnterDuringComposition = true;
+      }
+      state.ignoreNextEnterAfterComposition = false;
+      return;
+    }
+
+    const action = commandPaletteKeyAction(candidate);
     if (!action) {
       return;
     }
@@ -1187,6 +1237,10 @@
     candidate: CommandPaletteKeyCandidate,
   ): CommandPaletteKeyAction | null {
     if (candidate.isComposing || candidate.keyCode === 229) {
+      return null;
+    }
+
+    if (commandPaletteIsImeConfirmEnter(candidate)) {
       return null;
     }
 
@@ -1316,6 +1370,18 @@
     }
 
     return null;
+  }
+
+  function commandPaletteIsImeConfirmEnter(
+    candidate: CommandPaletteKeyCandidate,
+  ): boolean {
+    return (
+      candidate.key === "Enter" &&
+      (candidate.isComposing === true ||
+        candidate.keyCode === 229 ||
+        candidate.isComposingQuery === true ||
+        candidate.ignoreNextEnterAfterComposition === true)
+    );
   }
 
   function handleCommandPaletteKeyAction(
