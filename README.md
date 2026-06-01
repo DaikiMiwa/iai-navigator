@@ -80,6 +80,9 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `CONTEXT.md`: project glossary and domain language.
 - `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
 - `docs/research/bookmark-history-open-command.md`: compatibility spike for bookmark/history-backed destination search.
+- `docs/release/app-store-release-checklist.md`: App Store submission readiness checklist.
+- `docs/release/app-store-metadata.md`: App Store listing and review-note draft.
+- `docs/release/positioning.md`: product positioning and differentiation guidance.
 
 ## Documentation Language
 
@@ -95,6 +98,9 @@ Start here for Japanese documentation:
 - `docs/ja/process/github-workflow.md`
 - `docs/ja/research/ipados-safari-support.md`
 - `docs/ja/research/bookmark-history-open-command.md`
+- `docs/ja/release/app-store-release-checklist.md`
+- `docs/ja/release/app-store-metadata.md`
+- `docs/ja/release/positioning.md`
 
 ## Build And Test
 
