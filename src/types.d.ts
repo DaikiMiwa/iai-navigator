@@ -207,6 +207,7 @@ type CommandPaletteNamedKeyAction =
   | "delete-previous-word"
   | "move-query-start"
   | "move-query-end"
+  | "select-query"
   | "refresh-results"
   | "activate-current-tab"
   | "activate-new-tab"
@@ -356,6 +357,7 @@ interface SafariKeyboardNavigationCommandPalette {
   ): CommandPaletteHistoryNavigationResult;
   commandPaletteHighlightRanges(value: string, query: string): TextRange[];
   commandPaletteMoveCaretRange(value: string, index: number): TextRange;
+  commandPaletteSelectAllRange(value: string): TextRange;
   commandPaletteCommandIds(): string[];
   commandPaletteCommandSearchIds(query: string): string[];
   commandPaletteCurrentUrlEditValue(href: string): string | null;
