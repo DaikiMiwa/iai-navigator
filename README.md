@@ -4,7 +4,7 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 
 ## MVP Behavior
 
-- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, native form controls, and semantic custom controls in the current viewport on normal `http`, `https`, and local `file:` HTML pages.
+- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, non-password native form controls, and semantic custom controls in the current viewport on normal `http` and `https` pages.
 - Typing a complete link hint fires that link's normal click behavior in the current tab.
 - Typing a complete navigation menu trigger hint focuses the trigger first, safely clicks only explicit disclosure-style triggers if focus does not reveal links, and then rescans visible targets.
 - Typing a complete media player control hint focuses and clicks visible controls inside recognized player chrome, such as YouTube's player controls.
@@ -22,9 +22,9 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
 - `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
 - `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
-- `o` opens a browser navigation palette that searches open tabs across browser windows, bookmarks, recent history, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine.
-- The default `o` palette can surface recent bookmark suggestions before typing, alongside open tabs, recent history, and locally observed destinations.
-- The `v` history palette shows recent history before typing, with locally observed pages as a fallback when browser history does not return empty-query results.
+- `o` opens a browser navigation palette that searches open tabs across browser windows, locally observed pages, extension commands, direct URLs, web searches with a configurable search engine, and bookmarks or recent history when Safari exposes those APIs at runtime.
+- The default `o` palette can surface open tabs, locally observed destinations, and browser-provided bookmark or history suggestions before typing when those data sources are available.
+- The `v` history palette shows recent history when Safari exposes history results, with locally observed pages as a fallback when browser history is unavailable or does not return empty-query results.
 - History results are ranked with a bounded visit-frequency boost in addition to recency, so frequently opened destinations are easier to reach.
 - The empty `o` / `Shift+O` palette can show recent palette queries; choosing one fills the input and reruns that search without closing the palette.
 - `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
@@ -58,12 +58,12 @@ Working-name repository for a small, auditable Safari Web Extension that provide
 - `Ctrl+w` deletes the previous command palette query word without closing the palette.
 - `Ctrl+r` / `Option+R` refreshes command palette results without closing the palette or changing the query.
 - `Option+A/T/B/H/V/S/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, or commands while preserving the current query. `Shift+Option+U` switches to direct URL generation.
-- `b` opens a bookmark-only palette with suggestions before typing, `v` opens a recent-history-only palette, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab.
-- Bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders.
+- `b` opens a bookmark-only palette when Safari exposes bookmark results, `v` opens a recent-history-only palette with local fallback destinations, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab when those sources are available.
+- Browser-provided bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders when Safari exposes bookmark data.
 - Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
 - `Shift+O` opens palette results in a new foreground tab.
 - The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, YouTube, Wikipedia, or a custom URL template with `{query}`.
-- `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab.
+- `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab when Safari exposes bookmark data.
 - `Shift+T` searches open tabs across browser windows.
 - Open-tab palette results use browser-provided last-accessed time when available, so recently used tabs are easier to switch back to.
 - Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
@@ -155,7 +155,7 @@ Useful checks:
 - Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
 - Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
 - Focus Safari Start Page or the address bar, then verify `Option+Shift+J` switches to the left tab and `Option+Shift+K` switches to the right tab.
-- Open a local `file:` HTML page, grant the extension local file access in Safari if prompted, then verify `f` shows hints and page movement commands work.
+- Verify the public manifest does not request local `file:` page access. If a future development-only manifest reintroduces local file support, test it separately from the App Store build.
 - Open `manual-test/frame-host.html`, click inside the frame, then verify `Shift+J/K` still switch tabs and `f` still shows hints inside the frame.
 - Press `yy` and paste into the text input to verify the current page URL was copied.
 - Press `y`, wait briefly, then press `y` again and verify the URL is not copied.
@@ -163,10 +163,10 @@ Useful checks:
 - Press `f`, then press `yy` while hint mode is active and verify hint mode consumes the keys instead of copying the URL.
 - Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
 - Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
-- Press `o` from normal page focus, type a tab title, bookmark title, history URL, locally observed page, command name, URL, or search term, and verify `Enter` opens or runs the selected result.
+- Press `o` from normal page focus, type a tab title, locally observed page, command name, URL, search term, or browser-provided bookmark/history result, and verify `Enter` opens or runs the selected result.
 - With a Japanese IME active, press `o` while IME composition is starting and verify the extension does not open the palette or consume the IME confirmation `Enter`.
-- Press `o` from normal page focus before typing and verify recent bookmark suggestions can appear in the all-source palette.
-- Press `o` from normal page focus before typing and verify open tabs and recent history can appear in the all-source palette.
+- Press `o` from normal page focus before typing and verify browser-provided recent bookmark suggestions can appear in the all-source palette when Safari exposes bookmark data.
+- Press `o` from normal page focus before typing and verify open tabs can appear; if Safari exposes history data, verify recent history can appear too.
 - Press `o` from normal page focus after using the palette, verify recent query suggestions can appear before typing, and verify selecting one fills the input and refreshes results without closing the palette.
 - Press `ge` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input.
 - Press `gE` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input, then `Enter` opens the edited URL in a new foreground tab.
@@ -201,9 +201,9 @@ Useful checks:
 - In the palette, press `Ctrl+r` or `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
 - In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`; then press `Alt+A` / `Option+A` and verify it changes back to `docs`.
 - Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
-- Press `v` before typing and verify recent history candidates appear; if Safari does not return browser history for an empty query, verify locally observed pages appear as fallback candidates after browsing with the extension.
+- Press `v` before typing and verify recent history candidates appear when Safari exposes history data; otherwise verify locally observed pages appear as fallback candidates after browsing with the extension.
 - Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
-- Press `b` / `Shift+B` and verify bookmark suggestions appear before typing, only bookmarks are searched, and `Shift+B` opens the selected bookmark in a new foreground tab.
+- Press `b` / `Shift+B` and, when Safari exposes bookmark data, verify bookmark suggestions appear before typing, only bookmarks are searched, and `Shift+B` opens the selected bookmark in a new foreground tab.
 - In the bookmark palette, type a bookmark folder name and verify bookmarks inside that folder appear with the folder path shown in the subtitle.
 - Press `Shift+T` and verify open tabs across browser windows are searched and selected tabs are focused.
 - Press `?` while focused inside an input, textarea, or editable content and verify it types normally instead of opening help.

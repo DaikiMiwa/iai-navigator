@@ -15,7 +15,7 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 - Reuse the wording from [Permissions and Privacy](../permissions-and-privacy.md) as the source of truth.
 - State clearly that browsing data, page content, URLs, keystrokes, form values, and command palette queries are not sent to a developer-controlled server.
 - Explain that Safari website access is needed to read visible page structure and place keyboard hints.
-- Explain that tab, bookmark, and history access powers the command palette.
+- Explain that tab access powers the command palette, and bookmark/history access is used locally only when Safari exposes those APIs at runtime.
 - Explain that bounded local storage is used for settings, recent palette queries, locally observed pages, and selected destinations.
 - Confirm that no analytics, advertising SDKs, remote logging, or telemetry are included in the release build.
 - Fill App Store Connect privacy answers from the actual release build and update them whenever data handling changes.
@@ -38,7 +38,7 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 
 ## Screenshots
 
-- Capture the command palette searching tabs, bookmarks, history, commands, URLs, and search.
+- Capture the command palette searching tabs, local destinations, commands, URLs, search, and bookmark/history results only if Safari exposes those APIs in the tested release.
 - Capture keyboard hints on a normal page.
 - Capture site controls or shortcut settings.
 - Capture the host app permission/privacy explanation.
@@ -64,9 +64,10 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 - Verify typing inside inputs, textareas, selects, and editable content is not intercepted.
 - Verify Google Docs or another shortcut-heavy web app can be disabled by site settings.
 - Verify YouTube controls are discoverable without breaking playback controls.
-- Verify privacy-sensitive local file access is either excluded from the public release or clearly documented as opt-in.
+- Verify privacy-sensitive local file access is excluded from the public release.
 - Run `pnpm run check`.
 - Run `pnpm run build:xcode` before archiving.
+- Run `pnpm run build:xcode:release` before creating an App Store archive.
 
 ## Review References
 
