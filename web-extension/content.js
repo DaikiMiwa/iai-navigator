@@ -565,6 +565,7 @@
             };
         });
         document.documentElement.appendChild(overlay);
+        adjustHintLayouts(entries);
         hintState = {
             activationMode,
             entries,
@@ -573,6 +574,85 @@
         };
         window.addEventListener("scroll", cancelHintMode, true);
         window.addEventListener("resize", cancelHintMode, true);
+    }
+    function adjustHintLayouts(entries) {
+        if (entries.length === 0) {
+            return;
+        }
+        const rows = [];
+        const rowMaxTopDifference = 15;
+        const sortedEntries = [...entries].sort((a, b) => {
+            if (Math.abs(a.target.rect.top - b.target.rect.top) > rowMaxTopDifference) {
+                return a.target.rect.top - b.target.rect.top;
+            }
+            return a.target.rect.left - b.target.rect.left;
+        });
+        for (const entry of sortedEntries) {
+            let placed = false;
+            for (const row of rows) {
+                const referenceTop = row[0].target.rect.top;
+                if (Math.abs(entry.target.rect.top - referenceTop) <= rowMaxTopDifference) {
+                    row.push(entry);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                rows.push([entry]);
+            }
+        }
+        const viewportWidth = window.innerWidth;
+        const verticalGap = 2;
+        const horizontalGap = 2;
+        for (const row of rows) {
+            row.sort((a, b) => a.target.rect.left - b.target.rect.left);
+            const lastRightAtLevel = [];
+            for (const entry of row) {
+                const label = entry.label;
+                const rect = entry.target.rect;
+                const width = label.offsetWidth || 16;
+                const height = label.offsetHeight || 16;
+                let transformX = "-50%";
+                let alignLeft = rect.left - width / 2;
+                let alignRight = rect.left + width / 2;
+                if (alignLeft < 0) {
+                    transformX = "0%";
+                    alignLeft = rect.left;
+                    alignRight = rect.left + width;
+                }
+                else if (alignRight > viewportWidth) {
+                    transformX = "-100%";
+                    alignLeft = rect.left - width;
+                    alignRight = rect.left;
+                }
+                let chosenLevel = 0;
+                while (true) {
+                    const lastRight = lastRightAtLevel[chosenLevel];
+                    if (lastRight === undefined ||
+                        alignLeft >= lastRight + horizontalGap) {
+                        break;
+                    }
+                    chosenLevel++;
+                }
+                lastRightAtLevel[chosenLevel] = alignRight;
+                let transformY = "-100%";
+                let finalTop = rect.top;
+                const normalOffset = (chosenLevel + 1) * height + chosenLevel * verticalGap;
+                if (rect.top - normalOffset < 0) {
+                    const targetElementRect = entry.target.element.getBoundingClientRect();
+                    finalTop = rect.top + targetElementRect.height;
+                    const belowOffset = chosenLevel * (height + verticalGap);
+                    transformY = "0%";
+                    label.style.top = `${Math.round(finalTop + belowOffset)}px`;
+                }
+                else {
+                    const offsetTop = rect.top - chosenLevel * (height + verticalGap);
+                    label.style.top = `${Math.round(offsetTop)}px`;
+                }
+                label.style.setProperty("--skne-tx", transformX);
+                label.style.setProperty("--skne-ty", transformY);
+            }
+        }
     }
     function applyHintStyleSettings(root = document.documentElement) {
         const style = extensionSettings.hintStyle;
