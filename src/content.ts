@@ -3985,7 +3985,42 @@
   }
 
   function visibleRectForElement(element: Element): HintPosition | null {
+    const textNode = firstNonEmptyTextNode(element);
+    if (textNode) {
+      const range = document.createRange();
+      try {
+        range.selectNode(textNode);
+        const rect = firstVisibleRect(range.getClientRects());
+        if (rect) {
+          return rect;
+        }
+      } finally {
+        range.detach();
+      }
+    }
     return firstVisibleRect(element.getClientRects());
+  }
+
+  function firstNonEmptyTextNode(node: Node): Text | null {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.nodeValue && node.nodeValue.trim().length > 0) {
+        const parent = node.parentElement;
+        if (parent && isVisibleElementWithAncestors(parent)) {
+          return node as Text;
+        }
+      }
+    }
+    for (let i = 0; i < node.childNodes.length; i++) {
+      const child = node.childNodes[i];
+      if (child instanceof HTMLElement && !isVisibleElement(child)) {
+        continue;
+      }
+      const found = firstNonEmptyTextNode(child);
+      if (found) {
+        return found;
+      }
+    }
+    return null;
   }
 
   function visibleRectForMediaControlTarget(
