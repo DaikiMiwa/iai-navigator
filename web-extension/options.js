@@ -75,6 +75,7 @@
         select("search-engine").value = settings.commandPalette.searchEngine;
         input("custom-search-url-template").value =
             settings.commandPalette.customSearchUrlTemplate;
+        input("hint-keys").value = settings.hintKeys;
         for (const [name, shortcutInput] of shortcutInputs) {
             shortcutInput.value = settings.shortcuts[name];
         }
@@ -92,6 +93,7 @@
         }
         const nextSettings = settingsApi.normalizeExtensionSettings({
             enabled: input("enabled").checked,
+            hintKeys: input("hint-keys").value,
             commandPalette: {
                 customSearchUrlTemplate: input("custom-search-url-template").value,
                 searchEngine: select("search-engine").value,

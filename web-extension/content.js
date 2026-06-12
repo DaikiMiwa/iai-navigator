@@ -539,7 +539,7 @@
             clearRevealedMediaControlSurfaces();
             return;
         }
-        const hintValues = hints.generateHints(targets.length);
+        const hintValues = hints.generateHints(targets.length, extensionSettings.hintKeys);
         if (hints.hasPrefixCollision(hintValues)) {
             return;
         }
@@ -677,7 +677,7 @@
             return;
         }
         const key = event.key.toLowerCase();
-        if (!hints.DEFAULT_HINT_KEYS.includes(key)) {
+        if (!extensionSettings.hintKeys.includes(key)) {
             return;
         }
         const nextInput = hintState.input + key;
@@ -3043,7 +3043,14 @@
         return (element.matches("video, audio") ||
             element.querySelector("video, audio") !== null);
     }
+    function highlightActivatedElement(element) {
+        element.classList.add("skne-active-highlight");
+        window.setTimeout(() => {
+            element.classList.remove("skne-active-highlight");
+        }, 300);
+    }
     function activateHintTarget(target, activationMode) {
+        highlightActivatedElement(target.element);
         if (target.kind === "link") {
             activateLinkTarget(target.element, activationMode);
             return;

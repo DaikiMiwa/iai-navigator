@@ -137,6 +137,7 @@ interface SafariKeyboardNavigationCommandPaletteSettings {
 interface SafariKeyboardNavigationExtensionSettings {
   commandPalette: SafariKeyboardNavigationCommandPaletteSettings;
   enabled: boolean;
+  hintKeys: string;
   hintStyle: SafariKeyboardNavigationHintStyleSettings;
   shortcuts: SafariKeyboardNavigationShortcutSettings;
   siteAccess: SafariKeyboardNavigationSiteAccessSettings;

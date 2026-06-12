@@ -449,3 +449,15 @@ html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
     gap: 4px;
   }
 }
+
+.skne-active-highlight {
+  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
+  outline: 3px solid #ffd84d !important;
+  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
+  outline-offset: 2px !important;
+  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
+  background-color: rgba(255, 216, 77, 0.25) !important;
+  transition:
+    outline 150ms ease-out,
+    background-color 150ms ease-out;
+}

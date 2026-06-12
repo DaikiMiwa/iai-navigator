@@ -37,6 +37,7 @@
         searchEngine: "google",
       },
       enabled: true,
+      hintKeys: "asdfghjkl",
       hintStyle: {
         backgroundColor: "#ffd84d",
         fontSize: 12,
@@ -150,6 +151,7 @@
         typeof candidate.enabled === "boolean"
           ? candidate.enabled
           : defaultSettings.enabled,
+      hintKeys: hintKeysSetting(candidate.hintKeys, defaultSettings.hintKeys),
       hintStyle: {
         backgroundColor: colorSetting(
           candidate.hintStyle?.backgroundColor,
@@ -387,6 +389,18 @@
     }
 
     return hostname === pattern || hostname.endsWith(`.${pattern}`);
+  }
+
+  function hintKeysSetting(value: unknown, fallback: string): string {
+    if (typeof value !== "string") {
+      return fallback;
+    }
+    const sanitized = value.replace(/\s+/g, "").toLowerCase();
+    const uniqueChars = Array.from(new Set(sanitized));
+    if (uniqueChars.length >= 2) {
+      return uniqueChars.join("");
+    }
+    return fallback;
   }
 
   function numberSetting(

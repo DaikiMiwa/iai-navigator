@@ -863,7 +863,10 @@
       return;
     }
 
-    const hintValues = hints.generateHints(targets.length);
+    const hintValues = hints.generateHints(
+      targets.length,
+      extensionSettings.hintKeys,
+    );
     if (hints.hasPrefixCollision(hintValues)) {
       return;
     }
@@ -1038,7 +1041,7 @@
     }
 
     const key = event.key.toLowerCase();
-    if (!hints.DEFAULT_HINT_KEYS.includes(key)) {
+    if (!extensionSettings.hintKeys.includes(key)) {
       return;
     }
 
@@ -4205,10 +4208,19 @@
     );
   }
 
+  function highlightActivatedElement(element: Element): void {
+    element.classList.add("skne-active-highlight");
+    window.setTimeout(() => {
+      element.classList.remove("skne-active-highlight");
+    }, 300);
+  }
+
   function activateHintTarget(
     target: HintTarget,
     activationMode: HintActivationMode,
   ): void {
+    highlightActivatedElement(target.element);
+
     if (target.kind === "link") {
       activateLinkTarget(target.element, activationMode);
       return;
