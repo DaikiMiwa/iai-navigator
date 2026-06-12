@@ -27,6 +27,7 @@
 		CDAA00022FC9000000125208 /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00062FC9000000125208 /* options.js */; };
 		CDAA00032FC9000000125208 /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00072FC9000000125208 /* options.css */; };
 		CDAA00042FC9000000125208 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00082FC9000000125208 /* options.html */; };
+		CDAA00112FC9000000125208 /* help.js in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00102FC9000000125208 /* help.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		CDAA00062FC9000000125208 /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = "../../../web-extension/options.js"; sourceTree = "<group>"; };
 		CDAA00072FC9000000125208 /* options.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = options.css; path = "../../../web-extension/options.css"; sourceTree = "<group>"; };
 		CDAA00082FC9000000125208 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = "../../../web-extension/options.html"; sourceTree = "<group>"; };
+		CDAA00102FC9000000125208 /* help.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = help.js; path = "../../../web-extension/help.js"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +157,7 @@
 				CD04C5472FC2993800125208 /* content.css */,
 				CD04C5522FC2993800125208 /* background.js */,
 				CD04C5482FC2993800125208 /* hints.js */,
+				CDAA00102FC9000000125208 /* help.js */,
 				CD04C5502FC2993800125208 /* scroll-surface.js */,
 				CDAA00052FC9000000125208 /* settings.js */,
 				CD04C5492FC2993800125208 /* manifest.json */,
@@ -271,6 +274,7 @@
 				CD04C54B2FC2993800125208 /* content.css in Resources */,
 				CD04C54D2FC2993800125208 /* manifest.json in Resources */,
 				CD04C54C2FC2993800125208 /* hints.js in Resources */,
+				CDAA00112FC9000000125208 /* help.js in Resources */,
 				CD04C54F2FC2993800125208 /* scroll-surface.js in Resources */,
 				CDAA00012FC9000000125208 /* settings.js in Resources */,
 				CDAA00022FC9000000125208 /* options.js in Resources */,
