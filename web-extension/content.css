@@ -30,6 +30,7 @@
   text-transform: lowercase;
   opacity: var(--skne-hint-opacity, 1);
   box-shadow: 0 1px 3px rgb(0 0 0 / 32%);
+  transform: translate(-8px, -12px);
 }
 
 #skne-hint-overlay .skne-hint-media-control {
