@@ -479,6 +479,24 @@ html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
   visibility: visible !important;
 }
 
+@keyframes skne-highlight-pulse {
+  0% {
+    outline: 3px solid var(--skne-theme-accent);
+    outline-offset: 2px;
+    background-color: var(--skne-theme-cmd-active-bg);
+  }
+  100% {
+    outline: 3px solid transparent;
+    outline-offset: 6px;
+    background-color: transparent;
+  }
+}
+
+.skne-active-highlight {
+  animation: skne-highlight-pulse 400ms ease-out forwards !important;
+  border-radius: 2px !important;
+}
+
 @media (max-width: 520px) {
   #skne-help-overlay {
     padding: 12px;
