@@ -235,3 +235,18 @@ Safari は、一時的に読み込んだ拡張を 24 時間後、または Safar
 5. unsigned local development で Safari に拡張が表示されない場合は、Safari の Develop menu を有効にし、unsigned extensions を許可します。
 
 生成された app name は仮の working name であり、product name ではありません。
+
+## ライセンス
+
+本プロジェクトは [MIT ライセンス](../../LICENSE)のもとで公開されています。
+
+Copyright (c) 2026 Daiki Miwa (mowa)
+
+> **注:** GitHub 上のソースコードは MIT ライセンスです。Mac App Store 版は Apple の標準エンドユーザ使用許諾契約（EULA）に基づく有料製品として配布されます。
+
+## サポート
+
+- **バグ報告・機能リクエスト**: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+- **個別のお問い合わせ・セキュリティ報告**: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
+
+法的表記および利用規約については、[サポートページ](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html)をご確認ください。

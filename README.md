@@ -232,3 +232,18 @@ Safari removes temporary extensions after 24 hours or when Safari quits.
 5. For unsigned local development, enable Safari's Develop menu and allow unsigned extensions if Safari does not show the extension after running from Xcode.
 
 The generated app name is a placeholder working name, not a product name.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2026 Daiki Miwa (mowa).
+
+> **Note:** The source code on GitHub is MIT-licensed. The Mac App Store version is distributed as a paid product under Apple's Standard End User License Agreement (EULA).
+
+## Support
+
+- **Bug reports and feature requests**: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+- **Private inquiries and security reports**: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
+
+For legal disclosures and terms of use, see the [Support page](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html).
