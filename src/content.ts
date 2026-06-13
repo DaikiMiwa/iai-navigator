@@ -521,13 +521,22 @@
       },
     },
   ];
-  const userLang =
-    (typeof navigator !== "undefined" && navigator.language?.split("-")[0]) ||
-    "en";
-  const LOCAL_PALETTE_COMMANDS: LocalPaletteCommand[] =
-    RAW_LOCAL_PALETTE_COMMANDS.map((raw) => {
-      const title = raw.titles[userLang] ?? raw.titles.en;
-      const subtitle = raw.subtitles[userLang] ?? raw.subtitles.en;
+  function resolveLanguage(): string {
+    const settingLang = extensionSettings?.language ?? "auto";
+    if (settingLang === "auto") {
+      return (
+        (typeof navigator !== "undefined" &&
+          navigator.language?.split("-")[0]) ||
+        "en"
+      );
+    }
+    return settingLang;
+  }
+  function getLocalPaletteCommands(): LocalPaletteCommand[] {
+    const lang = resolveLanguage();
+    return RAW_LOCAL_PALETTE_COMMANDS.map((raw) => {
+      const title = raw.titles[lang] ?? raw.titles.en;
+      const subtitle = raw.subtitles[lang] ?? raw.subtitles.en;
       const searchHaystack = [
         ...Object.values(raw.titles),
         ...Object.values(raw.subtitles),
@@ -543,6 +552,7 @@
         searchAliases,
       };
     });
+  }
   const COMMAND_PALETTE_FOOTER_HINTS = [
     "Enter/Ctrl+M open",
     "Esc/Ctrl+[/G close",
@@ -2127,27 +2137,29 @@
     query: string,
   ): LocalPaletteCommandResult[] {
     const normalizedQuery = query.trim().toLowerCase();
-    return LOCAL_PALETTE_COMMANDS.flatMap((command) => {
-      const score = localPaletteCommandScore(command, normalizedQuery);
-      if (score === null) {
-        return [];
-      }
+    return getLocalPaletteCommands()
+      .flatMap((command) => {
+        const score = localPaletteCommandScore(command, normalizedQuery);
+        if (score === null) {
+          return [];
+        }
 
-      return [
-        {
-          command: command.id,
-          id: `command:${command.id}`,
-          kind: "command" as const,
-          score: score + 30,
-          subtitle: command.subtitle,
-          title: command.title,
-        },
-      ];
-    }).sort((a, b) => b.score - a.score);
+        return [
+          {
+            command: command.id,
+            id: `command:${command.id}`,
+            kind: "command" as const,
+            score: score + 30,
+            subtitle: command.subtitle,
+            title: command.title,
+          },
+        ];
+      })
+      .sort((a, b) => b.score - a.score);
   }
 
   function commandPaletteCommandIds(): string[] {
-    return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
+    return getLocalPaletteCommands().map((command) => command.id);
   }
 
   function commandPaletteCommandSearchIds(query: string): string[] {

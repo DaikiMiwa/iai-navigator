@@ -312,26 +312,36 @@
             },
         },
     ];
-    const userLang = (typeof navigator !== "undefined" && navigator.language?.split("-")[0]) ||
-        "en";
-    const LOCAL_PALETTE_COMMANDS = RAW_LOCAL_PALETTE_COMMANDS.map((raw) => {
-        const title = raw.titles[userLang] ?? raw.titles.en;
-        const subtitle = raw.subtitles[userLang] ?? raw.subtitles.en;
-        const searchHaystack = [
-            ...Object.values(raw.titles),
-            ...Object.values(raw.subtitles),
-        ]
-            .join(" ")
-            .toLowerCase();
-        const searchAliases = Object.values(raw.aliases).flat();
-        return {
-            id: raw.id,
-            title,
-            subtitle,
-            searchHaystack,
-            searchAliases,
-        };
-    });
+    function resolveLanguage() {
+        const settingLang = extensionSettings?.language ?? "auto";
+        if (settingLang === "auto") {
+            return ((typeof navigator !== "undefined" &&
+                navigator.language?.split("-")[0]) ||
+                "en");
+        }
+        return settingLang;
+    }
+    function getLocalPaletteCommands() {
+        const lang = resolveLanguage();
+        return RAW_LOCAL_PALETTE_COMMANDS.map((raw) => {
+            const title = raw.titles[lang] ?? raw.titles.en;
+            const subtitle = raw.subtitles[lang] ?? raw.subtitles.en;
+            const searchHaystack = [
+                ...Object.values(raw.titles),
+                ...Object.values(raw.subtitles),
+            ]
+                .join(" ")
+                .toLowerCase();
+            const searchAliases = Object.values(raw.aliases).flat();
+            return {
+                id: raw.id,
+                title,
+                subtitle,
+                searchHaystack,
+                searchAliases,
+            };
+        });
+    }
     const COMMAND_PALETTE_FOOTER_HINTS = [
         "Enter/Ctrl+M open",
         "Esc/Ctrl+[/G close",
@@ -1548,7 +1558,8 @@
     }
     function searchLocalPaletteCommands(query) {
         const normalizedQuery = query.trim().toLowerCase();
-        return LOCAL_PALETTE_COMMANDS.flatMap((command) => {
+        return getLocalPaletteCommands()
+            .flatMap((command) => {
             const score = localPaletteCommandScore(command, normalizedQuery);
             if (score === null) {
                 return [];
@@ -1563,10 +1574,11 @@
                     title: command.title,
                 },
             ];
-        }).sort((a, b) => b.score - a.score);
+        })
+            .sort((a, b) => b.score - a.score);
     }
     function commandPaletteCommandIds() {
-        return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
+        return getLocalPaletteCommands().map((command) => command.id);
     }
     function commandPaletteCommandSearchIds(query) {
         return searchLocalPaletteCommands(query).flatMap((result) => result.command ? [result.command] : []);

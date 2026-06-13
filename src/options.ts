@@ -131,6 +131,7 @@
 
   function fillForm(settings: SafariKeyboardNavigationExtensionSettings): void {
     input("enabled").checked = settings.enabled;
+    select("language").value = settings.language;
     select("site-mode").value = settings.siteAccess.mode;
     textarea("allowlist").value = settings.siteAccess.allowlist.join("\n");
     textarea("blocklist").value = settings.siteAccess.blocklist.join("\n");
@@ -165,6 +166,7 @@
 
     const nextSettings = settingsApi.normalizeExtensionSettings({
       enabled: input("enabled").checked,
+      language: select("language").value,
       hintKeys: input("hint-keys").value,
       commandPalette: {
         customSearchUrlTemplate: input("custom-search-url-template").value,

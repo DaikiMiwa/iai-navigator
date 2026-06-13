@@ -138,11 +138,14 @@ interface SafariKeyboardNavigationCommandPaletteSettings {
   searchEngine: SafariKeyboardNavigationSearchEngine;
 }
 
+type SafariKeyboardNavigationLanguage = "auto" | "en" | "ja";
+
 interface SafariKeyboardNavigationExtensionSettings {
   commandPalette: SafariKeyboardNavigationCommandPaletteSettings;
   enabled: boolean;
   hintKeys: string;
   hintStyle: SafariKeyboardNavigationHintStyleSettings;
+  language: SafariKeyboardNavigationLanguage;
   shortcuts: SafariKeyboardNavigationShortcutSettings;
   siteAccess: SafariKeyboardNavigationSiteAccessSettings;
   version: 1;

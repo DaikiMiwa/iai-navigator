@@ -21,6 +21,7 @@
             borderColor: "#ffffff",
             shadowOpacity: 0.32,
         },
+        language: "auto",
         shortcuts: {
             bottom: "G",
             copyUrl: "yy",
@@ -121,6 +122,7 @@
                 borderColor: colorSetting(candidate.hintStyle?.borderColor, defaultSettings.hintStyle.borderColor),
                 shadowOpacity: numberSetting(candidate.hintStyle?.shadowOpacity, defaultSettings.hintStyle.shadowOpacity, 0, 1),
             },
+            language: languageSetting(candidate.language, defaultSettings.language),
             shortcuts: normalizeShortcuts(candidate.shortcuts),
             siteAccess: {
                 allowlist: normalizePatterns(candidate.siteAccess?.allowlist),
@@ -322,6 +324,16 @@
         }
         catch {
             return "";
+        }
+    }
+    function languageSetting(value, fallback) {
+        switch (value) {
+            case "auto":
+            case "en":
+            case "ja":
+                return value;
+            default:
+                return fallback;
         }
     }
 })();
