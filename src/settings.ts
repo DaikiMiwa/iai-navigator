@@ -50,6 +50,7 @@
         borderColor: "#ffffff",
         shadowOpacity: 0.32,
       },
+      language: "auto",
       shortcuts: {
         bottom: "G",
         copyUrl: "yy",
@@ -212,6 +213,7 @@
           1,
         ),
       },
+      language: languageSetting(candidate.language, defaultSettings.language),
       shortcuts: normalizeShortcuts(candidate.shortcuts),
       siteAccess: {
         allowlist: normalizePatterns(candidate.siteAccess?.allowlist),
@@ -484,6 +486,20 @@
         : "";
     } catch {
       return "";
+    }
+  }
+
+  function languageSetting(
+    value: unknown,
+    fallback: SafariKeyboardNavigationLanguage,
+  ): SafariKeyboardNavigationLanguage {
+    switch (value) {
+      case "auto":
+      case "en":
+      case "ja":
+        return value;
+      default:
+        return fallback;
     }
   }
 })();

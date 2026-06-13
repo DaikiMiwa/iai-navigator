@@ -76,6 +76,7 @@ test("normalizes missing and invalid settings to defaults", () => {
   assert.deepEqual(settings.siteAccess.allowlist, ["example.com"]);
   assert.deepEqual(settings.siteAccess.blocklist, ["docs.google.com"]);
   assert.equal(settings.siteAccess.mode, "allowlist");
+  assert.equal(settings.language, DEFAULT_EXTENSION_SETTINGS.language);
 });
 
 test("normalizes command palette search engine settings", () => {
@@ -192,4 +193,17 @@ test("applies site access mode and blocklist rules", () => {
     false,
   );
   assert.equal(isExtensionEnabledForUrl(settings, "https://other.com"), false);
+});
+
+test("normalizes language settings", () => {
+  assert.equal(normalizeExtensionSettings({ language: "en" }).language, "en");
+  assert.equal(normalizeExtensionSettings({ language: "ja" }).language, "ja");
+  assert.equal(
+    normalizeExtensionSettings({ language: "auto" }).language,
+    "auto",
+  );
+  assert.equal(
+    normalizeExtensionSettings({ language: "invalid-lang" }).language,
+    DEFAULT_EXTENSION_SETTINGS.language,
+  );
 });
