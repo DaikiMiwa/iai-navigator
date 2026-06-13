@@ -50,6 +50,10 @@ English is the source of truth for project documentation. Write or update the En
 
 If the English and Japanese versions disagree, the English version wins. Japanese translations should link back to their English source.
 
+## Contribution License
+
+By submitting a pull request, patch, issue comment containing code or documentation, or any other contribution, you agree to the contribution terms in [LICENSE](LICENSE). In short, you grant the project owner permission to use, modify, relicense, distribute, and commercially ship your contribution as part of this project, including in paid official builds.
+
 ## Pull Request Expectations
 
 Before requesting review:
