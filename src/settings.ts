@@ -45,6 +45,10 @@
         mediaFontSize: 15,
         opacity: 1,
         textColor: "#111111",
+        borderRadius: 3,
+        borderWidth: 0,
+        borderColor: "#ffffff",
+        shadowOpacity: 0.32,
       },
       shortcuts: {
         bottom: "G",
@@ -184,6 +188,28 @@
         textColor: colorSetting(
           candidate.hintStyle?.textColor,
           defaultSettings.hintStyle.textColor,
+        ),
+        borderRadius: numberSetting(
+          candidate.hintStyle?.borderRadius,
+          defaultSettings.hintStyle.borderRadius,
+          0,
+          20,
+        ),
+        borderWidth: numberSetting(
+          candidate.hintStyle?.borderWidth,
+          defaultSettings.hintStyle.borderWidth,
+          0,
+          5,
+        ),
+        borderColor: colorSetting(
+          candidate.hintStyle?.borderColor,
+          defaultSettings.hintStyle.borderColor,
+        ),
+        shadowOpacity: numberSetting(
+          candidate.hintStyle?.shadowOpacity,
+          defaultSettings.hintStyle.shadowOpacity,
+          0,
+          1,
         ),
       },
       shortcuts: normalizeShortcuts(candidate.shortcuts),

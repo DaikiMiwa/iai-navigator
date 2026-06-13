@@ -1021,6 +1021,19 @@
       `${style.mediaFontSize}px`,
     );
     root.style.setProperty("--skne-hint-opacity", String(style.opacity));
+    root.style.setProperty(
+      "--skne-hint-border-radius",
+      `${style.borderRadius}px`,
+    );
+    root.style.setProperty(
+      "--skne-hint-border-width",
+      `${style.borderWidth}px`,
+    );
+    root.style.setProperty("--skne-hint-border-color", style.borderColor);
+    root.style.setProperty(
+      "--skne-hint-shadow-opacity",
+      String(style.shadowOpacity),
+    );
   }
 
   function handleHintKeyDown(event: KeyboardEvent): void {
@@ -4592,6 +4605,7 @@
       top: distance * direction,
       behavior: "smooth",
     });
+    triggerScrollIndicator(surface, 0, direction);
   }
 
   function switchTab(direction: TabSwitchDirection): void {
@@ -4624,6 +4638,11 @@
       frameId: 0,
     };
     movementState.frameId = window.requestAnimationFrame(tickMovement);
+    triggerScrollIndicator(
+      surface,
+      movement.dx || movement.speedX,
+      movement.dy || movement.speedY,
+    );
   }
 
   function tickMovement(now: number): void {
@@ -4870,6 +4889,7 @@
       top: 0,
       left: currentScrollX(surface),
     });
+    triggerScrollIndicator(surface, 0, -1);
   }
 
   function scrollToBottom(): void {
@@ -4881,6 +4901,7 @@
       top: maxScrollTop(surface),
       left: currentScrollX(surface),
     });
+    triggerScrollIndicator(surface, 0, 1);
   }
 
   function isPendingSequenceKey(
@@ -5447,6 +5468,87 @@
     }
 
     surface.scrollTo(options);
+  }
+
+  function triggerScrollIndicator(
+    surface: ScrollSurface,
+    dx: number,
+    dy: number,
+  ): void {
+    if (dx === 0 && dy === 0) {
+      return;
+    }
+
+    let rect: DOMRect;
+    if (isWindowSurface(surface)) {
+      rect = new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+    } else {
+      rect = surface.getBoundingClientRect();
+    }
+
+    let dir = "";
+    if (Math.abs(dy) >= Math.abs(dx)) {
+      dir = dy > 0 ? "down" : "up";
+    } else {
+      dir = dx > 0 ? "right" : "left";
+    }
+
+    const indicator = document.createElement("div");
+    indicator.className = `skne-scroll-indicator skne-scroll-${dir}`;
+    indicator.style.position = "fixed";
+
+    if (isWindowSurface(surface)) {
+      if (dir === "down") {
+        indicator.style.bottom = "0";
+        indicator.style.left = "0";
+        indicator.style.width = "100%";
+        indicator.style.height = "5px";
+      } else if (dir === "up") {
+        indicator.style.top = "0";
+        indicator.style.left = "0";
+        indicator.style.width = "100%";
+        indicator.style.height = "5px";
+      } else if (dir === "right") {
+        indicator.style.right = "0";
+        indicator.style.top = "0";
+        indicator.style.height = "100%";
+        indicator.style.width = "5px";
+      } else if (dir === "left") {
+        indicator.style.left = "0";
+        indicator.style.top = "0";
+        indicator.style.height = "100%";
+        indicator.style.width = "5px";
+      }
+    } else {
+      indicator.style.left = `${rect.left}px`;
+      indicator.style.top = `${rect.top}px`;
+      if (dir === "down") {
+        indicator.style.top = `${rect.bottom - 5}px`;
+        indicator.style.width = `${rect.width}px`;
+        indicator.style.height = "5px";
+      } else if (dir === "up") {
+        indicator.style.width = `${rect.width}px`;
+        indicator.style.height = "5px";
+      } else if (dir === "right") {
+        indicator.style.left = `${rect.right - 5}px`;
+        indicator.style.height = `${rect.height}px`;
+        indicator.style.width = "5px";
+      } else if (dir === "left") {
+        indicator.style.height = `${rect.height}px`;
+        indicator.style.width = "5px";
+      }
+    }
+    indicator.style.zIndex = "2147483646";
+    indicator.style.pointerEvents = "none";
+
+    const overlay =
+      document.getElementById("skne-hint-overlay") || document.body;
+    if (overlay) {
+      overlay.appendChild(indicator);
+      setTimeout(() => {
+        indicator.remove();
+      }, 350);
+    }
   }
 
   function maxElementScroll(element: Element, axis: ScrollAxis): number {

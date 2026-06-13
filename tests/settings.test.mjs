@@ -33,6 +33,10 @@ test("normalizes missing and invalid settings to defaults", () => {
       fontSize: 100,
       opacity: 2,
       textColor: "red",
+      borderRadius: 99,
+      borderWidth: 10,
+      borderColor: "blue",
+      shadowOpacity: -1,
     },
     shortcuts: {
       hint: "x",
@@ -51,6 +55,10 @@ test("normalizes missing and invalid settings to defaults", () => {
   assert.equal(settings.hintStyle.fontSize, 28);
   assert.equal(settings.hintStyle.opacity, 1);
   assert.equal(settings.hintStyle.textColor, "#111111");
+  assert.equal(settings.hintStyle.borderRadius, 20);
+  assert.equal(settings.hintStyle.borderWidth, 5);
+  assert.equal(settings.hintStyle.borderColor, "#ffffff");
+  assert.equal(settings.hintStyle.shadowOpacity, 0);
   assert.equal(settings.shortcuts.hint, "x");
   assert.equal(
     settings.shortcuts.top,

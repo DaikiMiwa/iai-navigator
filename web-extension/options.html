@@ -9,103 +9,225 @@
     <script src="options.js" defer></script>
   </head>
   <body>
-    <main>
-      <header>
-        <h1>Safari Keyboard Navigation</h1>
-        <p>Configure shortcuts, site access, and hint appearance.</p>
+    <div class="dashboard-container">
+      <header class="app-header">
+        <div class="header-logo">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="4" width="20" height="16" rx="4" fill="url(#logo-grad)" />
+            <path d="M6 8H7M9 8H10M12 8H13M15 8H18M6 12H9M11 12H13M15 12H18M6 16H18" stroke="white" stroke-width="1.8" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="logo-grad" x1="2" y1="4" x2="22" y2="20" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2f80ed" />
+                <stop offset="1" stop-color="#0056b3" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="header-text">
+            <h1>Safari Keyboard Navigation</h1>
+            <p>Control Safari using only your keyboard</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="save" class="btn-primary" type="button">Save Settings</button>
+          <button id="reset" class="btn-secondary" type="button">Reset</button>
+        </div>
       </header>
 
-      <section aria-labelledby="general-heading">
-        <h2 id="general-heading">General</h2>
-        <label class="checkbox-row">
-          <input id="enabled" type="checkbox">
-          <span>Enable keyboard navigation</span>
-        </label>
-      </section>
-
-      <section aria-labelledby="sites-heading">
-        <h2 id="sites-heading">Sites</h2>
-        <label>
-          Site access mode
-          <select id="site-mode">
-            <option value="all">Run on allowed Safari websites except blocked sites</option>
-            <option value="allowlist">Run only on listed sites</option>
-          </select>
-        </label>
-        <label>
-          Enabled sites
-          <textarea id="allowlist" spellcheck="false" placeholder="example.com&#10;*.example.org"></textarea>
-        </label>
-        <label>
-          Disabled sites
-          <textarea id="blocklist" spellcheck="false" placeholder="docs.google.com&#10;example.com"></textarea>
-        </label>
-      </section>
-
-      <section aria-labelledby="shortcuts-heading">
-        <h2 id="shortcuts-heading">Shortcuts</h2>
-        <div id="shortcuts" class="shortcut-grid"></div>
-      </section>
-
-      <section aria-labelledby="palette-heading">
-        <h2 id="palette-heading">Command Palette</h2>
-        <label>
-          Web search engine
-          <select id="search-engine">
-            <option value="google">Google</option>
-            <option value="duckduckgo">DuckDuckGo</option>
-            <option value="brave">Brave Search</option>
-            <option value="kagi">Kagi</option>
-            <option value="youtube">YouTube</option>
-            <option value="wikipedia">Wikipedia</option>
-            <option value="custom">Custom URL template</option>
-          </select>
-        </label>
-        <label>
-          Custom search URL template
-          <input id="custom-search-url-template" type="url" spellcheck="false" placeholder="https://search.example.com/?q={query}">
-        </label>
-      </section>
-
-      <section aria-labelledby="appearance-heading">
-        <h2 id="appearance-heading">Hint Appearance</h2>
-        <div class="settings-grid">
-          <label>
-            Hint keys
-            <input id="hint-keys" type="text" spellcheck="false">
-          </label>
-          <label>
-            Font size
-            <input id="font-size" type="number" min="9" max="28">
-          </label>
-          <label>
-            Media font size
-            <input id="media-font-size" type="number" min="10" max="32">
-          </label>
-          <label>
-            Font weight
-            <input id="font-weight" type="number" min="400" max="900" step="100">
-          </label>
-          <label>
-            Opacity
-            <input id="opacity" type="number" min="0.35" max="1" step="0.05">
-          </label>
-          <label>
-            Background
-            <input id="background-color" type="color">
-          </label>
-          <label>
-            Text
-            <input id="text-color" type="color">
-          </label>
-        </div>
-      </section>
-
-      <footer>
-        <button id="save" type="button">Save Settings</button>
-        <button id="reset" type="button">Reset to Defaults</button>
+      <div class="status-banner-container">
         <p id="status" role="status"></p>
+      </div>
+
+      <div class="main-layout">
+        <!-- Settings Column -->
+        <div class="settings-column">
+          
+          <!-- General Card -->
+          <div class="card" id="general-card">
+            <div class="card-header">
+              <span class="card-icon">⚙️</span>
+              <h2>General</h2>
+            </div>
+            <div class="card-content">
+              <label class="switch-row">
+                <span class="label-desc">Enable keyboard navigation</span>
+                <div class="switch">
+                  <input id="enabled" type="checkbox">
+                  <span class="slider"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Site Access Card -->
+          <div class="card" id="site-access-card">
+            <div class="card-header">
+              <span class="card-icon">🌐</span>
+              <h2>Site Access</h2>
+            </div>
+            <div class="card-content">
+              <label class="input-group">
+                <span class="label-desc">Site access mode</span>
+                <select id="site-mode" class="custom-select">
+                  <option value="all">Run on allowed websites except blocked sites</option>
+                  <option value="allowlist">Run only on listed sites</option>
+                </select>
+              </label>
+              
+              <div class="site-lists">
+                <label class="input-group">
+                  <span class="label-desc">Enabled sites (Allowlist)</span>
+                  <textarea id="allowlist" spellcheck="false" placeholder="example.com&#10;*.example.org"></textarea>
+                </label>
+                
+                <label class="input-group">
+                  <span class="label-desc">Disabled sites (Blocklist)</span>
+                  <textarea id="blocklist" spellcheck="false" placeholder="docs.google.com&#10;example.com"></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shortcuts Card -->
+          <div class="card" id="shortcuts-card">
+            <div class="card-header">
+              <span class="card-icon">⌨️</span>
+              <h2>Shortcuts</h2>
+            </div>
+            <div class="card-content">
+              <div id="shortcuts" class="shortcut-grid">
+                <!-- Shortcuts will be dynamically injected here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Command Palette Card -->
+          <div class="card" id="palette-card">
+            <div class="card-header">
+              <span class="card-icon">🔍</span>
+              <h2>Command Palette</h2>
+            </div>
+            <div class="card-content">
+              <label class="input-group">
+                <span class="label-desc">Web search engine</span>
+                <select id="search-engine" class="custom-select">
+                  <option value="google">Google</option>
+                  <option value="duckduckgo">DuckDuckGo</option>
+                  <option value="brave">Brave Search</option>
+                  <option value="kagi">Kagi</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="wikipedia">Wikipedia</option>
+                  <option value="custom">Custom URL template</option>
+                </select>
+              </label>
+              <label class="input-group">
+                <span class="label-desc">Custom search URL template</span>
+                <input id="custom-search-url-template" class="custom-input" type="url" spellcheck="false" placeholder="https://search.example.com/?q={query}">
+              </label>
+            </div>
+          </div>
+
+          <!-- Appearance Card -->
+          <div class="card" id="appearance-card">
+            <div class="card-header">
+              <span class="card-icon">🎨</span>
+              <h2>Hint Appearance</h2>
+            </div>
+            <div class="card-content">
+              <div class="appearance-grid">
+                <label class="input-group">
+                  <span class="label-desc">Hint keys</span>
+                  <input id="hint-keys" class="custom-input" type="text" spellcheck="false">
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Font size (px)</span>
+                  <input id="font-size" class="custom-input" type="number" min="9" max="28">
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Media font size (px)</span>
+                  <input id="media-font-size" class="custom-input" type="number" min="10" max="32">
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Font weight</span>
+                  <input id="font-weight" class="custom-input" type="number" min="400" max="900" step="100">
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Opacity</span>
+                  <input id="opacity" class="custom-input" type="number" min="0.35" max="1" step="0.05">
+                </label>
+                <label class="input-group color-input-group">
+                  <span class="label-desc">Background</span>
+                  <div class="color-picker-wrapper">
+                    <input id="background-color" type="color">
+                  </div>
+                </label>
+                <label class="input-group color-input-group">
+                  <span class="label-desc">Text color</span>
+                  <div class="color-picker-wrapper">
+                    <input id="text-color" type="color">
+                  </div>
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Border radius (px)</span>
+                  <input id="border-radius" class="custom-input" type="number" min="0" max="20">
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Border width (px)</span>
+                  <input id="border-width" class="custom-input" type="number" min="0" max="5">
+                </label>
+                <label class="input-group color-input-group">
+                  <span class="label-desc">Border color</span>
+                  <div class="color-picker-wrapper">
+                    <input id="border-color" type="color">
+                  </div>
+                </label>
+                <label class="input-group">
+                  <span class="label-desc">Shadow opacity</span>
+                  <input id="shadow-opacity" class="custom-input" type="number" min="0" max="1" step="0.05">
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sticky Preview Column -->
+        <div class="preview-column">
+          <div class="preview-panel">
+            <div class="preview-header">
+              <h3>Live Hint Preview</h3>
+            </div>
+            
+            <!-- macOS Window Mockup -->
+            <div class="mock-browser">
+              <div class="mock-browser-header">
+                <div class="traffic-lights">
+                  <span class="light red"></span>
+                  <span class="light yellow"></span>
+                  <span class="light green"></span>
+                </div>
+                <div class="mock-address-bar">
+                  <span>wikipedia.org/wiki/Safari</span>
+                </div>
+              </div>
+              <div class="mock-browser-content">
+                <div class="preview-canvas">
+                  <button class="preview-target" type="button">Read Articles</button>
+                  <span id="hint-preview-label" class="skne-hint">ad</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-footer">
+              <p>Type matching keys in Safari to target links. Your customizations are shown in real-time above.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="app-footer">
+        <p>&copy; 2026 Safari Keyboard Navigation Extension. Designed with detail.</p>
       </footer>
-    </main>
+    </div>
   </body>
 </html>
