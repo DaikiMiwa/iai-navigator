@@ -2,29 +2,13 @@
 
 This draft is intentionally written without Vim, Vimium, or Vomnibar branding. The App Store listing should sell the product as its own Safari-native keyboard navigation tool.
 
-## Naming Direction
+## Official Product Name
 
-Recommended direction: a short original name plus a descriptive subtitle.
+- **IAI for Safari**
 
-Working examples that still need availability and trademark checks:
+## Subtitle
 
-- KeyNav for Safari
-- Homerow Navigator
-- SurfKeys for Safari
-- Keyboard Navigator for Safari
-
-Avoid:
-
-- Vimium for Safari
-- Vim-like Safari Extension
-- Vomnibar for Safari
-- Any name that implies compatibility, endorsement, or replacement of another product.
-
-## Subtitle Options
-
-- Keyboard-first Safari control
-- Fast tab, link, and page control
-- Private keyboard browsing tools
+- Fast keyboard browser navigator
 
 ## Short Promotional Text
 
@@ -47,11 +31,19 @@ Highlights:
 - Japanese IME-aware keyboard handling that avoids swallowing composition and confirmation keys.
 - Local-first privacy: no analytics, no advertising SDKs, no telemetry, and no developer-controlled server for browsing data.
 
-The extension runs locally in Safari. Website access is used to find visible page targets and place keyboard hints. Tab, bookmark, and history access is used to power the command palette. See the privacy policy for details.
+The extension runs locally in Safari. Website access is used to find visible page targets and place keyboard hints. Tab, bookmark, and history access is used to power the command palette.
+
+## Support URL
+
+https://github.com/DaikiMiwa/safari-keyboard-navigation-extension
+
+## Privacy Policy URL
+
+https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/blob/main/docs/privacy-policy.md
 
 ## Keywords Draft
 
-keyboard, safari extension, shortcuts, command palette, tab search, bookmarks, history, link hints, productivity, browser navigation
+keyboard, safari extension, shortcuts, command palette, tab search, bookmarks, history, link hints, productivity, browser navigation, iai
 
 Do not include third-party app names or trademarked terms as keywords unless legal review approves them.
 

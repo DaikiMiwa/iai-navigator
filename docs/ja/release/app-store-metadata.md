@@ -2,29 +2,13 @@
 
 このドラフトは、Vim、Vimium、Vomnibar などのブランディングに頼らず、独自の Safari ネイティブのキーボードナビゲーションツールとして訴求する目的で作成されています。
 
-## Naming direction (アプリ名案)
+## 正式アプリ名
 
-おすすめは、短い独自名 + 説明的なサブタイトルです。
+- **IAI for Safari**
 
-現在、商標および提供状況の確認が必要な候補：
+## サブタイトル
 
-- KeyNav for Safari
-- Homerow Navigator
-- SurfKeys for Safari
-- Keyboard Navigator for Safari
-
-避けるべき名称：
-
-- Vimium for Safari
-- Vim-like Safari Extension
-- Vomnibar for Safari
-- その他、サードパーティ製品との互換性や推奨、置き換えを想起させる名前
-
-## Subtitle options (サブタイトル案)
-
-- キーボード操作でSafariを高速コントロール
-- タブ、リンク、ページの高速キーボード操作
-- プライバシー重視のキーボードブラウジング
+- キーボード操作でSafariを高速ナビゲート
 
 ## Short promotional text (簡単な紹介文)
 
@@ -47,11 +31,19 @@
 - 日本語IMEへの配慮：IMEによる文字の入力中や変換確定時のEnterキー押下により、意図せずコマンドパレットが起動したり誤動作したりするのを防止。
 - プライバシー保護：アナリティクスなし、広告SDKなし、テレメトリーなし。閲覧データが外部のデベロッパーサーバーに送信されることは一切ありません。
 
-本拡張機能はSafari内で完全にローカルで動作します。Webサイトへのアクセス権限は、表示されているリンクを検出してキーボードヒントを描画するために使用されます。タブ、ブックマーク、履歴へのアクセス権限は、コマンドパレットの検索機能を動作させるために使用されます。詳細はプライバシーポリシーをご覧ください。
+本拡張機能はSafari内で完全にローカルで動作します。Webサイトへのアクセス権限は、表示されているリンクを検出してキーボードヒントを描画するために使用されます。タブ、ブックマーク、履歴へのアクセス権限は、コマンドパレットの検索機能を動作させるために使用されます。
+
+## サポートURL
+
+https://github.com/DaikiMiwa/safari-keyboard-navigation-extension
+
+## プライバシーポリシーURL
+
+https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/blob/main/docs/privacy-policy.md
 
 ## Keywords draft (キーワードドラフト)
 
-キーボード, safari 拡張機能, ショートカット, コマンドパレット, タブ検索, ブックマーク, 履歴, リンクヒント, 生産性, ブラウザ操作
+キーボード, safari 拡張機能, ショートカット, コマンドパレット, タブ検索, ブックマーク, 履歴, リンクヒント, 生産性, ブラウザ操作, iai
 
 ※法務確認が取れるまでは、サードパーティのアプリ名や商標登録された用語をキーワードに含めないでください。
 

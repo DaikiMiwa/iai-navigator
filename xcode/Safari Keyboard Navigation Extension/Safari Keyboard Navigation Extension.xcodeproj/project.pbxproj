@@ -462,7 +462,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Safari Keyboard Navigation Extension Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari Keyboard Navigation Extension Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "IAI for Safari";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -475,8 +475,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.SafariKeyboardNavigationExtension.Extension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.iai.extension;
+				PRODUCT_NAME = IAIExtension;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -497,7 +497,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Safari Keyboard Navigation Extension Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari Keyboard Navigation Extension Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "IAI for Safari";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -510,8 +510,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.SafariKeyboardNavigationExtension.Extension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.iai.extension;
+				PRODUCT_NAME = IAIExtension;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -536,7 +536,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Safari Keyboard Navigation Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari Keyboard Navigation Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = IAI;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -551,8 +551,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.SafariKeyboardNavigationExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.iai;
+				PRODUCT_NAME = IAI;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -578,7 +578,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Safari Keyboard Navigation Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari Keyboard Navigation Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = IAI;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -593,8 +593,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.SafariKeyboardNavigationExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.daikimiwa.iai;
+				PRODUCT_NAME = IAI;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

@@ -1,6 +1,6 @@
 # 権限とプライバシー
 
-Safari Keyboard Navigation は Safari 内でローカルに動作します。analytics、telemetry、広告 SDK、remote logging、閲覧データをサーバーへ送るための network code は含みません。
+IAI for Safari は Safari 内でローカルに動作します。analytics、telemetry、広告 SDK、remote logging、閲覧データをサーバーへ送るための network code は含みません。
 
 ## 拡張機能がアクセスできるもの
 

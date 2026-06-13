@@ -9,7 +9,7 @@ import Cocoa
 import SafariServices
 import WebKit
 
-let extensionBundleIdentifier = "com.daikimiwa.SafariKeyboardNavigationExtension.Extension"
+let extensionBundleIdentifier = "com.daikimiwa.iai.extension"
 
 class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
 
