@@ -1,21 +1,114 @@
-MIT License
+Safari Keyboard Navigation Extension Source-Available License
 
 Copyright (c) 2026 Daiki Miwa (mowa)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This is a source-available license, not an open source license as defined by
+the Open Source Initiative. All rights not expressly granted by this license
+are reserved by the copyright holder.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## 1. Scope
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+This license applies to the source code, documentation, and other repository
+materials in this repository unless a file states otherwise.
+
+Third-party dependencies, tools, and assets remain governed by their own
+licenses. This license does not change any rights or obligations for
+third-party materials.
+
+Official signed, notarized, TestFlight, App Store, or Mac App Store builds are
+distributed separately under their applicable distribution terms, including
+Apple's Standard End User License Agreement where applicable.
+
+## 2. Definitions
+
+"Software" means the materials covered by this license.
+
+"Branding" means project names, app names, icons, logos, screenshots, product
+copy, website/domain names, store listing text, and other source-identifying
+assets associated with the original project.
+
+"Personal Non-Commercial Use" means use by an individual for private study,
+review, testing, experimentation, or personal browsing, without commercial
+advantage, monetary compensation, paid distribution, or use on behalf of an
+organization.
+
+"Project Owner" means Daiki Miwa (mowa), or a successor explicitly designated
+by Daiki Miwa (mowa).
+
+## 3. Permissions
+
+You may:
+
+1. View, study, and audit the source code.
+2. Clone or fork the repository for personal review, experimentation, or
+   contributing changes back to this project.
+3. Build and run the Software from source for your own Personal
+   Non-Commercial Use.
+4. Modify the Software for your own Personal Non-Commercial Use.
+5. Publish a source-code fork solely for the purpose of proposing, discussing,
+   or submitting changes back to this project, provided that you keep all
+   copyright, license, and attribution notices intact.
+6. Submit issues, pull requests, patches, or other contributions to this
+   project.
+
+## 4. Restrictions
+
+You may not, without prior written permission from the Project Owner:
+
+1. Sell, rent, lease, sublicense, or otherwise commercially exploit the
+   Software or any modified version of it.
+2. Use the Software or any modified version of it on behalf of a company,
+   organization, client, or other commercial project.
+3. Distribute, publish, or make available a compiled app, browser extension,
+   package, installer, archive, or substantially similar product based on the
+   Software.
+4. Submit the Software, a modified version, or a substantially similar product
+   based on the Software to the Mac App Store, App Store, TestFlight, browser
+   extension stores, package registries, download sites, or other public
+   distribution channels.
+5. Use the Branding in a way that suggests endorsement by, sponsorship by, or
+   affiliation with the original project or Project Owner.
+6. Remove or obscure copyright, license, attribution, privacy, or permission
+   notices.
+7. Use the Software in a way that violates applicable law, platform terms,
+   browser extension store rules, or App Store rules.
+
+## 5. Contributions
+
+By submitting a pull request, patch, issue comment containing code or
+documentation, or any other contribution to this repository, you represent that
+you have the right to submit it.
+
+Unless agreed otherwise in writing, you grant the Project Owner a perpetual,
+worldwide, non-exclusive, irrevocable, royalty-free license to use, reproduce,
+modify, prepare derivative works of, publicly display, publicly perform,
+distribute, sublicense, relicense, and commercially exploit your contribution as
+part of this project, including in paid App Store, Mac App Store, and other
+official builds.
+
+You also agree that your contribution may be made available to the public under
+this license or any later license chosen by the Project Owner.
+
+## 6. Termination
+
+If you violate this license, the permissions granted to you terminate
+automatically. The Project Owner may reinstate permissions only by written
+permission.
+
+Sections 4, 5, 6, 7, and 8 survive termination.
+
+## 7. No Trademark Rights
+
+This license does not grant any trademark, service mark, trade name, branding,
+publicity, or endorsement rights. You may use the project name only as necessary
+to identify the original source of the Software or to describe a fork that is
+clearly not affiliated with the original project.
+
+## 8. No Warranty
+
+The Software is provided "as is", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability, fitness
+for a particular purpose, and noninfringement. In no event shall the copyright
+holder or contributors be liable for any claim, damages, or other liability
+arising from, out of, or in connection with the Software or the use of the
+Software.

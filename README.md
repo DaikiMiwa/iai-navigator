@@ -1,122 +1,153 @@
 # Safari Keyboard Navigation Extension
 
-Working-name repository for a small, auditable Safari Web Extension that provides Vimium-like link hints and page movement without becoming a full browser automation suite.
+A small Safari Web Extension for keyboard-first browsing.
 
-## MVP Behavior
+Safari Keyboard Navigation Extension adds Vimium-like link hints, page movement, tab switching, URL copying, and a lightweight navigation palette to Safari without trying to become a full browser automation suite. The project is intentionally small, auditable, and privacy-conscious.
 
-- `f` shows compact yellow, black-text hints for visible link targets, safe navigation menu triggers, bounded media player controls, native form controls, and semantic custom controls in the current viewport on normal `http`, `https`, and local `file:` HTML pages.
-- Typing a complete link hint fires that link's normal click behavior in the current tab.
-- Typing a complete navigation menu trigger hint focuses the trigger first, safely clicks only explicit disclosure-style triggers if focus does not reveal links, and then rescans visible targets.
-- Typing a complete media player control hint focuses and clicks visible controls inside recognized player chrome, such as YouTube's player controls.
-- When recognized media controls are hidden, `f` may show a player-surface hint that focuses the player, sends a best-effort reveal event, and rescans for newly visible controls.
-- Typing a complete form-control hint focuses text-entry controls with the caret at the end, or fires the control's normal click behavior for controls such as buttons, checkboxes, radios, and selects.
-- Typing a complete semantic custom control hint fires that element's normal click/focus behavior for controls such as ARIA tabs, buttons, links, and inline expanders.
-- `Shift+F` shows hints for visible `http` and `https` link targets and opens the chosen target in a new foreground tab.
-- `Esc` cancels hint mode.
-- `h`, `j`, `k`, and `l` scroll in smooth small steps and continue smoothly while held.
-- `u` and `d` smoothly move up and down by half a page.
-- Pressing `g` twice quickly moves to the top of the page.
-- `Shift+G` moves to the bottom of the page.
-- `Shift+H` navigates back and `Shift+L` navigates forward in the current tab history.
-- `r` reloads the current page from normal page focus.
-- `Esc` blurs focused text inputs, textareas, and editable content so normal page focus commands can resume.
-- `Shift+J` switches to the tab on the left, and `Shift+K` switches to the tab on the right.
-- `Option+Shift+J` and `Option+Shift+K` provide browser-level fallback tab switching when Safari Start Page, the address bar, or browser chrome has focus.
-- `o` opens a browser navigation palette that searches open tabs across browser windows, locally observed pages, extension commands, direct URLs, and web searches with a configurable search engine, plus browser-provided bookmarks and history when available at runtime.
-- The default `o` palette can surface open tabs, locally observed destinations, and browser-provided bookmark or history suggestions before typing when those data sources are available.
-- The `v` history palette shows recent history when Safari exposes history results, with locally observed pages as a fallback when browser history is unavailable or does not return empty-query results.
-- History results are ranked with a bounded visit-frequency boost in addition to recency, so frequently opened destinations are easier to reach.
-- The empty `o` / `Shift+O` palette can show recent palette queries; choosing one fills the input and reruns that search without closing the palette.
-- `ge` opens the command palette with the current page URL prefilled as `url: ...` so it can be edited before opening.
-- `gE` opens the command palette with the current page URL prefilled as `url: ...` and defaults activation to a new foreground tab.
-- Command palette extension commands include page history actions plus tab operations such as New tab, Duplicate current tab, Previous/Next tab, and Close current tab.
-- Command palette commands also match aliases such as `nt`, `dup`, `close tab`, `options`, `gg`, and `ge`.
-- Palette prefixes can narrow intent: `tab:`/`t:`, `book:`/`b:`, `history:`/`h:`, `visit:`/`v:`, `cmd:`/`m:`, `url:`/`u:`, and `search:`/`s:`. Search engine prefixes `g:`, `ddg:`, `br:`, `k:`, `yt:`, and `w:` force Google, DuckDuckGo, Brave Search, Kagi, YouTube, and Wikipedia for a single query.
-- Palette destination queries support quoted phrases such as `"project docs"` and negative filters such as `docs -archive`.
-- Palette destination queries can target fields with `title:<term>`, `url:<term>`, and `domain:<term>` / `host:<term>`, including phrases and negative filters such as `title:"project docs" domain:github.com -url:archive`.
-- `Option+C` copies the selected command palette browser destination URL without opening it.
-- `Option+Y` copies the selected command palette browser destination as a Markdown link without opening it.
-- `Option+E` puts the selected command palette destination URL back into the input as `url: ...` so it can be edited before opening.
-- The `Edit current URL` command puts the current page address back into the input as `url: ...` so it can be edited before opening.
-- `Option+D` narrows the command palette query to the selected destination's domain without closing the palette.
-- `Option+F` narrows the command palette query to the selected destination's title without closing the palette.
-- `Option+U` narrows the command palette query to the selected destination's URL without closing the palette.
-- `Option+Backspace` forgets the selected local visit result, removes the selected history result, or forgets the currently recalled palette query.
-- `Option+W` closes the selected open-tab result from the command palette.
-- `Option+1` through `Option+9` activate the corresponding visible command palette result; add `Shift` to open the numbered result in a new foreground tab, or add `Control` to open it in a background tab while keeping the palette open.
-- Background-tab activation keeps the command palette open and advances to the next result so several results can be queued quickly.
-- `Ctrl+m` activates the selected command palette result like `Enter`; `Ctrl+[` and `Ctrl+g` close the palette like `Esc`.
-- `Ctrl+i` moves to the next command palette result like `Tab`.
-- `Ctrl+j` and `Ctrl+k` move the command palette selection down and up while plain `j` and `k` keep typing into the input.
-- `Ctrl+f` / `Ctrl+v` and `Ctrl+b` move the command palette selection down and up by a page without leaving the input.
-- `Option+Up` and `Option+Down` recall recent command palette queries.
-- `Ctrl+a` and `Ctrl+e` move the command palette input caret to the beginning and end without changing the query.
-- `Ctrl+l` selects the whole command palette query without closing the palette.
-- `Ctrl+u` clears the current command palette query without closing the palette.
-- `Ctrl+d` deletes the next command palette query character, or the selected query text, without closing the palette.
-- `Ctrl+h` deletes the previous command palette query character, or the selected query text, without closing the palette.
-- `Ctrl+w` deletes the previous command palette query word without closing the palette.
-- `Ctrl+r` / `Option+R` refreshes command palette results without closing the palette or changing the query.
-- `Option+A/T/B/H/V/S/M` changes the command palette source to all sources, tabs, bookmarks, history, local visits, search, or commands while preserving the current query. `Shift+Option+U` switches to direct URL generation.
-- `b` opens a bookmark-only palette when Safari exposes bookmark results, `v` opens a recent-history-only palette with local fallback destinations, and `Shift+T` opens an open-tab-only palette. `Shift+B` and `Shift+V` open bookmark and history results in a new tab when those sources are available.
-- Browser-provided bookmark results also match and display folder paths, so a query such as `work docs` can find bookmarks stored under matching folders when Safari exposes bookmark data.
-- Browser destinations opened from the command palette are recorded locally so recently selected destinations are easier to find again.
-- `Shift+O` opens palette results in a new foreground tab.
-- The generated web search result can use Google, DuckDuckGo, Brave Search, Kagi, YouTube, Wikipedia, or a custom URL template with `{query}`.
-- `b` and `Shift+B` search bookmarks in the current tab or a new foreground tab when Safari exposes bookmark data.
-- `Shift+T` searches open tabs across browser windows.
-- Open-tab palette results use browser-provided last-accessed time when available, so recently used tabs are easier to switch back to.
-- Pressing `y` twice quickly copies the current page URL and shows a small confirmation.
-- `?` opens a keyboard shortcut help overlay, and `Esc` closes it.
-- Text inputs, textareas, selects, and editable content keep normal typing behavior.
-- PDFs get best-effort page movement only; PDF link hints are intentionally out of scope.
+Inspired by projects such as [Vimium](https://github.com/philc/vimium) and [Vimari](https://github.com/televator-apps/vimari), this extension focuses on the Safari-specific parts of keyboard navigation: link hints that behave like normal clicks, smooth page movement, practical tab commands, and a palette that works within Safari's Web Extension limits.
 
-## Repository Layout
+## Features
 
-- `src/`: TypeScript source for the content scripts.
-- `web-extension/`: Safari-loaded Web Extension package; JavaScript files are generated from `src/`.
-- `xcode/`: generated macOS Safari Web Extension app project.
-- `tests/`: Node tests for pure JavaScript logic.
-- `CONTEXT.md`: project glossary and domain language.
-- `docs/research/ipados-safari-support.md`: iPadOS Safari compatibility spike notes.
-- `docs/research/bookmark-history-open-command.md`: compatibility spike for bookmark/history-backed destination search.
-- `docs/release/app-store-release-checklist.md`: App Store submission readiness checklist.
-- `docs/release/app-store-metadata.md`: App Store listing and review-note draft.
-- `docs/release/positioning.md`: product positioning and differentiation guidance.
+- Show link hints with `f`, then type a hint to open the target in the current tab.
+- Open hinted links in a new foreground tab with `Shift+F`.
+- Move around pages with familiar keys such as `h`, `j`, `k`, `l`, `u`, `d`, `gg`, and `Shift+G`.
+- Navigate browser history with `Shift+H` and `Shift+L`.
+- Switch tabs with `Shift+J` and `Shift+K`.
+- Copy the current page URL with `yy`.
+- Open a navigation palette with `o` for tabs, local visit history, commands, URLs, searches, and browser-provided bookmarks or history when Safari exposes them.
+- Open bookmark, history, and tab-focused palettes with `b`, `v`, and `Shift+T`.
+- View available shortcuts with `?`.
+- Keep normal typing behavior in text inputs, textareas, selects, and editable content.
 
-## Documentation Language
+Safari support differs from Chromium-based browsers in a few places, especially around bookmarks, history, PDFs, and extension APIs. The extension uses best-effort fallbacks where Safari limits access.
 
-English is the canonical language for project documentation. Japanese translations live under `docs/ja/` and are derived from the English source. If the English and Japanese documents disagree, follow the English version.
+## Status
 
-For permission and privacy details, see [Permissions and Privacy](docs/permissions-and-privacy.md).
+This project is in early development. The source code is published for transparency, review, and community contributions, but the project is source-available rather than open source. Behavior, naming, packaging, licensing, and release details may still change before the first stable public release.
 
-Start here for Japanese documentation:
+## Usage
 
-- `docs/ja/README.md`
-- `docs/ja/contributing.md`
-- `docs/ja/process/documentation-language.md`
-- `docs/ja/process/github-workflow.md`
-- `docs/ja/research/ipados-safari-support.md`
-- `docs/ja/research/bookmark-history-open-command.md`
-- `docs/ja/release/app-store-release-checklist.md`
-- `docs/ja/release/app-store-metadata.md`
-- `docs/ja/release/positioning.md`
+After enabling the extension in Safari, visit a normal web page and try these shortcuts:
 
-## Build And Test
+| Shortcut | Action |
+| --- | --- |
+| `f` | Show hints for visible links and controls, then open the selected target in the current tab. |
+| `Shift+F` | Show link hints and open the selected link in a new foreground tab. |
+| `h` / `j` / `k` / `l` | Scroll left, down, up, or right. |
+| `u` / `d` | Move up or down by half a page. |
+| `gg` / `Shift+G` | Move to the top or bottom of the page. |
+| `Shift+H` / `Shift+L` | Go back or forward in tab history. |
+| `Shift+J` / `Shift+K` | Switch to the tab on the left or right. |
+| `o` | Open the navigation palette. |
+| `b` / `v` / `Shift+T` | Open bookmark, history, or open-tab palettes. |
+| `yy` | Copy the current page URL. |
+| `?` | Show the shortcut help overlay. |
+| `Esc` | Cancel hint mode, close overlays, or blur focused editable fields. |
 
-The active `xcode-select` path on this machine may point at Command Line Tools. Use `DEVELOPER_DIR` so commands resolve against the installed Xcode app:
+Shortcuts are ignored while typing in text fields and editable content, except for commands that intentionally leave editing focus such as `Esc`.
+
+## Installation
+
+### Temporary Safari Load
+
+Use this path for quick local testing:
+
+1. Build the Web Extension files:
+
+   ```sh
+   pnpm install
+   pnpm run build:web
+   ```
+
+2. Open Safari > Settings.
+3. Enable the Developer tab if needed from Advanced > Show features for web developers.
+4. In Safari > Settings > Developer, enable Allow unsigned extensions.
+5. Click Add Temporary Extension and select the `web-extension/` folder.
+6. Enable the extension in Safari Settings > Extensions and grant website access.
+
+Safari removes temporary extensions after 24 hours or when Safari quits.
+
+### Xcode App Load
+
+Use this path when testing the generated macOS Safari extension app:
+
+1. Build the Xcode project:
+
+   ```sh
+   pnpm run build:xcode
+   ```
+
+2. Open `xcode/Safari Keyboard Navigation Extension/Safari Keyboard Navigation Extension.xcodeproj` in Xcode.
+3. Select a development team for both targets in Signing & Capabilities, or choose Sign to Run Locally for unsigned local testing.
+4. Run the `Safari Keyboard Navigation Extension` scheme.
+5. Enable the extension in Safari Settings > Extensions and grant website access.
+
+## Development
+
+Requirements:
+
+- Node.js 20 or newer
+- pnpm 10 or newer
+- Xcode for Safari extension app builds
+
+Install dependencies:
 
 ```sh
 pnpm install
+```
+
+Run the standard verification suite:
+
+```sh
 pnpm run check
+```
+
+Build the Web Extension package that Safari loads:
+
+```sh
+pnpm run build:web
+```
+
+Build the generated Xcode app project:
+
+```sh
 pnpm run build:xcode
 ```
 
-`src/*.ts` is the editing source of truth for script logic. `pnpm run build:web` compiles it to `web-extension/*.js`, which is what Safari and Xcode load. Biome is used for formatting and linting; ESLint is intentionally not used.
+The TypeScript source of truth lives in `src/`. Generated JavaScript in `web-extension/` is produced by `pnpm run build:web`. The project uses Biome for formatting and linting; ESLint and Prettier are intentionally not used.
 
-## Manual Test Page
+## Project Philosophy
 
-After loading the extension in Safari, serve the manual test page over `http`:
+- Keep the extension small enough to audit.
+- Prefer normal browser and page behavior over synthetic automation.
+- Respect editable fields and existing website shortcuts where possible.
+- Treat Safari API differences as product constraints instead of pretending the extension is a Chromium clone.
+- Keep documentation useful for both users and contributors.
+
+## Repository Layout
+
+- `src/`: TypeScript source for the extension logic.
+- `web-extension/`: Safari-loaded Web Extension package.
+- `xcode/`: generated macOS Safari Web Extension app project.
+- `tests/`: Node test suite for extension logic.
+- `manual-test/`: local pages for manual Safari behavior checks.
+- `docs/`: user, contributor, research, release, privacy, and support documentation.
+
+## Documentation
+
+Useful starting points:
+
+- [Permissions and Privacy](docs/permissions-and-privacy.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Japanese documentation](docs/ja/README.md)
+
+English documentation is canonical. Japanese translations live under `docs/ja/` and are derived from the English source. If an English document and its Japanese translation disagree, follow the English document.
+
+## Manual Testing
+
+After loading the extension in Safari, serve the manual test pages over HTTP:
 
 ```sh
 python3 -m http.server 8765
@@ -124,126 +155,34 @@ python3 -m http.server 8765
 
 Then open `http://localhost:8765/manual-test/` in Safari.
 
-Useful checks:
+Manual testing is most useful when browser behavior, keyboard handling, Safari permissions, packaging, or visual extension UI changes. Automated checks should still pass before requesting review.
 
-- Visible links receive hints.
-- Safe visible navigation menu triggers receive hints and rescan newly revealed links after activation.
-- Visible bounded media player controls receive hints and activate through normal click/focus behavior.
-- Visible native form controls receive hints.
-- Visible semantic custom controls, such as `role="tab"`, receive hints.
-- Inline semantic custom controls, such as `role="button"` expanders whose visible text provides the layout box, receive hints.
-- Visible `aria-hidden` links, such as visual thumbnail links with a separate text link, receive hints.
-- `Shift+F` opens visible `http` and `https` links in a new foreground tab.
-- Completing hints for text inputs and textareas focuses the control with the caret at the end.
-- Completing hints for checkboxes, radios, buttons, and selects fires normal click/focus behavior.
-- Completing hints for semantic custom controls fires normal click/focus behavior.
-- Completing hints for visible media controls fires normal click/focus behavior.
-- On a YouTube watch page, pressing `f` should reveal hidden player controls before collecting hints where Safari and YouTube accept the synthetic reveal event; visible play/pause, mute, captions, settings, theater/miniplayer, and fullscreen controls receive hints.
-- Disabled, hidden, and offscreen controls do not receive hints.
-- Wrapped links receive one hint.
-- Hidden links do not receive hints.
-- `href="#"` and `javascript:` links activate through normal click behavior.
-- Focus-revealed navigation menus and click-revealed disclosure menus can be opened through a hint, then newly visible menu links receive normal hints.
-- `Esc` cancels hint mode.
-- Typing in inputs, textareas, and editable content is not intercepted.
-- `j/k` scroll vertically with smooth single steps, `h/l` scroll horizontally with smooth single steps where possible, held keys transition into continuous scrolling without a visible stutter, `u/d` smoothly move by half a page, `gg` moves to the top, and `Shift+G` moves to the bottom.
-- Open `manual-test/history-a.html`, navigate to `history-b.html`, then verify `Shift+H` goes back and `Shift+L` goes forward.
-- Press `r` from normal page focus and verify the Reload Command page load count increments.
-- Press `r` while focused inside an input, textarea, or editable content and verify it types normally instead of reloading.
-- Press `f`, then press `r` while hint mode is active and verify hint mode consumes the key instead of reloading.
-- Press `f`, type the first character of a multi-character hint, and verify the typed prefix turns red while the remaining hint characters keep their normal color.
-- Press `Esc` while focused inside a text input, textarea, or editable content and verify focus leaves the editable element.
-- Open at least three Safari tabs with the extension enabled, then verify `Shift+J` switches to the left tab and `Shift+K` switches to the right tab.
-- Focus Safari Start Page or the address bar, then verify `Option+Shift+J` switches to the left tab and `Option+Shift+K` switches to the right tab.
-- Verify the public manifest does not request local `file:` page access. If a future development-only manifest reintroduces local file support, test it separately from the App Store build.
-- Open `manual-test/frame-host.html`, click inside the frame, then verify `Shift+J/K` still switch tabs and `f` still shows hints inside the frame.
-- Press `yy` and paste into the text input to verify the current page URL was copied.
-- Press `y`, wait briefly, then press `y` again and verify the URL is not copied.
-- Press `y`, then `Esc`, then `y` again and verify the URL is not copied.
-- Press `f`, then press `yy` while hint mode is active and verify hint mode consumes the keys instead of copying the URL.
-- Press `?` from normal page focus and verify the shortcut help overlay is readable, lists the current commands, and closes with `Esc`.
-- Visit an `http` or `https` page with the extension enabled, open another page, press `o`, type the earlier page title or URL, and verify the locally observed page result can be opened.
-- Press `o` from normal page focus, type a tab title, locally observed page, command name, URL, search term, or browser-provided bookmark/history result, and verify `Enter` opens or runs the selected result.
-- With a Japanese IME active, press `o` while IME composition is starting and verify the extension does not open the palette or consume the IME confirmation `Enter`.
-- Press `o` from normal page focus before typing and verify browser-provided recent bookmark suggestions can appear in the all-source palette when Safari exposes bookmark data.
-- Press `o` from normal page focus before typing and verify open tabs can appear; if Safari exposes history data, verify recent history can appear too.
-- Press `o` from normal page focus after using the palette, verify recent query suggestions can appear before typing, and verify selecting one fills the input and refreshes results without closing the palette.
-- Press `ge` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input.
-- Press `gE` from normal page focus and verify the palette opens with `url: <current page URL>` already in the input, then `Enter` opens the edited URL in a new foreground tab.
-- In the palette, type `back`, `forward`, `prev tab`, or `next tab` and verify the selected command runs the matching navigation or tab-switch action.
-- In the palette, type `ge` or `edit current url`, activate the command, and verify the input changes to `url: <current page URL>` without closing the palette.
-- In the palette, type `"project docs"` to verify the phrase is matched as one term, and type `docs -archive` to verify matching archive destinations are excluded.
-- In the palette, type `title:"project docs" domain:github.com -url:archive` to verify destination results can be narrowed by title, URL, and domain fields.
-- In the palette, type `u: example.com` and verify only a direct URL result appears; type `s: example.com` and verify only a web search result appears. Repeat with the long `url:` and `search:` prefixes.
-- In the palette, type `ddg: safari keyboard` and verify the generated search result uses DuckDuckGo; repeat with `g:`, `br:`, `k:`, `yt:`, and `w:`.
-- In the palette, verify `ArrowDown`, `ArrowUp`, `Ctrl+n`, `Ctrl+p`, `Ctrl+i`, `Tab`, and `Shift+Tab` move the selected result without leaving the palette. Verify `PageDown` / `PageUp` move by a larger step, `Home` / `End` jump to the first and last result, and the selected row stays visible while moving through a long result list.
-- In the palette, verify `Shift+Enter`, `Command+Enter`, and `Control+Enter` open a browser destination in a new foreground tab.
-- In the palette, verify `Alt+Enter` / `Option+Enter` opens a browser destination in a new background tab without activating it, keeps the palette open, and moves selection to the next result.
-- In the palette, verify `Alt+C` / `Option+C` copies the selected browser destination URL without opening it.
-- In the palette, verify `Alt+Y` / `Option+Y` copies the selected browser destination as a Markdown link without opening it.
-- In the palette, verify `Alt+E` / `Option+E` changes the input to `url: <selected URL>` for a selected browser destination without closing the palette.
-- In the palette, verify `Alt+D` / `Option+D` changes the input to `domain:<selected host>` for a selected browser destination without closing the palette.
-- In the palette, verify `Alt+F` / `Option+F` changes the input to `title:"<selected title>"` for a selected browser destination without closing the palette.
-- In the palette, verify `Alt+U` / `Option+U` changes the input to `url:<selected URL>` for a selected browser destination without closing the palette.
-- In the palette, verify `Alt+Backspace` / `Option+Backspace` forgets a selected local visit result, removes a selected history result, or forgets the currently recalled palette query.
-- In the palette, verify `Alt+W` / `Option+W` closes the selected open-tab result and refreshes the result list.
-- In the palette, verify `Alt+1` / `Option+1` through `Alt+9` / `Option+9` activate the matching visible numbered result. Verify `Shift+Alt+1` / `Shift+Option+1` opens the first result in a new foreground tab, and `Control+Alt+1` / `Control+Option+1` opens it in a background tab while keeping the palette open and advancing selection.
-- In the palette, verify `Ctrl+m` activates the selected result like `Enter`, and `Ctrl+[` / `Ctrl+g` close the palette like `Esc`.
-- In the palette, verify `Ctrl+i` moves to the next selected result like `Tab`, and verify `Ctrl+j` and `Ctrl+k` move the selected result down and up while plain `j` and `k` type into the input.
-- In the palette, verify `Ctrl+f` / `Ctrl+v` and `Ctrl+b` page the selected result down and up while focus stays in the input.
-- In the palette, verify `Alt+Up` / `Option+Up` and `Alt+Down` / `Option+Down` cycle through recent palette queries.
-- In the palette, type `book: project docs`, press `Ctrl+a`, and verify the caret moves to the beginning without changing the query. Press `Ctrl+e` and verify the caret moves to the end.
-- In the palette, type `history: project docs`, press `Ctrl+l`, and verify the whole query is selected while the palette stays open.
-- In the palette, type a query, press `Ctrl+u`, and verify the input clears while the palette stays open.
-- In the palette, type `book: project docs`, press `Ctrl+a`, then `Ctrl+d`, and verify the first character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+d`, and verify the selected text is deleted.
-- In the palette, type `book: project docs`, press `Ctrl+h`, and verify the previous character is deleted while the palette stays open and results refresh. Select `project`, press `Ctrl+h`, and verify the selected text is deleted.
-- In the palette, type `book: project docs`, press `Ctrl+w`, and verify the previous word is deleted while the palette stays open and results refresh.
-- In the palette, press `Ctrl+r` or `Alt+R` / `Option+R` and verify the current query stays in place while the result list refreshes.
-- In the palette, type `docs`, press `Alt+B` / `Option+B`, and verify the input changes to `book: docs`; then press `Alt+H` / `Option+H` and verify it changes to `history: docs`; then press `Alt+A` / `Option+A` and verify it changes back to `docs`.
-- Press `v` and verify the palette searches only recent history. Press `Shift+V` and verify selecting a history result opens it in a new foreground tab.
-- Press `v` before typing and verify recent history candidates appear when Safari exposes history data; otherwise verify locally observed pages appear as fallback candidates after browsing with the extension.
-- Press `Shift+O`, type a URL or destination, and verify `Enter` opens it in a new foreground tab.
-- Press `b` / `Shift+B` and, when Safari exposes bookmark data, verify bookmark suggestions appear before typing, only bookmarks are searched, and `Shift+B` opens the selected bookmark in a new foreground tab.
-- In the bookmark palette, type a bookmark folder name and verify bookmarks inside that folder appear with the folder path shown in the subtitle.
-- Press `Shift+T` and verify open tabs across browser windows are searched and selected tabs are focused.
-- Press `?` while focused inside an input, textarea, or editable content and verify it types normally instead of opening help.
-- Press `f`, then press `?` while hint mode is active and verify hint mode consumes the key instead of opening help.
-- Open `manual-test/nested-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the internal scroll container.
-- Open `manual-test/body-scroll.html`, then verify `j/k`, `u/d`, `gg`, and `Shift+G` move the body scroll container.
+## Contributing
 
-## Load In Safari
+Issues and pull requests are welcome. Please keep changes focused and aligned with the project's scope: keyboard navigation for Safari without broad browser automation.
 
-### Fast Temporary Load
+Before opening a pull request:
 
-1. Open Safari > Settings.
-2. Enable the Developer tab if needed from Advanced > Show features for web developers.
-3. In Safari > Settings > Developer, enable Allow unsigned extensions.
-4. Click Add Temporary Extension and select the `web-extension/` folder.
-5. Enable the extension and grant website access.
+1. Open or find an issue for non-trivial work.
+2. Create a short-lived branch from `main`.
+3. Run `pnpm run check`.
+4. Run `pnpm run build:xcode` when Safari extension packaging or macOS/Xcode behavior changes.
+5. Update documentation when behavior, permissions, commands, or contributor workflow changes.
 
-Safari removes temporary extensions after 24 hours or when Safari quits.
-
-### Xcode App Load
-
-1. Open `xcode/Safari Keyboard Navigation Extension/Safari Keyboard Navigation Extension.xcodeproj` in Xcode.
-2. In Signing & Capabilities, select a development team for both targets, or choose Sign to Run Locally if you are testing unsigned.
-3. Run the `Safari Keyboard Navigation Extension` scheme.
-4. In Safari, enable the extension in Settings > Extensions and grant website access.
-5. For unsigned local development, enable Safari's Develop menu and allow unsigned extensions if Safari does not show the extension after running from Xcode.
-
-The generated app name is a placeholder working name, not a product name.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-Copyright (c) 2026 Daiki Miwa (mowa).
-
-> **Note:** The source code on GitHub is MIT-licensed. The Mac App Store version is distributed as a paid product under Apple's Standard End User License Agreement (EULA).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
 
 ## Support
 
-- **Bug reports and feature requests**: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
-- **Private inquiries and security reports**: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
+- Bug reports and feature requests: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+- Private inquiries and security reports: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
+- Legal disclosures and terms: [Support page](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html)
 
-For legal disclosures and terms of use, see the [Support page](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html).
+## License
+
+This project uses a [source-available license](LICENSE).
+
+Copyright (c) 2026 Daiki Miwa (mowa).
+
+You may read, audit, fork for contribution, and build the project for personal non-commercial use. Commercial redistribution, App Store or browser-extension-store redistribution, and use of project branding are not permitted without prior written permission.
+
+The Mac App Store version is distributed separately as a paid product under Apple's Standard End User License Agreement (EULA).
