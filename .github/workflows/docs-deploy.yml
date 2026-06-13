@@ -1,6 +1,11 @@
-name: PR Preview
+name: Docs Deploy
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
@@ -11,14 +16,26 @@ permissions:
   pull-requests: write
 
 jobs:
-  preview:
+  deploy:
     runs-on: ubuntu-latest
-    if: github.event.action != 'closed'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # Deploy Production (on main branch push)
+      - name: Deploy Production to GitHub Pages
+        if: github.event_name == 'push'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs
+          target-folder: .
+          single-commit: false
+
+      # Deploy Preview (on PR open/update)
       - name: Deploy Preview to GitHub Pages
+        if: github.event_name == 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
@@ -26,7 +43,9 @@ jobs:
           target-folder: previews/pr-${{ github.event.number }}
           single-commit: false
 
+      # Comment on PR with Preview Link
       - name: Comment PR with Preview Link
+        if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
@@ -38,7 +57,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    if: github.event.action == 'closed'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     steps:
       - name: Checkout gh-pages Branch
         uses: actions/checkout@v6
