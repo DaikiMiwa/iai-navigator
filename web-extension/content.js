@@ -77,98 +77,165 @@
         "text",
         "url",
     ]);
-    const LOCAL_PALETTE_COMMANDS = [
+    const RAW_LOCAL_PALETTE_COMMANDS = [
         {
-            aliases: ["hint", "f"],
             id: "show-hints",
-            title: "Show hints",
-            subtitle: "Open link and control hints in the current tab",
+            titleEn: "Show hints",
+            titleJa: "ヒントを表示",
+            subtitleEn: "Open link and control hints in the current tab",
+            subtitleJa: "現在のタブでリンクやコントロールのヒントを表示します",
+            aliasesEn: ["hint", "f"],
+            aliasesJa: ["ひんと", "ヒント", "f"],
         },
         {
-            aliases: ["hint new", "new hint", "shift f"],
             id: "show-new-tab-hints",
-            title: "Show hints in new tab",
-            subtitle: "Open link hints for foreground tabs",
+            titleEn: "Show hints in new tab",
+            titleJa: "新規タブでヒントを表示",
+            subtitleEn: "Open link hints for foreground tabs",
+            subtitleJa: "リンクのヒントを新しいフォアグラウンドタブで開きます",
+            aliasesEn: ["hint new", "new hint", "shift f"],
+            aliasesJa: ["ひんと", "ヒント", "新規タブ", "しんきたぶ", "shift f"],
         },
         {
-            aliases: ["copy address", "copy link", "yy", "yank"],
             id: "copy-url",
-            title: "Copy current URL",
-            subtitle: "Copy this page address to the clipboard",
+            titleEn: "Copy current URL",
+            titleJa: "現在のURLをコピー",
+            subtitleEn: "Copy this page address to the clipboard",
+            subtitleJa: "このページのURLをクリップボードにコピーします",
+            aliasesEn: ["copy address", "copy link", "yy", "yank"],
+            aliasesJa: ["こぴー", "コピー", "アドレス", "あどれす", "yy", "ヤンク"],
         },
         {
-            aliases: ["edit url", "edit address", "current url", "ge"],
             id: "edit-current-url",
-            title: "Edit current URL",
-            subtitle: "Put this page address in the palette input before opening",
+            titleEn: "Edit current URL",
+            titleJa: "現在のURLを編集",
+            subtitleEn: "Put this page address in the palette input before opening",
+            subtitleJa: "このページのURLをパレットの入力欄に入れてから開きます",
+            aliasesEn: ["edit url", "edit address", "current url", "ge"],
+            aliasesJa: ["へんしゅう", "編集", "アドレス", "ge"],
         },
         {
-            aliases: ["back", "go back", "history back", "h"],
             id: "history-back",
-            title: "Go back",
-            subtitle: "Navigate back in the current tab history",
+            titleEn: "Go back",
+            titleJa: "戻る",
+            subtitleEn: "Navigate back in the current tab history",
+            subtitleJa: "現在のタブの履歴を1つ戻ります",
+            aliasesEn: ["back", "go back", "history back", "h"],
+            aliasesJa: ["もどる", "戻る", "履歴", "りれき", "h"],
         },
         {
-            aliases: ["forward", "go forward", "history forward", "l"],
             id: "history-forward",
-            title: "Go forward",
-            subtitle: "Navigate forward in the current tab history",
+            titleEn: "Go forward",
+            titleJa: "進む",
+            subtitleEn: "Navigate forward in the current tab history",
+            subtitleJa: "現在のタブの履歴を1つ進みます",
+            aliasesEn: ["forward", "go forward", "history forward", "l"],
+            aliasesJa: ["すすむ", "進む", "履歴", "りれき", "l"],
         },
         {
-            aliases: ["new", "new page", "nt", "open tab", "create tab"],
             id: "new-tab",
-            title: "New tab",
-            subtitle: "Open a new foreground tab",
+            titleEn: "New tab",
+            titleJa: "新しいタブ",
+            subtitleEn: "Open a new foreground tab",
+            subtitleJa: "新しいフォアグラウンドタブを開きます",
+            aliasesEn: ["new", "new page", "nt", "open tab", "create tab"],
+            aliasesJa: ["しんき", "新規", "新しいタブ", "nt", "タブ"],
         },
         {
-            aliases: ["duplicate tab", "dup", "clone tab"],
             id: "duplicate-current-tab",
-            title: "Duplicate current tab",
-            subtitle: "Copy the current tab into a new foreground tab",
+            titleEn: "Duplicate current tab",
+            titleJa: "現在のタブを複製",
+            subtitleEn: "Copy the current tab into a new foreground tab",
+            subtitleJa: "現在のタブを新しいフォアグラウンドタブに複製します",
+            aliasesEn: ["duplicate tab", "dup", "clone tab"],
+            aliasesJa: ["ふくせい", "複製", "タブ", "dup"],
         },
         {
-            aliases: ["close tab", "delete tab", "remove tab", "x"],
             id: "close-current-tab",
-            title: "Close current tab",
-            subtitle: "Close this tab when another tab is available",
+            titleEn: "Close current tab",
+            titleJa: "現在のタブを閉じる",
+            subtitleEn: "Close this tab when another tab is available",
+            subtitleJa: "このタブを閉じます（他のタブがある場合）",
+            aliasesEn: ["close tab", "delete tab", "remove tab", "x"],
+            aliasesJa: ["とじる", "閉じる", "さくじょ", "削除", "x", "タブ"],
         },
         {
-            aliases: ["previous tab", "prev tab", "left tab", "shift j"],
             id: "previous-tab",
-            title: "Previous tab",
-            subtitle: "Switch to the tab on the left",
+            titleEn: "Previous tab",
+            titleJa: "前のタブ",
+            subtitleEn: "Switch to the tab on the left",
+            subtitleJa: "左隣のタブに切り替えます",
+            aliasesEn: ["previous tab", "prev tab", "left tab", "shift j"],
+            aliasesJa: ["まえのたぶ", "前のタブ", "ひだり", "左", "shift j"],
         },
         {
-            aliases: ["next tab", "right tab", "shift k"],
             id: "next-tab",
-            title: "Next tab",
-            subtitle: "Switch to the tab on the right",
+            titleEn: "Next tab",
+            titleJa: "次のタブ",
+            subtitleEn: "Switch to the tab on the right",
+            subtitleJa: "右隣のタブに切り替えます",
+            aliasesEn: ["next tab", "right tab", "shift k"],
+            aliasesJa: ["つぎのたぶ", "次のタブ", "みぎ", "右", "shift k"],
         },
         {
-            aliases: ["top", "gg"],
             id: "scroll-top",
-            title: "Scroll to top",
-            subtitle: "Jump to the top of the current scroll area",
+            titleEn: "Scroll to top",
+            titleJa: "最上部へスクロール",
+            subtitleEn: "Jump to the top of the current scroll area",
+            subtitleJa: "現在のスクロール領域の最上部に移動します",
+            aliasesEn: ["top", "gg"],
+            aliasesJa: ["さいじょうぶ", "最上部", "うえ", "上", "gg"],
         },
         {
-            aliases: ["bottom", "g", "end"],
             id: "scroll-bottom",
-            title: "Scroll to bottom",
-            subtitle: "Jump to the bottom of the current scroll area",
+            titleEn: "Scroll to bottom",
+            titleJa: "最下部へスクロール",
+            subtitleEn: "Jump to the bottom of the current scroll area",
+            subtitleJa: "現在のスクロール領域の最下部に移動します",
+            aliasesEn: ["bottom", "g", "end"],
+            aliasesJa: ["さいかぶ", "最下部", "した", "下", "g", "end"],
         },
         {
-            aliases: ["refresh"],
             id: "reload",
-            title: "Reload page",
-            subtitle: "Reload the current page",
+            titleEn: "Reload page",
+            titleJa: "ページを再読み込み",
+            subtitleEn: "Reload the current page",
+            subtitleJa: "現在のページを再読み込みします",
+            aliasesEn: ["refresh"],
+            aliasesJa: ["りろーど", "リロード", "さいよみこみ", "再読み込み", "更新"],
         },
         {
-            aliases: ["options", "preferences", "config"],
             id: "open-settings",
-            title: "Open settings",
-            subtitle: "Configure shortcuts, sites, and hint appearance",
+            titleEn: "Open settings",
+            titleJa: "設定を開く",
+            subtitleEn: "Configure shortcuts, sites, and hint appearance",
+            subtitleJa: "ショートカット、対象サイト、ヒントの見た目を設定します",
+            aliasesEn: ["options", "preferences", "config"],
+            aliasesJa: [
+                "おぷしょん",
+                "オプション",
+                "せってい",
+                "設定",
+                "config",
+                "かんり",
+                "管理",
+            ],
         },
     ];
+    const isJapanese = typeof navigator !== "undefined" && navigator.language?.startsWith("ja");
+    const LOCAL_PALETTE_COMMANDS = RAW_LOCAL_PALETTE_COMMANDS.map((raw) => {
+        const title = isJapanese ? raw.titleJa : raw.titleEn;
+        const subtitle = isJapanese ? raw.subtitleJa : raw.subtitleEn;
+        const searchHaystack = `${raw.titleEn} ${raw.subtitleEn} ${raw.titleJa} ${raw.subtitleJa}`.toLowerCase();
+        const searchAliases = [...raw.aliasesEn, ...raw.aliasesJa];
+        return {
+            id: raw.id,
+            title,
+            subtitle,
+            searchHaystack,
+            searchAliases,
+        };
+    });
     const COMMAND_PALETTE_FOOTER_HINTS = [
         "Enter/Ctrl+M open",
         "Esc/Ctrl+[/G close",
@@ -1400,7 +1467,7 @@
                     title: command.title,
                 },
             ];
-        });
+        }).sort((a, b) => b.score - a.score);
     }
     function commandPaletteCommandIds() {
         return LOCAL_PALETTE_COMMANDS.map((command) => command.id);
@@ -1415,9 +1482,9 @@
         if (!query) {
             return 1;
         }
-        const aliases = command.aliases ?? [];
-        const haystack = `${command.title} ${command.subtitle}`.toLowerCase();
-        const haystackTokens = haystack.split(/[^a-z0-9]+/).filter(Boolean);
+        const aliases = command.searchAliases;
+        const haystack = command.searchHaystack;
+        const haystackTokens = haystack.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
         const terms = query.split(/\s+/).filter(Boolean);
         if (!terms.every((term) => commandTextMatchesTerm(haystack, haystackTokens, term) ||
             aliases.some((alias) => commandAliasMatchesTerm(alias, term)))) {
@@ -1443,7 +1510,8 @@
         return terms.every((term) => commandAliasMatchesTerm(alias, term)) ? 50 : 0;
     }
     function commandTextMatchesTerm(haystack, haystackTokens, term) {
-        if (term.length <= 2) {
+        const isJapaneseQuery = /[^\u0020-\u007E]/.test(term);
+        if (!isJapaneseQuery && term.length <= 2) {
             return haystackTokens.some((token) => token === term || token.startsWith(term));
         }
         return haystack.includes(term);
@@ -1452,6 +1520,10 @@
         const normalizedAlias = alias.toLowerCase();
         if (normalizedAlias === term) {
             return true;
+        }
+        const isJapaneseQuery = /[^\u0020-\u007E]/.test(term);
+        if (isJapaneseQuery) {
+            return normalizedAlias.includes(term);
         }
         return normalizedAlias
             .split(/\s+/)

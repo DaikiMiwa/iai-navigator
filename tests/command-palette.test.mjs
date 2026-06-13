@@ -699,6 +699,13 @@ test("matches command palette command aliases", () => {
   );
 });
 
+test("matches command palette command aliases in Japanese", () => {
+  assert.equal(commandPaletteCommandSearchIds("設定")[0], "open-settings");
+  assert.equal(commandPaletteCommandSearchIds("コピー")[0], "copy-url");
+  assert.equal(commandPaletteCommandSearchIds("新規")[0], "new-tab");
+  assert.equal(commandPaletteCommandSearchIds("戻る")[0], "history-back");
+});
+
 test("applies command palette source prefixes while preserving query text", () => {
   assert.equal(commandPaletteApplyPrefixValue("docs", "book"), "book: docs");
   assert.equal(
