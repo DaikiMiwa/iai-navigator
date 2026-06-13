@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    "app-title": "Safari Keyboard Navigation",
+    "app-title": "IAI for Safari",
     "state-unknown": "Enable the extension in Safari to start using keyboard navigation.",
     "state-on": "The Safari extension is currently enabled.",
     "state-off": "The Safari extension is currently disabled.",
@@ -31,7 +31,7 @@ const translations = {
     "version-label": "Version"
   },
   ja: {
-    "app-title": "Safari キーボードナビゲーション",
+    "app-title": "IAI for Safari",
     "state-unknown": "Safariの設定で拡張機能を有効にして、キーボードナビゲーションを開始してください。",
     "state-on": "Safari拡張機能は現在有効です。",
     "state-off": "Safari拡張機能は現在無効です。",
