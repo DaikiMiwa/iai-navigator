@@ -257,10 +257,10 @@
   box-sizing: border-box;
   justify-content: center;
   align-items: flex-start;
-  padding: 48px 16px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding: 60px 16px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #f7f7f7;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
@@ -274,16 +274,18 @@
   display: grid;
   box-sizing: border-box;
   width: min(720px, calc(100vw - 32px));
-  max-height: min(620px, calc(100vh - 96px));
+  max-height: min(620px, calc(100vh - 120px));
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(30, 30, 35, 0.88);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  background: rgba(30, 30, 35, 0.75);
+  backdrop-filter: blur(40px) saturate(210%);
+  -webkit-backdrop-filter: blur(40px) saturate(210%);
   color: inherit;
   font-family: inherit;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.5),
+    0 0 1px 1px rgba(255, 255, 255, 0.15) inset;
   animation: skne-palette-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
 }
@@ -291,7 +293,7 @@
 @keyframes skne-palette-enter {
   from {
     opacity: 0;
-    transform: translateY(-16px) scale(0.97);
+    transform: translateY(-12px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -304,25 +306,27 @@
   display: block;
   box-sizing: border-box;
   width: 100%;
-  padding: 16px 20px;
+  padding: 18px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.2);
+  background: transparent;
   color: #fff;
   font-family: inherit;
-  font-size: 17px;
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   line-height: 1.3;
   caret-color: var(--skne-hint-background, #ffd84d);
 }
 
 #skne-command-palette-overlay .skne-command-palette-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 #skne-command-palette-overlay .skne-command-palette-list {
   all: initial;
   display: grid;
   box-sizing: border-box;
-  max-height: min(536px, calc(100vh - 160px));
+  max-height: min(536px, calc(100vh - 180px));
   overflow-y: auto;
   padding: 8px;
   color: inherit;
@@ -334,50 +338,53 @@
   display: grid;
   box-sizing: border-box;
   grid-template-columns: 28px 86px minmax(0, 1fr);
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  min-height: 54px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  min-height: 52px;
+  padding: 8px 16px;
+  margin-bottom: 2px;
+  border-radius: 10px;
   color: inherit;
   font-family: inherit;
   cursor: default;
   transition:
-    background 120ms ease,
-    color 120ms ease,
-    transform 120ms ease;
+    background 140ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 140ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #skne-command-palette-overlay .skne-command-palette-result[data-active="true"] {
-  background: var(--skne-hint-background, #ffd84d);
-  color: var(--skne-hint-color, #111);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: scale(1.004);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: scale(1.005);
 }
 
 #skne-command-palette-overlay .skne-command-palette-index {
   all: initial;
   display: inline-grid;
   box-sizing: border-box;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: inherit;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
   font-family:
-    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+    sans-serif;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 
 #skne-command-palette-overlay
   .skne-command-palette-result[data-active="true"]
   .skne-command-palette-index {
-  border-color: rgba(0, 0, 0, 0.15);
-  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 #skne-command-palette-overlay .skne-command-palette-kind {
@@ -386,16 +393,61 @@
   box-sizing: border-box;
   width: 76px;
   padding: 3px 6px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
-  color: inherit;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.05em;
   line-height: 1.2;
   text-align: center;
   text-transform: uppercase;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-active="true"]
+  .skne-command-palette-kind {
+  color: #fff;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="command"]
+  .skne-command-palette-kind {
+  background: rgba(10, 132, 255, 0.15);
+  color: #0a84ff;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="tab"]
+  .skne-command-palette-kind {
+  background: rgba(48, 209, 88, 0.15);
+  color: #30d158;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="bookmark"]
+  .skne-command-palette-kind {
+  background: rgba(255, 159, 10, 0.15);
+  color: #ff9f0a;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="history"]
+  .skne-command-palette-kind {
+  background: rgba(191, 90, 242, 0.15);
+  color: #bf5af2;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="url"]
+  .skne-command-palette-kind,
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-kind="search"]
+  .skne-command-palette-kind {
+  background: rgba(100, 210, 255, 0.15);
+  color: #64d2ff;
 }
 
 #skne-command-palette-overlay .skne-command-palette-text {
@@ -416,19 +468,33 @@
   overflow: hidden;
   color: inherit;
   font-family: inherit;
-  line-height: 1.25;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 #skne-command-palette-overlay .skne-command-palette-title {
+  color: #ffffff;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 #skne-command-palette-overlay .skne-command-palette-subtitle {
-  opacity: 0.78;
+  color: rgba(255, 255, 255, 0.55);
   font-size: 12px;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-active="true"]
+  .skne-command-palette-title {
+  color: #ffffff;
+}
+
+#skne-command-palette-overlay
+  .skne-command-palette-result[data-active="true"]
+  .skne-command-palette-subtitle {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 #skne-command-palette-overlay .skne-command-palette-match {
@@ -436,23 +502,21 @@
   display: inline;
   padding: 0;
   background: transparent;
-  color: inherit;
+  color: var(--skne-hint-background, #ffd84d);
   font-family: inherit;
   font-size: inherit;
-  font-weight: 800;
+  font-weight: 700;
   line-height: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 2px;
+  text-decoration: none;
 }
 
 #skne-command-palette-overlay .skne-command-palette-empty {
   all: initial;
   display: block;
-  padding: 18px;
-  color: #cfcfcf;
+  padding: 18px 24px;
+  color: rgba(255, 255, 255, 0.5);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -461,11 +525,11 @@
   display: flex;
   box-sizing: border-box;
   flex-wrap: wrap;
-  gap: 6px 10px;
-  padding: 8px 12px 10px;
-  border-top: 1px solid rgb(255 255 255 / 10%);
-  background: #171717;
-  color: #bdbdbd;
+  gap: 6px 14px;
+  padding: 10px 20px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 20, 20, 0.55);
+  color: rgba(255, 255, 255, 0.45);
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
     sans-serif;
@@ -477,8 +541,7 @@
   all: initial;
   display: inline-block;
   color: inherit;
-  font-family:
-    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   font-size: inherit;
   line-height: inherit;
   white-space: nowrap;

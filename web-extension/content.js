@@ -1655,6 +1655,7 @@
             const row = document.createElement("button");
             row.className = "skne-command-palette-result";
             row.type = "button";
+            row.dataset.kind = result.kind;
             row.dataset.active = index === state.activeIndex ? "true" : "false";
             row.setAttribute("role", "option");
             row.setAttribute("aria-selected", index === state.activeIndex ? "true" : "false");
