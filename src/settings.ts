@@ -39,7 +39,7 @@
       enabled: true,
       hintKeys: "asdfghjkl",
       hintStyle: {
-        backgroundColor: "#ffd84d",
+        backgroundColor: "#00d2ff",
         fontSize: 12,
         fontWeight: 700,
         mediaFontSize: 15,
@@ -84,6 +84,7 @@
         blocklist: [],
         mode: "all",
       },
+      theme: "iai",
       version: SETTINGS_VERSION,
     };
 
@@ -223,6 +224,7 @@
             ? "allowlist"
             : defaultSettings.siteAccess.mode,
       },
+      theme: themeSetting(candidate.theme, defaultSettings.theme),
       version: SETTINGS_VERSION,
     };
   }
@@ -497,6 +499,19 @@
       case "auto":
       case "en":
       case "ja":
+        return value;
+      default:
+        return fallback;
+    }
+  }
+
+  function themeSetting(
+    value: unknown,
+    fallback: SafariKeyboardNavigationTheme,
+  ): SafariKeyboardNavigationTheme {
+    switch (value) {
+      case "classic":
+      case "iai":
         return value;
       default:
         return fallback;

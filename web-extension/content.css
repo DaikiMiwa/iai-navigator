@@ -1,3 +1,17 @@
+:root {
+  --skne-theme-accent: #ffd84d;
+  --skne-theme-cmd-active-bg: rgb(84 154 255 / 24%);
+  --skne-theme-cmd-active-border: rgb(165 205 255 / 48%);
+  --skne-theme-cmd-active-shadow: rgb(50 120 255 / 20%);
+}
+
+:root[data-skne-theme="iai"] {
+  --skne-theme-accent: #00d2ff;
+  --skne-theme-cmd-active-bg: rgb(0 210 255 / 24%);
+  --skne-theme-cmd-active-border: rgb(0 210 255 / 48%);
+  --skne-theme-cmd-active-shadow: rgb(0 210 255 / 20%);
+}
+
 #skne-hint-overlay {
   all: initial;
   display: block;
@@ -18,7 +32,7 @@
   padding: 2px 5px;
   border: 0;
   border-radius: 3px;
-  background: var(--skne-hint-background, #ffd84d);
+  background: var(--skne-hint-background, var(--skne-theme-accent));
   color: var(--skne-hint-color, #111);
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
@@ -168,7 +182,7 @@
   padding: 3px 6px;
   border: 1px solid rgb(0 0 0 / 24%);
   border-radius: 5px;
-  background: #ffd84d;
+  background: var(--skne-theme-accent);
   color: #111;
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
@@ -303,12 +317,12 @@
 }
 
 #skne-command-palette-overlay .skne-command-palette-result[data-active="true"] {
-  border-color: rgb(165 205 255 / 48%);
-  background: rgb(84 154 255 / 24%);
+  border-color: var(--skne-theme-cmd-active-border);
+  background: var(--skne-theme-cmd-active-bg);
   color: #fff;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 22%),
-    0 8px 24px rgb(50 120 255 / 20%);
+    0 8px 24px var(--skne-theme-cmd-active-shadow);
 }
 
 #skne-command-palette-overlay .skne-command-palette-index {

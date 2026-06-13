@@ -1191,6 +1191,11 @@
   function applyHintStyleSettings(
     root: HTMLElement = document.documentElement,
   ): void {
+    if (extensionSettings.theme) {
+      root.setAttribute("data-skne-theme", extensionSettings.theme);
+    } else {
+      root.removeAttribute("data-skne-theme");
+    }
     const style = extensionSettings.hintStyle;
     root.style.setProperty("--skne-hint-background", style.backgroundColor);
     root.style.setProperty("--skne-hint-color", style.textColor);
