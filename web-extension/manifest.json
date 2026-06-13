@@ -29,7 +29,7 @@
   "permissions": ["storage", "tabs", "bookmarks", "history"],
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "matches": ["http://*/*", "https://*/*"],
       "js": [
         "hints.js",
         "help.js",
@@ -42,5 +42,5 @@
       "all_frames": true
     }
   ],
-  "host_permissions": ["http://*/*", "https://*/*", "file:///*"]
+  "host_permissions": ["http://*/*", "https://*/*"]
 }
