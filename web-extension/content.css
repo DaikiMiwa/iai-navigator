@@ -103,7 +103,9 @@
   justify-content: center;
   align-items: flex-start;
   padding: 32px 16px;
-  background: rgb(0 0 0 / 38%);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   pointer-events: none;
   contain: layout style paint;
 }
@@ -117,14 +119,29 @@
   margin-top: min(8vh, 72px);
   overflow-y: auto;
   padding: 20px;
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: 8px;
-  background: #1b1b1b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(30, 30, 35, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   color: #f7f7f7;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
     sans-serif;
-  box-shadow: 0 18px 44px rgb(0 0 0 / 36%);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55);
+  animation: skne-help-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes skne-help-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 #skne-help-overlay .skne-help-header {
@@ -208,10 +225,10 @@
   box-sizing: border-box;
   min-width: 28px;
   padding: 3px 6px;
-  border: 1px solid rgb(0 0 0 / 24%);
+  border: 1px solid rgba(0, 0, 0, 0.24);
   border-radius: 5px;
-  background: #ffd84d;
-  color: #111;
+  background: var(--skne-hint-background, #ffd84d);
+  color: var(--skne-hint-color, #111);
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
@@ -241,7 +258,9 @@
   justify-content: center;
   align-items: flex-start;
   padding: 48px 16px;
-  background: rgb(0 0 0 / 28%);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #f7f7f7;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
@@ -257,12 +276,27 @@
   width: min(720px, calc(100vw - 32px));
   max-height: min(620px, calc(100vh - 96px));
   overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 16%);
-  border-radius: 8px;
-  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(30, 30, 35, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   color: inherit;
   font-family: inherit;
-  box-shadow: 0 24px 64px rgb(0 0 0 / 42%);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55);
+  animation: skne-palette-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes skne-palette-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 #skne-command-palette-overlay .skne-command-palette-input {
@@ -270,17 +304,18 @@
   display: block;
   box-sizing: border-box;
   width: 100%;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
-  background: #222;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
   color: #fff;
   font-family: inherit;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.3;
+  caret-color: var(--skne-hint-background, #ffd84d);
 }
 
 #skne-command-palette-overlay .skne-command-palette-input::placeholder {
-  color: #a8a8a8;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 #skne-command-palette-overlay .skne-command-palette-list {
@@ -289,7 +324,7 @@
   box-sizing: border-box;
   max-height: min(536px, calc(100vh - 160px));
   overflow-y: auto;
-  padding: 6px;
+  padding: 8px;
   color: inherit;
   font-family: inherit;
 }
@@ -299,19 +334,25 @@
   display: grid;
   box-sizing: border-box;
   grid-template-columns: 28px 86px minmax(0, 1fr);
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   min-height: 54px;
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
   color: inherit;
   font-family: inherit;
   cursor: default;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 #skne-command-palette-overlay .skne-command-palette-result[data-active="true"] {
-  background: #ffd84d;
-  color: #111;
+  background: var(--skne-hint-background, #ffd84d);
+  color: var(--skne-hint-color, #111);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.004);
 }
 
 #skne-command-palette-overlay .skne-command-palette-index {
@@ -321,13 +362,13 @@
   width: 24px;
   height: 24px;
   place-items: center;
-  border: 1px solid rgb(255 255 255 / 18%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
-  background: rgb(255 255 255 / 8%);
+  background: rgba(255, 255, 255, 0.08);
   color: inherit;
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1;
 }
@@ -335,8 +376,8 @@
 #skne-command-palette-overlay
   .skne-command-palette-result[data-active="true"]
   .skne-command-palette-index {
-  border-color: rgb(0 0 0 / 18%);
-  background: rgb(0 0 0 / 9%);
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 #skne-command-palette-overlay .skne-command-palette-kind {
@@ -486,13 +527,28 @@ html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
 }
 
 .skne-active-highlight {
+  --skne-bg: var(--skne-hint-background, #ffd84d);
+  --skne-active-bg: color-mix(in srgb, var(--skne-bg) 20%, transparent);
   /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
-  outline: 3px solid #ffd84d !important;
+  outline: 3px solid var(--skne-bg) !important;
   /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
   outline-offset: 2px !important;
   /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
-  background-color: rgba(255, 216, 77, 0.25) !important;
-  transition:
-    outline 150ms ease-out,
-    background-color 150ms ease-out;
+  background-color: var(--skne-active-bg) !important;
+  animation: skne-active-pulse 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes skne-active-pulse {
+  0% {
+    outline-width: 0px;
+    outline-offset: 0px;
+  }
+  40% {
+    outline-width: 5px;
+    outline-offset: 1px;
+  }
+  100% {
+    outline-width: 2.5px;
+    outline-offset: 3px;
+  }
 }
