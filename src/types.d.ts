@@ -590,6 +590,7 @@ interface WebExtensionTabCreate {
 interface WebExtensionRuntime {
   sendMessage(message: SafariKeyboardNavigationMessage): Promise<unknown>;
   openOptionsPage?(): Promise<void>;
+  getURL?(path: string): string;
   onMessage?: {
     addListener(
       listener: (message: unknown) => Promise<unknown> | unknown | undefined,
