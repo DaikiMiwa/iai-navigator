@@ -1,0 +1,61 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'docs/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Deploy Preview to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs
+          target-folder: previews/pr-${{ github.event.number }}
+          single-commit: false
+
+      - name: Comment PR with Preview Link
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            🚀 **PR Preview is ready!**
+            
+            You can view the live preview of your changes here:
+            [Live Preview](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.number }}/index.html)
+          comment-tag: pr-preview-link
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    steps:
+      - name: Checkout gh-pages Branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+
+      - name: Clean up PR Preview Directory
+        run: |
+          PREVIEW_DIR="previews/pr-${{ github.event.number }}"
+          if [ -d "$PREVIEW_DIR" ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            rm -rf "$PREVIEW_DIR"
+            git add .
+            git commit -m "chore: remove preview for PR #${{ github.event.number }}"
+            git push origin gh-pages
+            echo "Successfully removed preview directory for PR #${{ github.event.number }}"
+          else
+            echo "No preview directory found for PR #${{ github.event.number }}, skipping cleanup."
+          fi
