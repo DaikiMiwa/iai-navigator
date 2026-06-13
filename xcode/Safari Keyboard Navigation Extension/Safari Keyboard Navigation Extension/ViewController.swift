@@ -33,11 +33,13 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
             }
 
             DispatchQueue.main.async {
-                if #available(macOS 13, *) {
-                    webView.evaluateJavaScript("show(\(state.isEnabled), true)")
-                } else {
-                    webView.evaluateJavaScript("show(\(state.isEnabled), false)")
-                }
+                let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+                let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+                let useSettingsInsteadOfPreferences = {
+                    if #available(macOS 13, *) { return "true" }
+                    else { return "false" }
+                }()
+                webView.evaluateJavaScript("show(\(state.isEnabled), \(useSettingsInsteadOfPreferences), '\(version)', '\(build)')")
             }
         }
     }
