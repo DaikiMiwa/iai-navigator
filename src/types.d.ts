@@ -140,6 +140,8 @@ interface SafariKeyboardNavigationCommandPaletteSettings {
 
 type SafariKeyboardNavigationLanguage = "auto" | "en" | "ja";
 
+type SafariKeyboardNavigationTheme = "classic" | "iai";
+
 interface SafariKeyboardNavigationExtensionSettings {
   commandPalette: SafariKeyboardNavigationCommandPaletteSettings;
   enabled: boolean;
@@ -148,6 +150,7 @@ interface SafariKeyboardNavigationExtensionSettings {
   language: SafariKeyboardNavigationLanguage;
   shortcuts: SafariKeyboardNavigationShortcutSettings;
   siteAccess: SafariKeyboardNavigationSiteAccessSettings;
+  theme: SafariKeyboardNavigationTheme;
   version: 1;
 }
 

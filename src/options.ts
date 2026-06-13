@@ -75,6 +75,16 @@
         el.addEventListener("change", updateHintPreview);
       }
     }
+
+    document.getElementById("theme")?.addEventListener("change", (e) => {
+      const t = (e.target as HTMLSelectElement).value;
+      if (t === "iai") {
+        input("background-color").value = "#00d2ff";
+      } else if (t === "classic") {
+        input("background-color").value = "#ffd84d";
+      }
+      updateHintPreview();
+    });
   });
 
   function renderShortcutInputs(): void {
@@ -132,6 +142,7 @@
   function fillForm(settings: SafariKeyboardNavigationExtensionSettings): void {
     input("enabled").checked = settings.enabled;
     select("language").value = settings.language;
+    select("theme").value = settings.theme;
     select("site-mode").value = settings.siteAccess.mode;
     textarea("allowlist").value = settings.siteAccess.allowlist.join("\n");
     textarea("blocklist").value = settings.siteAccess.blocklist.join("\n");
@@ -167,6 +178,7 @@
     const nextSettings = settingsApi.normalizeExtensionSettings({
       enabled: input("enabled").checked,
       language: select("language").value,
+      theme: select("theme").value,
       hintKeys: input("hint-keys").value,
       commandPalette: {
         customSearchUrlTemplate: input("custom-search-url-template").value,
