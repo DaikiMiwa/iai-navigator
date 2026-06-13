@@ -1,6 +1,6 @@
 # Permissions and Privacy
 
-Safari Keyboard Navigation runs locally in Safari. It does not include analytics, telemetry, advertising SDKs, remote logging, or network code for sending browsing data to a server.
+IAI for Safari runs locally in Safari. It does not include analytics, telemetry, advertising SDKs, remote logging, or network code for sending browsing data to a server.
 
 ## What the Extension Can Access
 
