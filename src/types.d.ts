@@ -112,6 +112,10 @@ interface SafariKeyboardNavigationHintStyleSettings {
   mediaFontSize: number;
   opacity: number;
   textColor: string;
+  borderRadius: number;
+  borderWidth: number;
+  borderColor: string;
+  shadowOpacity: number;
 }
 
 interface SafariKeyboardNavigationSiteAccessSettings {

@@ -56,6 +56,25 @@
       fillForm(settingsApi.DEFAULT_EXTENSION_SETTINGS);
       setStatus("Defaults restored. Save to apply.");
     });
+
+    const appearanceInputs = [
+      "font-size",
+      "font-weight",
+      "opacity",
+      "background-color",
+      "text-color",
+      "border-radius",
+      "border-width",
+      "border-color",
+      "shadow-opacity",
+    ];
+    for (const id of appearanceInputs) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", updateHintPreview);
+        el.addEventListener("change", updateHintPreview);
+      }
+    }
   });
 
   function renderShortcutInputs(): void {
@@ -84,6 +103,32 @@
     fillForm(await settingsApi.loadExtensionSettings());
   }
 
+  function updateHintPreview(): void {
+    const previewLabel = document.getElementById("hint-preview-label");
+    if (!previewLabel) {
+      return;
+    }
+
+    const fontSize = input("font-size").value;
+    const fontWeight = input("font-weight").value;
+    const opacity = input("opacity").value;
+    const backgroundColor = input("background-color").value;
+    const textColor = input("text-color").value;
+    const borderRadius = input("border-radius").value;
+    const borderWidth = input("border-width").value;
+    const borderColor = input("border-color").value;
+    const shadowOpacity = input("shadow-opacity").value;
+
+    previewLabel.style.fontSize = `${fontSize}px`;
+    previewLabel.style.fontWeight = fontWeight;
+    previewLabel.style.opacity = opacity;
+    previewLabel.style.backgroundColor = backgroundColor;
+    previewLabel.style.color = textColor;
+    previewLabel.style.borderRadius = `${borderRadius}px`;
+    previewLabel.style.border = `${borderWidth}px solid ${borderColor}`;
+    previewLabel.style.boxShadow = `0 1px 4px rgba(0, 0, 0, ${shadowOpacity})`;
+  }
+
   function fillForm(settings: SafariKeyboardNavigationExtensionSettings): void {
     input("enabled").checked = settings.enabled;
     select("site-mode").value = settings.siteAccess.mode;
@@ -104,6 +149,12 @@
     input("opacity").value = String(settings.hintStyle.opacity);
     input("background-color").value = settings.hintStyle.backgroundColor;
     input("text-color").value = settings.hintStyle.textColor;
+    input("border-radius").value = String(settings.hintStyle.borderRadius);
+    input("border-width").value = String(settings.hintStyle.borderWidth);
+    input("border-color").value = settings.hintStyle.borderColor;
+    input("shadow-opacity").value = String(settings.hintStyle.shadowOpacity);
+
+    updateHintPreview();
   }
 
   async function saveFormSettings(): Promise<void> {
@@ -126,6 +177,10 @@
         mediaFontSize: Number(input("media-font-size").value),
         opacity: Number(input("opacity").value),
         textColor: input("text-color").value,
+        borderRadius: Number(input("border-radius").value),
+        borderWidth: Number(input("border-width").value),
+        borderColor: input("border-color").value,
+        shadowOpacity: Number(input("shadow-opacity").value),
       },
       shortcuts,
       siteAccess: {
