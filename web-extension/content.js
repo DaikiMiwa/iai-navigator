@@ -2963,18 +2963,21 @@
         return isVisibleElement(element);
     }
     function visibleRectForElement(element) {
-        const textNode = firstNonEmptyTextNode(element);
-        if (textNode) {
-            const range = document.createRange();
-            try {
-                range.selectNode(textNode);
-                const rect = firstVisibleRect(range.getClientRects());
-                if (rect) {
-                    return rect;
+        const isInsideShadow = element.getRootNode() instanceof ShadowRoot;
+        if (!isInsideShadow) {
+            const textNode = firstNonEmptyTextNode(element);
+            if (textNode) {
+                const range = document.createRange();
+                try {
+                    range.selectNode(textNode);
+                    const rect = firstVisibleRect(range.getClientRects());
+                    if (rect) {
+                        return rect;
+                    }
                 }
-            }
-            finally {
-                range.detach();
+                finally {
+                    range.detach();
+                }
             }
         }
         return firstVisibleRect(element.getClientRects());
