@@ -51,6 +51,11 @@ body.lang-ja .lang-en {
   display: none !important;
 }
 
+.text-nowrap {
+  display: inline-block;
+  white-space: nowrap;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
