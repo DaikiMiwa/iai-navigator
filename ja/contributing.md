@@ -52,6 +52,10 @@ ESLint と Prettier は使いません。
 
 英語版と日本語版の内容が異なる場合は英語版を優先します。日本語翻訳には、対応する英語版への参照を入れます。
 
+## Contribution License
+
+Pull request、patch、code や documentation を含む issue comment、その他の contribution を提出することで、[LICENSE](../../LICENSE) の contribution terms に同意したものとみなされます。つまり、その contribution を project owner が本プロジェクトの一部として使用、変更、再ライセンス、配布、有償の公式 build を含む商用出荷に利用できる権利を許諾します。
+
 ## Pull Request Expectations
 
 review を依頼する前に、次を確認します。
