@@ -16,9 +16,8 @@
   min-width: 16px;
   min-height: 16px;
   padding: 2px 5px;
-  border: var(--skne-hint-border-width, 0px) solid
-    var(--skne-hint-border-color, transparent);
-  border-radius: var(--skne-hint-border-radius, 3px);
+  border: 0;
+  border-radius: 3px;
   background: var(--skne-hint-background, #ffd84d);
   color: var(--skne-hint-color, #111);
   font-family:
@@ -30,12 +29,7 @@
   text-align: center;
   text-transform: lowercase;
   opacity: var(--skne-hint-opacity, 1);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, var(--skne-hint-shadow-opacity, 0.32));
-  transform: translate(var(--skne-tx, -50%), var(--skne-ty, -100%)) scale(1);
-  transition:
-    opacity 150ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 32%);
 }
 
 #skne-hint-overlay .skne-hint-media-control {
@@ -50,47 +44,11 @@
 }
 
 #skne-hint-overlay .skne-hint[data-hidden="true"] {
-  opacity: 0.08;
-  transform: translate(var(--skne-tx, -50%), var(--skne-ty, -100%)) scale(0.8);
-  pointer-events: none;
+  display: none;
 }
 
 #skne-hint-overlay .skne-hint-match {
   color: #b00020;
-}
-
-/* Scroll Indicator */
-.skne-scroll-indicator {
-  opacity: 0;
-  animation: skne-scroll-fade 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.skne-scroll-up {
-  background: linear-gradient(to bottom, rgba(0, 113, 227, 0.35), transparent);
-}
-
-.skne-scroll-down {
-  background: linear-gradient(to top, rgba(0, 113, 227, 0.35), transparent);
-}
-
-.skne-scroll-left {
-  background: linear-gradient(to right, rgba(0, 113, 227, 0.35), transparent);
-}
-
-.skne-scroll-right {
-  background: linear-gradient(to left, rgba(0, 113, 227, 0.35), transparent);
-}
-
-@keyframes skne-scroll-fade {
-  0% {
-    opacity: 0;
-  }
-  25% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
 }
 
 #skne-help-overlay {
@@ -103,9 +61,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: 32px 16px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgb(0 0 0 / 38%);
   pointer-events: none;
   contain: layout style paint;
 }
@@ -119,29 +75,14 @@
   margin-top: min(8vh, 72px);
   overflow-y: auto;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(30, 30, 35, 0.88);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 18px;
+  background: #1b1b1b;
   color: #f7f7f7;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
     sans-serif;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55);
-  animation: skne-help-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
-}
-
-@keyframes skne-help-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-16px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  box-shadow: 0 18px 44px rgb(0 0 0 / 36%);
 }
 
 #skne-help-overlay .skne-help-header {
@@ -225,10 +166,10 @@
   box-sizing: border-box;
   min-width: 28px;
   padding: 3px 6px;
-  border: 1px solid rgba(0, 0, 0, 0.24);
+  border: 1px solid rgb(0 0 0 / 24%);
   border-radius: 5px;
-  background: var(--skne-hint-background, #ffd84d);
-  color: var(--skne-hint-color, #111);
+  background: #ffd84d;
+  color: #111;
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
@@ -257,48 +198,53 @@
   box-sizing: border-box;
   justify-content: center;
   align-items: flex-start;
-  padding: 60px 16px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  color: #f7f7f7;
+  padding: 48px 16px;
+  background: rgb(8 11 18 / 18%);
+  color: #f7f9ff;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
     sans-serif;
   pointer-events: auto;
   contain: layout style paint;
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
 }
 
 #skne-command-palette-overlay .skne-command-palette-panel {
   all: initial;
   display: grid;
+  position: relative;
   box-sizing: border-box;
-  width: min(720px, calc(100vw - 32px));
-  max-height: min(620px, calc(100vh - 120px));
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(620px, calc(100vh - 96px));
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  background: rgba(30, 30, 35, 0.75);
-  backdrop-filter: blur(40px) saturate(210%);
-  -webkit-backdrop-filter: blur(40px) saturate(210%);
+  border: 1px solid rgb(255 255 255 / 32%);
+  border-radius: 8px;
+  background: rgb(20 24 32 / 68%);
   color: inherit;
   font-family: inherit;
   box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.5),
-    0 0 1px 1px rgba(255, 255, 255, 0.15) inset;
-  animation: skne-palette-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
+    0 28px 72px rgb(0 0 0 / 38%),
+    inset 0 1px 0 rgb(255 255 255 / 30%),
+    inset 0 -1px 0 rgb(255 255 255 / 8%);
+  -webkit-backdrop-filter: blur(32px) saturate(1.45);
+  backdrop-filter: blur(32px) saturate(1.45);
 }
 
-@keyframes skne-palette-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+#skne-command-palette-overlay .skne-command-palette-panel::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgb(255 255 255 / 12%), transparent 46%);
+  pointer-events: none;
+}
+
+#skne-command-palette-overlay .skne-command-palette-panel > * {
+  position: relative;
+  z-index: 1;
 }
 
 #skne-command-palette-overlay .skne-command-palette-input {
@@ -306,31 +252,30 @@
   display: block;
   box-sizing: border-box;
   width: 100%;
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: transparent;
+  padding: 15px 18px;
+  border-bottom: 1px solid rgb(255 255 255 / 18%);
+  background: rgb(255 255 255 / 8%);
   color: #fff;
   font-family: inherit;
-  font-size: 19px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-size: 18px;
   line-height: 1.3;
-  caret-color: var(--skne-hint-background, #ffd84d);
+  outline: none;
 }
 
 #skne-command-palette-overlay .skne-command-palette-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: rgb(238 242 255 / 58%);
 }
 
 #skne-command-palette-overlay .skne-command-palette-list {
   all: initial;
   display: grid;
   box-sizing: border-box;
-  max-height: min(536px, calc(100vh - 180px));
+  max-height: min(536px, calc(100vh - 160px));
   overflow-y: auto;
   padding: 8px;
   color: inherit;
   font-family: inherit;
+  scrollbar-color: rgb(255 255 255 / 32%) transparent;
 }
 
 #skne-command-palette-overlay .skne-command-palette-result {
@@ -338,53 +283,57 @@
   display: grid;
   box-sizing: border-box;
   grid-template-columns: 28px 86px minmax(0, 1fr);
-  gap: 16px;
+  gap: 10px;
   align-items: center;
-  min-height: 52px;
-  padding: 8px 16px;
-  margin-bottom: 2px;
-  border-radius: 10px;
+  min-height: 54px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: inherit;
   font-family: inherit;
   cursor: default;
   transition:
-    background 140ms cubic-bezier(0.16, 1, 0.3, 1),
-    color 140ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+#skne-command-palette-overlay .skne-command-palette-result:hover {
+  background: rgb(255 255 255 / 8%);
 }
 
 #skne-command-palette-overlay .skne-command-palette-result[data-active="true"] {
-  background: rgba(255, 255, 255, 0.12);
+  border-color: rgb(165 205 255 / 48%);
+  background: rgb(84 154 255 / 24%);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: scale(1.005);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    0 8px 24px rgb(50 120 255 / 20%);
 }
 
 #skne-command-palette-overlay .skne-command-palette-index {
   all: initial;
   display: inline-grid;
   box-sizing: border-box;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 10%);
+  color: inherit;
   font-family:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
-    sans-serif;
-  font-size: 11px;
-  font-weight: 700;
+    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1;
 }
 
 #skne-command-palette-overlay
   .skne-command-palette-result[data-active="true"]
   .skne-command-palette-index {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border-color: rgb(255 255 255 / 36%);
+  background: rgb(255 255 255 / 16%);
 }
 
 #skne-command-palette-overlay .skne-command-palette-kind {
@@ -393,61 +342,16 @@
   box-sizing: border-box;
   width: 76px;
   padding: 3px 6px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 11%);
+  color: rgb(237 242 255 / 86%);
   font-family:
     "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.05em;
   line-height: 1.2;
   text-align: center;
   text-transform: uppercase;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-active="true"]
-  .skne-command-palette-kind {
-  color: #fff;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="command"]
-  .skne-command-palette-kind {
-  background: rgba(10, 132, 255, 0.15);
-  color: #0a84ff;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="tab"]
-  .skne-command-palette-kind {
-  background: rgba(48, 209, 88, 0.15);
-  color: #30d158;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="bookmark"]
-  .skne-command-palette-kind {
-  background: rgba(255, 159, 10, 0.15);
-  color: #ff9f0a;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="history"]
-  .skne-command-palette-kind {
-  background: rgba(191, 90, 242, 0.15);
-  color: #bf5af2;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="url"]
-  .skne-command-palette-kind,
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-kind="search"]
-  .skne-command-palette-kind {
-  background: rgba(100, 210, 255, 0.15);
-  color: #64d2ff;
 }
 
 #skne-command-palette-overlay .skne-command-palette-text {
@@ -468,33 +372,20 @@
   overflow: hidden;
   color: inherit;
   font-family: inherit;
-  line-height: 1.35;
+  line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 #skne-command-palette-overlay .skne-command-palette-title {
-  color: #ffffff;
+  color: rgb(255 255 255 / 96%);
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
 }
 
 #skne-command-palette-overlay .skne-command-palette-subtitle {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgb(224 231 245 / 68%);
   font-size: 12px;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-active="true"]
-  .skne-command-palette-title {
-  color: #ffffff;
-}
-
-#skne-command-palette-overlay
-  .skne-command-palette-result[data-active="true"]
-  .skne-command-palette-subtitle {
-  color: rgba(255, 255, 255, 0.8);
 }
 
 #skne-command-palette-overlay .skne-command-palette-match {
@@ -502,21 +393,23 @@
   display: inline;
   padding: 0;
   background: transparent;
-  color: var(--skne-hint-background, #ffd84d);
+  color: #ffffff;
   font-family: inherit;
   font-size: inherit;
-  font-weight: 700;
+  font-weight: 800;
   line-height: inherit;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 #skne-command-palette-overlay .skne-command-palette-empty {
   all: initial;
   display: block;
-  padding: 18px 24px;
-  color: rgba(255, 255, 255, 0.5);
+  padding: 18px;
+  color: rgb(236 241 255 / 70%);
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
@@ -525,11 +418,11 @@
   display: flex;
   box-sizing: border-box;
   flex-wrap: wrap;
-  gap: 6px 14px;
-  padding: 10px 20px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(20, 20, 20, 0.55);
-  color: rgba(255, 255, 255, 0.45);
+  gap: 6px 10px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 6%);
+  color: rgb(230 236 255 / 64%);
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
     sans-serif;
@@ -541,7 +434,8 @@
   all: initial;
   display: inline-block;
   color: inherit;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-family:
+    "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: inherit;
   line-height: inherit;
   white-space: nowrap;
@@ -586,32 +480,5 @@ html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
   #skne-help-overlay .skne-help-shortcut {
     grid-template-columns: 1fr;
     gap: 4px;
-  }
-}
-
-.skne-active-highlight {
-  --skne-bg: var(--skne-hint-background, #ffd84d);
-  --skne-active-bg: color-mix(in srgb, var(--skne-bg) 20%, transparent);
-  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
-  outline: 3px solid var(--skne-bg) !important;
-  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
-  outline-offset: 2px !important;
-  /* biome-ignore lint/complexity/noImportantStyles: Highlight flash must override all existing styles on the element to ensure visibility. */
-  background-color: var(--skne-active-bg) !important;
-  animation: skne-active-pulse 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes skne-active-pulse {
-  0% {
-    outline-width: 0px;
-    outline-offset: 0px;
-  }
-  40% {
-    outline-width: 5px;
-    outline-offset: 1px;
-  }
-  100% {
-    outline-width: 2.5px;
-    outline-offset: 3px;
   }
 }
