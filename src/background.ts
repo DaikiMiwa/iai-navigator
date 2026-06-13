@@ -220,7 +220,7 @@
       }
 
       if (isOpenOptionsMessage(message)) {
-        return api.runtime?.openOptionsPage?.();
+        return openOptionsPage(api);
       }
 
       return undefined;
@@ -274,6 +274,17 @@
       url: message.url,
       active: message.active,
     });
+  }
+
+  async function openOptionsPage(api: WebExtensionApi): Promise<void> {
+    if (api.tabs && api.runtime?.getURL) {
+      await api.tabs.create({
+        url: api.runtime.getURL("options.html"),
+        active: true,
+      });
+    } else {
+      await api.runtime?.openOptionsPage?.();
+    }
   }
 
   async function searchPalette(
