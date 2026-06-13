@@ -55,7 +55,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CD04C51A2FC2993700125208 /* Safari Keyboard Navigation Extension.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Safari Keyboard Navigation Extension.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD04C51A2FC2993700125208 /* IAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD04C51D2FC2993700125208 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CD04C5212FC2993700125208 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
 		CD04C5232FC2993700125208 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
@@ -65,7 +65,7 @@
 		CD04C52C2FC2993700125208 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CD04C52E2FC2993800125208 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CD04C5302FC2993800125208 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CD04C5352FC2993800125208 /* Safari Keyboard Navigation Extension Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Safari Keyboard Navigation Extension Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD04C5352FC2993800125208 /* Safari Keyboard Navigation Extension Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; name = "Safari Keyboard Navigation Extension Extension.appex"; path = IAIExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD04C53A2FC2993800125208 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		CD04C53C2FC2993800125208 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CD04C5472FC2993800125208 /* content.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = content.css; path = "../../../web-extension/content.css"; sourceTree = "<group>"; };
@@ -111,7 +111,7 @@
 		CD04C51B2FC2993700125208 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CD04C51A2FC2993700125208 /* Safari Keyboard Navigation Extension.app */,
+				CD04C51A2FC2993700125208 /* IAI.app */,
 				CD04C5352FC2993800125208 /* Safari Keyboard Navigation Extension Extension.appex */,
 			);
 			name = Products;
@@ -191,7 +191,7 @@
 			packageProductDependencies = (
 			);
 			productName = "Safari Keyboard Navigation Extension";
-			productReference = CD04C51A2FC2993700125208 /* Safari Keyboard Navigation Extension.app */;
+			productReference = CD04C51A2FC2993700125208 /* IAI.app */;
 			productType = "com.apple.product-type.application";
 		};
 		CD04C5342FC2993800125208 /* Safari Keyboard Navigation Extension Extension */ = {
@@ -455,8 +455,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 25FRAQ98CC;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 25FRAQ98CC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -490,8 +490,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 25FRAQ98CC;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 25FRAQ98CC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
