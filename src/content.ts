@@ -218,7 +218,7 @@
   const COMMAND_PALETTE_QUERY_HISTORY_MAX_ITEMS = 50;
   const MEDIA_CONTROLS_REVEALED_CLASS = "skne-media-controls-revealed";
   const NATIVE_HINT_TARGET_SELECTOR =
-    "a[href], button, input, select, textarea";
+    "a[href], button, input:not([type='password' i]), select, textarea";
   const MENU_TRIGGER_TARGET_SELECTOR = [
     "[aria-haspopup]",
     "[aria-expanded]",
@@ -1011,9 +1011,7 @@
   }
 
   function isSupportedPageProtocol(protocol: string): boolean {
-    return (
-      protocol === "http:" || protocol === "https:" || protocol === "file:"
-    );
+    return protocol === "http:" || protocol === "https:";
   }
 
   function isPdfDocumentCandidate(candidate: PageSupportCandidate): boolean {
@@ -3802,7 +3800,7 @@
   function collectFormControlTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<FormControlTargetElement>();
     for (const element of querySelectorAllIncludingShadows<FormControlTargetElement>(
-      "button, input, select, textarea",
+      "button, input:not([type='password' i]), select, textarea",
     )) {
       if (seen.has(element) || !isVisibleFormControlTarget(element)) {
         continue;
@@ -3936,6 +3934,10 @@
   function isVisibleFormControlTarget(
     element: FormControlTargetElement,
   ): boolean {
+    if (isPasswordInput(element)) {
+      return false;
+    }
+
     if (
       element.disabled ||
       isSafeMenuTriggerElementCandidate(element) ||
@@ -3950,6 +3952,12 @@
     }
 
     return true;
+  }
+
+  function isPasswordInput(
+    element: FormControlTargetElement,
+  ): element is HTMLInputElement {
+    return element instanceof HTMLInputElement && element.type === "password";
   }
 
   function isVisibleMenuTriggerTarget(element: HTMLElement): boolean {
@@ -5227,7 +5235,7 @@
         hasImeRiskFromOpeningShortcut,
         includeCommands: true,
         includeGenerated: true,
-        placeholder: "Search tabs, bookmarks, history, commands, URLs",
+        placeholder: "Search tabs, local destinations, commands, URLs",
         sources: ["tabs", "bookmarks", "history", "visits"],
       };
     }
@@ -5244,7 +5252,7 @@
         hasImeRiskFromOpeningShortcut,
         includeCommands: true,
         includeGenerated: true,
-        placeholder: "Open tabs, bookmarks, history, commands, URLs in new tab",
+        placeholder: "Open tabs, destinations, commands, URLs in new tab",
         sources: ["tabs", "bookmarks", "history", "visits"],
       };
     }
@@ -5261,7 +5269,7 @@
         hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
-        placeholder: "Search bookmarks",
+        placeholder: "Search bookmarks when available",
         sources: ["bookmarks"],
       };
     }
@@ -5295,7 +5303,7 @@
         hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
-        placeholder: "Search recent history",
+        placeholder: "Search history when available",
         sources: ["history"],
       };
     }
@@ -5312,7 +5320,7 @@
         hasImeRiskFromOpeningShortcut,
         includeCommands: false,
         includeGenerated: false,
-        placeholder: "Open recent history in new tab",
+        placeholder: "Open history in new tab when available",
         sources: ["history"],
       };
     }

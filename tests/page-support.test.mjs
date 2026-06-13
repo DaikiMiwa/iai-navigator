@@ -45,9 +45,12 @@ function page(overrides = {}) {
   };
 }
 
-test("supports normal web and local HTML pages for page commands", () => {
+test("supports normal web pages for page commands", () => {
   assert.equal(isSupportedWebPageCandidate(page({ protocol: "http:" })), true);
   assert.equal(isSupportedWebPageCandidate(page({ protocol: "https:" })), true);
+});
+
+test("keeps local HTML pages out of public page commands", () => {
   assert.equal(
     isSupportedWebPageCandidate(
       page({
@@ -55,11 +58,11 @@ test("supports normal web and local HTML pages for page commands", () => {
         protocol: "file:",
       }),
     ),
-    true,
+    false,
   );
 });
 
-test("keeps local PDFs out of normal web page hint mode", () => {
+test("keeps local PDFs out of public page commands", () => {
   const localPdf = page({
     contentType: "application/pdf",
     href: "file:///tmp/report.pdf",
@@ -67,7 +70,7 @@ test("keeps local PDFs out of normal web page hint mode", () => {
   });
 
   assert.equal(isSupportedWebPageCandidate(localPdf), false);
-  assert.equal(isSupportedPdfCandidate(localPdf), true);
+  assert.equal(isSupportedPdfCandidate(localPdf), false);
 });
 
 test("rejects unsupported browser and data protocols", () => {

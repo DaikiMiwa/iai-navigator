@@ -76,11 +76,13 @@
         },
         {
           key: "o",
-          description: "Search tabs, bookmarks, history, and commands",
+          description:
+            "Search tabs, local destinations, commands, and available browser data",
         },
         {
           key: "Shift+O",
-          description: "Search tabs, bookmarks, history, and open in a new tab",
+          description:
+            "Search tabs, local destinations, commands, and available browser data in a new tab",
         },
         {
           key: "ge",
@@ -92,7 +94,7 @@
         },
         {
           key: "b / Shift+B",
-          description: "Search bookmarks in current or new tab",
+          description: "Search bookmarks in current or new tab when available",
         },
         {
           key: "Shift+T",

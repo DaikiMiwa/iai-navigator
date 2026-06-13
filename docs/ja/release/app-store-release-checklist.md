@@ -15,7 +15,7 @@
 - [権限とプライバシー](../permissions-and-privacy.md) を source of truth として再利用する。
 - browsing data、page content、URL、keystroke、form value、command palette query を開発者管理の server に送らないことを明記する。
 - keyboard hints を置くために、Safari の website access で visible page structure を読む必要があることを説明する。
-- command palette のために、tab、bookmark、history access を使うことを説明する。
+- command palette のために tab access を使い、bookmark/history access は Safari が runtime で API を公開している場合だけローカルに使うことを説明する。
 - settings、recent palette queries、locally observed pages、selected destinations のために bounded local storage を使うことを説明する。
 - release build に analytics、advertising SDK、remote logging、telemetry が含まれていないことを確認する。
 - App Store Connect の privacy answer は実際の release build に合わせ、data handling が変わったら更新する。
@@ -38,7 +38,7 @@
 
 ## スクリーンショット
 
-- tabs、bookmarks、history、commands、URLs、search を検索している command palette を撮る。
+- tabs、local destinations、commands、URLs、search、Safari が tested release で API を公開している場合だけ bookmark/history results を検索している command palette を撮る。
 - 通常ページ上の keyboard hints を撮る。
 - site controls または shortcut settings を撮る。
 - host app の permission/privacy explanation を撮る。
@@ -64,9 +64,10 @@
 - input、textarea、select、editable content への入力が奪われないことを確認する。
 - Google Docs など shortcut が多い web app を site settings で無効化できることを確認する。
 - YouTube controls が playback controls を壊さずに見つかることを確認する。
-- privacy-sensitive な local file access は public release から外すか、opt-in として明確に説明する。
+- privacy-sensitive な local file access が public release から除外されていることを確認する。
 - `pnpm run check` を実行する。
 - archive 前に `pnpm run build:xcode` を実行する。
+- App Store archive を作成する前に `pnpm run build:xcode:release` を実行する。
 
 ## Review references
 

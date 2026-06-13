@@ -22,6 +22,13 @@ test("loads content scripts early in every frame", () => {
   assert.equal(contentScript.all_frames, true);
 });
 
+test("limits public content-script access to web pages", () => {
+  const [contentScript] = manifest.content_scripts;
+
+  assert.deepEqual(contentScript.matches, ["http://*/*", "https://*/*"]);
+  assert.deepEqual(manifest.host_permissions, ["http://*/*", "https://*/*"]);
+});
+
 test("registers settings storage and options page", () => {
   assert.equal(manifest.permissions.includes("storage"), true);
   assert.equal(manifest.permissions.includes("bookmarks"), true);
