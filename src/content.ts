@@ -3512,7 +3512,7 @@
 
   function collectVisibleLinkSignatures(): Set<string> {
     const signatures = new Set<string>();
-    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    for (const link of querySelectorAllIncludingShadows<HTMLAnchorElement>(
       "a[href]",
     )) {
       if (!isVisibleLink(link)) {
@@ -3574,7 +3574,7 @@
     activationMode: HintActivationMode,
   ): void {
     const seen = new Set<HTMLAnchorElement>();
-    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    for (const link of querySelectorAllIncludingShadows<HTMLAnchorElement>(
       "a[href]",
     )) {
       if (
@@ -3597,7 +3597,7 @@
 
   function collectFormControlTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<FormControlTargetElement>();
-    for (const element of document.querySelectorAll<FormControlTargetElement>(
+    for (const element of querySelectorAllIncludingShadows<FormControlTargetElement>(
       "button, input, select, textarea",
     )) {
       if (seen.has(element) || !isVisibleFormControlTarget(element)) {
@@ -3616,7 +3616,7 @@
 
   function collectMenuTriggerTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<HTMLElement>();
-    for (const element of document.querySelectorAll<HTMLElement>(
+    for (const element of querySelectorAllIncludingShadows<HTMLElement>(
       MENU_TRIGGER_TARGET_SELECTOR,
     )) {
       if (seen.has(element) || !isVisibleMenuTriggerTarget(element)) {
@@ -3643,15 +3643,16 @@
   function collectMediaControlTargetsInto(targets: HintTarget[]): boolean {
     const seen = new Set<HTMLElement>();
     let addedControl = false;
-    for (const surface of document.querySelectorAll<HTMLElement>(
+    for (const surface of querySelectorAllIncludingShadows<HTMLElement>(
       MEDIA_CONTROL_SURFACE_SELECTOR,
     )) {
       if (!isVisibleElementWithAncestors(surface)) {
         continue;
       }
 
-      for (const element of surface.querySelectorAll<HTMLElement>(
+      for (const element of querySelectorAllIncludingShadows<HTMLElement>(
         MEDIA_CONTROL_TARGET_SELECTOR,
+        surface,
       )) {
         const targetElement = mediaControlTargetElement(element, surface);
         if (
@@ -3677,7 +3678,7 @@
 
   function collectMediaSurfaceTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<HTMLElement>();
-    for (const element of document.querySelectorAll<HTMLElement>(
+    for (const element of querySelectorAllIncludingShadows<HTMLElement>(
       MEDIA_SURFACE_TARGET_SELECTOR,
     )) {
       if (seen.has(element) || !isVisibleMediaSurfaceTarget(element)) {
@@ -3696,7 +3697,7 @@
 
   function collectSemanticActionTargetsInto(targets: HintTarget[]): void {
     const seen = new Set<HTMLElement>();
-    for (const element of document.querySelectorAll<HTMLElement>(
+    for (const element of querySelectorAllIncludingShadows<HTMLElement>(
       SEMANTIC_ACTION_TARGET_SELECTOR,
     )) {
       if (seen.has(element) || !isVisibleSemanticActionTarget(element)) {
@@ -3806,15 +3807,16 @@
   }
 
   function hasVisibleMediaControlTargets(): boolean {
-    for (const surface of document.querySelectorAll<HTMLElement>(
+    for (const surface of querySelectorAllIncludingShadows<HTMLElement>(
       MEDIA_CONTROL_SURFACE_SELECTOR,
     )) {
       if (!isVisibleElementWithAncestors(surface)) {
         continue;
       }
 
-      for (const element of surface.querySelectorAll<HTMLElement>(
+      for (const element of querySelectorAllIncludingShadows<HTMLElement>(
         MEDIA_CONTROL_TARGET_SELECTOR,
+        surface,
       )) {
         if (
           isVisibleMediaControlTarget(element) &&
@@ -3831,7 +3833,7 @@
   function revealableMediaSurfaceTargets(): HTMLElement[] {
     const surfaces: HTMLElement[] = [];
     const seen = new Set<HTMLElement>();
-    for (const element of document.querySelectorAll<HTMLElement>(
+    for (const element of querySelectorAllIncludingShadows<HTMLElement>(
       MEDIA_SURFACE_TARGET_SELECTOR,
     )) {
       if (seen.has(element) || !isVisibleMediaSurfaceTarget(element)) {
@@ -3912,13 +3914,16 @@
           : false,
       isFormSubmitButton:
         element instanceof HTMLButtonElement &&
-        element.closest("form") !== null &&
+        closestIncludingShadows("form", element) !== null &&
         element.type === "submit",
       isInNavigationContext:
-        element.closest(
+        closestIncludingShadows(
           'nav, header, [role="navigation"], [role="menubar"], [role="menu"]',
+          element,
         ) !== null,
-      isLink: element.matches("a[href]") || element.closest("a[href]") !== null,
+      isLink:
+        element.matches("a[href]") ||
+        closestIncludingShadows("a[href]", element) !== null,
       isNonButtonFormControl:
         element instanceof HTMLInputElement ||
         element instanceof HTMLSelectElement ||
@@ -3996,8 +4001,11 @@
         element instanceof HTMLSelectElement ||
         element instanceof HTMLTextAreaElement,
       isInMediaControlSurface:
-        element.closest(MEDIA_CONTROL_SURFACE_SELECTOR) !== null,
-      isLink: element.matches("a[href]") || element.closest("a[href]") !== null,
+        closestIncludingShadows(MEDIA_CONTROL_SURFACE_SELECTOR, element) !==
+        null,
+      isLink:
+        element.matches("a[href]") ||
+        closestIncludingShadows("a[href]", element) !== null,
       isNativeControl:
         tagName === "button" ||
         tagName === "input" ||
@@ -4005,7 +4013,7 @@
         tagName === "textarea",
       isYouTubeButton:
         element.classList.contains("ytp-button") ||
-        element.closest(".ytp-button") !== null,
+        closestIncludingShadows(".ytp-button", element) !== null,
       role,
       tagName,
     };
@@ -4015,8 +4023,11 @@
     element: HTMLElement,
     surface: HTMLElement,
   ): HTMLElement {
-    const youtubeButton = element.closest<HTMLElement>(".ytp-button");
-    if (youtubeButton && surface.contains(youtubeButton)) {
+    const youtubeButton = closestIncludingShadows(
+      ".ytp-button",
+      element,
+    ) as HTMLElement | null;
+    if (youtubeButton && containsIncludingShadows(surface, youtubeButton)) {
       return youtubeButton;
     }
 
@@ -4049,8 +4060,9 @@
   function isNativeHintTarget(element: HTMLElement): boolean {
     return (
       element.matches(NATIVE_HINT_TARGET_SELECTOR) ||
-      element.closest(NATIVE_HINT_TARGET_SELECTOR) !== null ||
-      element.querySelector(NATIVE_HINT_TARGET_SELECTOR) !== null
+      closestIncludingShadows(NATIVE_HINT_TARGET_SELECTOR, element) !== null ||
+      querySelectorIncludingShadows(NATIVE_HINT_TARGET_SELECTOR, element) !==
+        null
     );
   }
 
@@ -4082,7 +4094,14 @@
         return false;
       }
 
-      current = current.parentElement;
+      const pNode: Node | null = current.parentNode;
+      if (pNode instanceof ShadowRoot) {
+        current = pNode.host as HTMLElement;
+      } else if (pNode instanceof HTMLElement) {
+        current = pNode;
+      } else {
+        current = null;
+      }
     }
 
     return isVisibleElement(element);
@@ -4108,10 +4127,20 @@
   function firstNonEmptyTextNode(node: Node): Text | null {
     if (node.nodeType === Node.TEXT_NODE) {
       if (node.nodeValue && node.nodeValue.trim().length > 0) {
-        const parent = node.parentElement;
+        const parent =
+          node.parentElement ??
+          (node.parentNode instanceof ShadowRoot
+            ? (node.parentNode.host as HTMLElement)
+            : null);
         if (parent && isVisibleElementWithAncestors(parent)) {
           return node as Text;
         }
+      }
+    }
+    if (node instanceof HTMLElement && node.shadowRoot) {
+      const found = firstNonEmptyTextNode(node.shadowRoot);
+      if (found) {
+        return found;
       }
     }
     for (let i = 0; i < node.childNodes.length; i++) {
@@ -5229,7 +5258,7 @@
     const seen = new Set<Element>();
 
     for (const point of points) {
-      const element = document.elementFromPoint(point.left, point.top);
+      const element = elementFromPointIncludingShadows(point.left, point.top);
       if (element && !seen.has(element)) {
         seen.add(element);
         elements.push(element);
@@ -5263,13 +5292,20 @@
             movement,
           );
         }
-        current = current.parentElement;
+        const pNode: Node | null = current.parentNode;
+        if (pNode instanceof ShadowRoot) {
+          current = pNode.host;
+        } else if (pNode instanceof Element) {
+          current = pNode;
+        } else {
+          current = null;
+        }
       }
     }
 
     candidates.push(windowScrollCandidate(axis, movement));
 
-    for (const element of document.querySelectorAll("*")) {
+    for (const element of querySelectorAllIncludingShadows("*")) {
       if (element === document.documentElement) {
         continue;
       }
@@ -5468,5 +5504,98 @@
 
   function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function querySelectorAllIncludingShadows<T extends Element = Element>(
+    selector: string,
+    root: ParentNode = document,
+  ): T[] {
+    const results: T[] = Array.from(root.querySelectorAll<T>(selector));
+    const walkers = root.querySelectorAll("*");
+    for (let i = 0; i < walkers.length; i++) {
+      const el = walkers[i];
+      if (el.shadowRoot) {
+        results.push(
+          ...querySelectorAllIncludingShadows<T>(selector, el.shadowRoot),
+        );
+      }
+    }
+    return results;
+  }
+
+  function querySelectorIncludingShadows(
+    selector: string,
+    root: ParentNode,
+  ): Element | null {
+    const found = root.querySelector(selector);
+    if (found) {
+      return found;
+    }
+    const children = root.querySelectorAll("*");
+    for (let i = 0; i < children.length; i++) {
+      const el = children[i];
+      if (el.shadowRoot) {
+        const innerFound = querySelectorIncludingShadows(
+          selector,
+          el.shadowRoot,
+        );
+        if (innerFound) {
+          return innerFound;
+        }
+      }
+    }
+    return null;
+  }
+
+  function closestIncludingShadows(
+    selector: string,
+    element: Element,
+  ): Element | null {
+    let current: Element | null = element;
+    while (current) {
+      if (current.matches(selector)) {
+        return current;
+      }
+      const pNode: Node | null = current.parentNode;
+      if (pNode instanceof ShadowRoot) {
+        current = pNode.host;
+      } else if (pNode instanceof Element) {
+        current = pNode;
+      } else {
+        current = null;
+      }
+    }
+    return null;
+  }
+
+  function containsIncludingShadows(parent: Node, child: Node): boolean {
+    let current: Node | null = child;
+    while (current) {
+      if (current === parent) {
+        return true;
+      }
+      const pNode: Node | null = current.parentNode;
+      if (pNode instanceof ShadowRoot) {
+        current = pNode.host;
+      } else {
+        current = pNode;
+      }
+    }
+    return false;
+  }
+
+  function elementFromPointIncludingShadows(
+    x: number,
+    y: number,
+  ): Element | null {
+    let element = document.elementFromPoint(x, y);
+    while (element?.shadowRoot) {
+      const inner = element.shadowRoot.elementFromPoint(x, y);
+      if (!inner || inner === element) {
+        break;
+      }
+      element = inner;
+    }
+    return element;
   }
 })();
