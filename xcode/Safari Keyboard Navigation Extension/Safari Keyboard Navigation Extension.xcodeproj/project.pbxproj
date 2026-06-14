@@ -28,6 +28,7 @@
 		CDAA00032FC9000000125208 /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00072FC9000000125208 /* options.css */; };
 		CDAA00042FC9000000125208 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00082FC9000000125208 /* options.html */; };
 		CDAA00112FC9000000125208 /* help.js in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00102FC9000000125208 /* help.js */; };
+		CDAA00212FC9000000125208 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CDAA00252FC9000000125208 /* icons */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		CDAA00072FC9000000125208 /* options.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = options.css; path = "../../../web-extension/options.css"; sourceTree = "<group>"; };
 		CDAA00082FC9000000125208 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = "../../../web-extension/options.html"; sourceTree = "<group>"; };
 		CDAA00102FC9000000125208 /* help.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = help.js; path = "../../../web-extension/help.js"; sourceTree = "<group>"; };
+		CDAA00252FC9000000125208 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = "../../../web-extension/icons"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 				CDAA00062FC9000000125208 /* options.js */,
 				CDAA00072FC9000000125208 /* options.css */,
 				CDAA00082FC9000000125208 /* options.html */,
+				CDAA00252FC9000000125208 /* icons */,
 			);
 			name = Resources;
 			path = "Safari Keyboard Navigation Extension Extension";
@@ -280,6 +283,7 @@
 				CDAA00022FC9000000125208 /* options.js in Resources */,
 				CDAA00032FC9000000125208 /* options.css in Resources */,
 				CDAA00042FC9000000125208 /* options.html in Resources */,
+				CDAA00212FC9000000125208 /* icons in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
