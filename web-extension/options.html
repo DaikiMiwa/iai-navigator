@@ -9,240 +9,330 @@
     <script src="options.js" defer></script>
   </head>
   <body>
-    <div class="dashboard-container">
-      <header class="app-header">
-        <div class="header-logo">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="4" width="20" height="16" rx="4" fill="url(#logo-grad)" />
-            <path d="M6 8H7M9 8H10M12 8H13M15 8H18M6 12H9M11 12H13M15 12H18M6 16H18" stroke="white" stroke-width="1.8" stroke-linecap="round" />
-            <defs>
-              <linearGradient id="logo-grad" x1="2" y1="4" x2="22" y2="20" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#2f80ed" />
-                <stop offset="1" stop-color="#0056b3" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="header-text">
+    <div class="settings-window">
+      <aside class="sidebar" aria-label="Settings sections">
+        <div class="window-controls" aria-hidden="true">
+          <span class="control control-red"></span>
+          <span class="control control-yellow"></span>
+          <span class="control control-green"></span>
+        </div>
+
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div>
             <h1>IAI for Safari</h1>
-            <p>Control Safari using only your keyboard</p>
+            <p>Keyboard navigation</p>
           </div>
         </div>
-        <div class="header-actions">
-          <button id="save" class="btn-primary" type="button">Save Settings</button>
+
+        <nav class="nav-list">
+          <a class="nav-item active" href="#setup-card" data-nav-item>
+            <span class="nav-icon icon-setup" aria-hidden="true">S</span>
+            <span>Setup</span>
+          </a>
+          <a class="nav-item" href="#general-card" data-nav-item>
+            <span class="nav-icon icon-general" aria-hidden="true">G</span>
+            <span>General</span>
+          </a>
+          <a class="nav-item" href="#shortcuts-card" data-nav-item>
+            <span class="nav-icon icon-keyboard" aria-hidden="true">K</span>
+            <span>Shortcuts</span>
+          </a>
+          <a class="nav-item" href="#link-hints-card" data-nav-item>
+            <span class="nav-icon icon-links" aria-hidden="true">F</span>
+            <span>Link Hints</span>
+          </a>
+          <a class="nav-item" href="#palette-card" data-nav-item>
+            <span class="nav-icon icon-search" aria-hidden="true">O</span>
+            <span>Command Palette</span>
+          </a>
+          <a class="nav-item" href="#appearance-card" data-nav-item>
+            <span class="nav-icon icon-theme" aria-hidden="true">T</span>
+            <span>Theme</span>
+          </a>
+          <a class="nav-item" href="#site-access-card" data-nav-item>
+            <span class="nav-icon icon-site" aria-hidden="true">W</span>
+            <span>Website Settings</span>
+          </a>
+          <a class="nav-item" href="#privacy-card" data-nav-item>
+            <span class="nav-icon icon-privacy" aria-hidden="true">P</span>
+            <span>Privacy</span>
+          </a>
+          <a class="nav-item" href="#about-card" data-nav-item>
+            <span class="nav-icon icon-about" aria-hidden="true">?</span>
+            <span>Help & About</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p id="status" role="status" aria-live="polite"></p>
+          <button id="save" class="btn-primary" type="button">Save</button>
           <button id="reset" class="btn-secondary" type="button">Reset</button>
         </div>
-      </header>
+      </aside>
 
-      <div class="status-banner-container">
-        <p id="status" role="status"></p>
-      </div>
-
-      <div class="main-layout">
-        <!-- Settings Column -->
-        <div class="settings-column">
-          
-          <!-- General Card -->
-          <div class="card" id="general-card">
-            <div class="card-header">
-              <span class="card-icon">⚙️</span>
-              <h2>General</h2>
+      <main class="content">
+        <section class="section-card setup-card" id="setup-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Setup</p>
+              <h2>Safari extension status</h2>
             </div>
-            <div class="card-content">
-              <label class="switch-row">
-                <span class="label-desc">Enable keyboard navigation</span>
-                <div class="switch">
-                  <input id="enabled" type="checkbox">
-                  <span class="slider"></span>
-                </div>
-              </label>
-              <label class="input-group" style="margin-top: 16px;">
-                <span class="label-desc">Language (言語)</span>
-                <select id="language" class="custom-select">
-                  <option value="auto">Auto (System Language)</option>
-                  <option value="en">English</option>
-                  <option value="ja">日本語</option>
-                </select>
-              </label>
+            <span class="status-pill" id="extension-status">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="extension-status-label">Enabled</span>
+            </span>
+          </div>
+
+          <div class="setup-grid">
+            <label class="switch-row setup-switch">
+              <span>
+                <strong>IAI extension</strong>
+                <small>Turn off all keyboard commands without changing your custom settings.</small>
+              </span>
+              <span class="switch">
+                <input id="enabled" type="checkbox">
+                <span class="slider"></span>
+              </span>
+            </label>
+
+            <div class="setup-note">
+              <strong>Safari permission</strong>
+              <span>Enable the extension and website access from Safari Settings > Extensions.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="general-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">General</p>
+              <h2>Language and behavior</h2>
             </div>
           </div>
 
-          <!-- Site Access Card -->
-          <div class="card" id="site-access-card">
-            <div class="card-header">
-              <span class="card-icon">🌐</span>
-              <h2>Site Access</h2>
+          <div class="form-grid compact">
+            <label class="input-group">
+              <span class="label-desc">Language</span>
+              <select id="language" class="custom-select">
+                <option value="auto">Auto (System Language)</option>
+                <option value="en">English</option>
+                <option value="ja">Japanese</option>
+              </select>
+            </label>
+            <div class="info-panel">
+              <strong>Japanese IME-safe</strong>
+              <span>Composition and confirmation keys are ignored while text input is active.</span>
             </div>
-            <div class="card-content">
-              <label class="input-group">
-                <span class="label-desc">Site access mode</span>
-                <select id="site-mode" class="custom-select">
-                  <option value="all">Run on allowed websites except blocked sites</option>
-                  <option value="allowlist">Run only on listed sites</option>
-                </select>
-              </label>
-              
-              <div class="site-lists">
-                <label class="input-group">
-                  <span class="label-desc">Enabled sites (Allowlist)</span>
-                  <textarea id="allowlist" spellcheck="false" placeholder="example.com&#10;*.example.org"></textarea>
-                </label>
-                
-                <label class="input-group">
-                  <span class="label-desc">Disabled sites (Blocklist)</span>
-                  <textarea id="blocklist" spellcheck="false" placeholder="docs.google.com&#10;example.com"></textarea>
-                </label>
+          </div>
+        </section>
+
+        <section class="section-card" id="shortcuts-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Shortcuts</p>
+              <h2>Keyboard commands</h2>
+            </div>
+          </div>
+          <div id="shortcuts" class="shortcut-grid">
+          </div>
+        </section>
+
+        <section class="section-card split-card" id="link-hints-card">
+          <div class="section-body">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Link Hints</p>
+                <h2>Hint keys and preview</h2>
               </div>
             </div>
-          </div>
 
-          <!-- Shortcuts Card -->
-          <div class="card" id="shortcuts-card">
-            <div class="card-header">
-              <span class="card-icon">⌨️</span>
-              <h2>Shortcuts</h2>
-            </div>
-            <div class="card-content">
-              <div id="shortcuts" class="shortcut-grid">
-                <!-- Shortcuts will be dynamically injected here -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Command Palette Card -->
-          <div class="card" id="palette-card">
-            <div class="card-header">
-              <span class="card-icon">🔍</span>
-              <h2>Command Palette</h2>
-            </div>
-            <div class="card-content">
+            <div class="form-grid compact">
               <label class="input-group">
-                <span class="label-desc">Web search engine</span>
-                <select id="search-engine" class="custom-select">
-                  <option value="google">Google</option>
-                  <option value="duckduckgo">DuckDuckGo</option>
-                  <option value="brave">Brave Search</option>
-                  <option value="kagi">Kagi</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="wikipedia">Wikipedia</option>
-                  <option value="custom">Custom URL template</option>
-                </select>
+                <span class="label-desc">Hint keys</span>
+                <input id="hint-keys" class="custom-input" type="text" spellcheck="false">
               </label>
               <label class="input-group">
-                <span class="label-desc">Custom search URL template</span>
-                <input id="custom-search-url-template" class="custom-input" type="url" spellcheck="false" placeholder="https://search.example.com/?q={query}">
+                <span class="label-desc">Media font size</span>
+                <input id="media-font-size" class="custom-input" type="number" min="10" max="32">
               </label>
             </div>
           </div>
 
-          <!-- Appearance Card -->
-          <div class="card" id="appearance-card">
-            <div class="card-header">
-              <span class="card-icon">🎨</span>
-              <h2>Appearance</h2>
-            </div>
-            <div class="card-content">
-              <label class="input-group" style="margin-bottom: 24px;">
-                <span class="label-desc">Theme Preset</span>
-                <select id="theme" class="custom-select">
-                  <option value="iai">Iai (Cyan/Obsidian)</option>
-                  <option value="classic">Classic (Yellow)</option>
-                </select>
-              </label>
-              <div class="appearance-grid">
-                <label class="input-group">
-                  <span class="label-desc">Hint keys</span>
-                  <input id="hint-keys" class="custom-input" type="text" spellcheck="false">
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Font size (px)</span>
-                  <input id="font-size" class="custom-input" type="number" min="9" max="28">
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Media font size (px)</span>
-                  <input id="media-font-size" class="custom-input" type="number" min="10" max="32">
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Font weight</span>
-                  <input id="font-weight" class="custom-input" type="number" min="400" max="900" step="100">
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Opacity</span>
-                  <input id="opacity" class="custom-input" type="number" min="0.35" max="1" step="0.05">
-                </label>
-                <label class="input-group color-input-group">
-                  <span class="label-desc">Background</span>
-                  <div class="color-picker-wrapper">
-                    <input id="background-color" type="color">
-                  </div>
-                </label>
-                <label class="input-group color-input-group">
-                  <span class="label-desc">Text color</span>
-                  <div class="color-picker-wrapper">
-                    <input id="text-color" type="color">
-                  </div>
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Border radius (px)</span>
-                  <input id="border-radius" class="custom-input" type="number" min="0" max="20">
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Border width (px)</span>
-                  <input id="border-width" class="custom-input" type="number" min="0" max="5">
-                </label>
-                <label class="input-group color-input-group">
-                  <span class="label-desc">Border color</span>
-                  <div class="color-picker-wrapper">
-                    <input id="border-color" type="color">
-                  </div>
-                </label>
-                <label class="input-group">
-                  <span class="label-desc">Shadow opacity</span>
-                  <input id="shadow-opacity" class="custom-input" type="number" min="0" max="1" step="0.05">
-                </label>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Sticky Preview Column -->
-        <div class="preview-column">
-          <div class="preview-panel">
-            <div class="preview-header">
-              <h3>Live Hint Preview</h3>
-            </div>
-            
-            <!-- macOS Window Mockup -->
+          <aside class="preview-panel" aria-label="Live hint preview">
             <div class="mock-browser">
               <div class="mock-browser-header">
-                <div class="traffic-lights">
+                <div class="traffic-lights" aria-hidden="true">
                   <span class="light red"></span>
                   <span class="light yellow"></span>
                   <span class="light green"></span>
                 </div>
-                <div class="mock-address-bar">
-                  <span>wikipedia.org/wiki/Safari</span>
-                </div>
+                <div class="mock-address-bar">example.com/article</div>
               </div>
               <div class="mock-browser-content">
                 <div class="preview-canvas">
-                  <button class="preview-target" type="button">Read Articles</button>
+                  <button class="preview-target" type="button">Open Link</button>
                   <span id="hint-preview-label" class="skne-hint">ad</span>
                 </div>
               </div>
             </div>
+          </aside>
+        </section>
 
-            <div class="preview-footer">
-              <p>Type matching keys in Safari to target links. Your customizations are shown in real-time above.</p>
+        <section class="section-card" id="palette-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Command Palette</p>
+              <h2>Search destination</h2>
             </div>
           </div>
-        </div>
 
-      </div>
+          <div class="form-grid">
+            <label class="input-group">
+              <span class="label-desc">Web search engine</span>
+              <select id="search-engine" class="custom-select">
+                <option value="google">Google</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="brave">Brave Search</option>
+                <option value="kagi">Kagi</option>
+                <option value="youtube">YouTube</option>
+                <option value="wikipedia">Wikipedia</option>
+                <option value="custom">Custom URL template</option>
+              </select>
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Custom search URL template</span>
+              <input id="custom-search-url-template" class="custom-input" type="url" spellcheck="false" placeholder="https://search.example.com/?q={query}">
+            </label>
+          </div>
+        </section>
 
-      <footer class="app-footer">
-        <p>&copy; 2026 IAI for Safari. Designed with detail.</p>
-      </footer>
+        <section class="section-card" id="appearance-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Theme</p>
+              <h2>Hint appearance</h2>
+            </div>
+          </div>
+
+          <label class="input-group single-row">
+            <span class="label-desc">Theme preset</span>
+            <select id="theme" class="custom-select">
+              <option value="iai">Iai (Cyan/Obsidian)</option>
+              <option value="classic">Classic (Yellow)</option>
+            </select>
+          </label>
+
+          <div class="appearance-grid">
+            <label class="input-group">
+              <span class="label-desc">Font size</span>
+              <input id="font-size" class="custom-input" type="number" min="9" max="28">
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Font weight</span>
+              <input id="font-weight" class="custom-input" type="number" min="400" max="900" step="100">
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Opacity</span>
+              <input id="opacity" class="custom-input" type="number" min="0.35" max="1" step="0.05">
+            </label>
+            <label class="input-group color-input-group">
+              <span class="label-desc">Background</span>
+              <span class="color-picker-wrapper">
+                <input id="background-color" type="color">
+              </span>
+            </label>
+            <label class="input-group color-input-group">
+              <span class="label-desc">Text color</span>
+              <span class="color-picker-wrapper">
+                <input id="text-color" type="color">
+              </span>
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Border radius</span>
+              <input id="border-radius" class="custom-input" type="number" min="0" max="20">
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Border width</span>
+              <input id="border-width" class="custom-input" type="number" min="0" max="5">
+            </label>
+            <label class="input-group color-input-group">
+              <span class="label-desc">Border color</span>
+              <span class="color-picker-wrapper">
+                <input id="border-color" type="color">
+              </span>
+            </label>
+            <label class="input-group">
+              <span class="label-desc">Shadow opacity</span>
+              <input id="shadow-opacity" class="custom-input" type="number" min="0" max="1" step="0.05">
+            </label>
+          </div>
+        </section>
+
+        <section class="section-card" id="site-access-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Website Settings</p>
+              <h2>Site access</h2>
+            </div>
+          </div>
+
+          <label class="input-group single-row">
+            <span class="label-desc">Site access mode</span>
+            <select id="site-mode" class="custom-select">
+              <option value="all">Run on allowed websites except blocked sites</option>
+              <option value="allowlist">Run only on listed sites</option>
+            </select>
+          </label>
+
+          <div class="site-lists">
+            <label class="input-group">
+              <span class="label-desc">Enabled sites</span>
+              <textarea id="allowlist" spellcheck="false" placeholder="example.com&#10;*.example.org"></textarea>
+            </label>
+
+            <label class="input-group">
+              <span class="label-desc">Disabled sites</span>
+              <textarea id="blocklist" spellcheck="false" placeholder="docs.google.com&#10;example.com"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="section-card" id="privacy-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Privacy</p>
+              <h2>Local-first by design</h2>
+            </div>
+          </div>
+
+          <div class="info-list">
+            <div class="info-panel">
+              <strong>No analytics</strong>
+              <span>Browsing data, page content, and shortcut activity are not sent to external servers.</span>
+            </div>
+            <div class="info-panel">
+              <strong>Page access</strong>
+              <span>Visible links and controls are read locally only where Safari grants website access.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="about-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Help & About</p>
+              <h2>Project links</h2>
+            </div>
+          </div>
+
+          <div class="link-actions">
+            <a class="link-button" href="https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues" target="_blank" rel="noreferrer">Report an issue</a>
+            <a class="link-button" href="https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/blob/main/docs/privacy-policy.md" target="_blank" rel="noreferrer">Privacy Policy</a>
+            <a class="link-button" href="https://github.com/DaikiMiwa/safari-keyboard-navigation-extension" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </section>
+      </main>
     </div>
   </body>
 </html>

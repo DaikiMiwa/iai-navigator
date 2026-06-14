@@ -36,6 +36,7 @@
     const shortcutInputs = new Map();
     document.addEventListener("DOMContentLoaded", () => {
         renderShortcutInputs();
+        initSidebarNavigation();
         void loadSettingsIntoForm();
         document.getElementById("save")?.addEventListener("click", () => {
             void saveFormSettings();
@@ -43,6 +44,9 @@
         document.getElementById("reset")?.addEventListener("click", () => {
             fillForm(settingsApi.DEFAULT_EXTENSION_SETTINGS);
             setStatus("Defaults restored. Save to apply.");
+        });
+        document.getElementById("enabled")?.addEventListener("change", () => {
+            updateExtensionStatus();
         });
         const appearanceInputs = [
             "font-size",
@@ -90,6 +94,14 @@
             label.appendChild(input);
             container.appendChild(label);
             shortcutInputs.set(name, input);
+        }
+    }
+    function initSidebarNavigation() {
+        const navItems = Array.from(document.querySelectorAll("[data-nav-item]"));
+        for (const item of navItems) {
+            item.addEventListener("click", () => {
+                setActiveNavItem(item);
+            });
         }
     }
     async function loadSettingsIntoForm() {
@@ -143,6 +155,7 @@
         input("border-color").value = settings.hintStyle.borderColor;
         input("shadow-opacity").value = String(settings.hintStyle.shadowOpacity);
         updateHintPreview();
+        updateExtensionStatus();
     }
     async function saveFormSettings() {
         const shortcuts = { ...settingsApi.DEFAULT_EXTENSION_SETTINGS.shortcuts };
@@ -180,6 +193,21 @@
         await settingsApi.saveExtensionSettings(nextSettings);
         fillForm(nextSettings);
         setStatus("Saved.");
+    }
+    function updateExtensionStatus() {
+        const status = document.getElementById("extension-status");
+        const label = document.getElementById("extension-status-label");
+        if (!status || !label) {
+            return;
+        }
+        const enabled = input("enabled").checked;
+        status.classList.toggle("is-disabled", !enabled);
+        label.textContent = enabled ? "Enabled" : "Disabled";
+    }
+    function setActiveNavItem(activeItem) {
+        for (const item of document.querySelectorAll("[data-nav-item]")) {
+            item.classList.toggle("active", item === activeItem);
+        }
     }
     function input(id) {
         return document.getElementById(id);
