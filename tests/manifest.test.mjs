@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const manifest = JSON.parse(
@@ -37,6 +37,21 @@ test("registers settings storage and options page", () => {
     page: "options.html",
     open_in_tab: true,
   });
+});
+
+test("registers bundled extension icons", async () => {
+  assert.deepEqual(manifest.icons, {
+    16: "icons/icon-16.png",
+    32: "icons/icon-32.png",
+    48: "icons/icon-48.png",
+    128: "icons/icon-128.png",
+  });
+
+  await Promise.all(
+    Object.values(manifest.icons).map((iconPath) =>
+      access(new URL(`../web-extension/${iconPath}`, import.meta.url)),
+    ),
+  );
 });
 
 test("registers browser-level tab switching fallback commands", () => {
