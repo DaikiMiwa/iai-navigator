@@ -6,8 +6,8 @@ IAI の初回 App Store Connect privacy submission では、現在の release bu
 
 ### Privacy Policy
 
-- Privacy Policy URL: `https://daikimiwa.github.io/safari-keyboard-navigation-extension/privacy-policy.html`
-- 日本語版 Privacy Policy URL: `https://daikimiwa.github.io/safari-keyboard-navigation-extension/ja/privacy-policy.html`
+- Privacy Policy URL: `https://daikimiwa.github.io/iai-navigator/privacy-policy.html`
+- 日本語版 Privacy Policy URL: `https://daikimiwa.github.io/iai-navigator/ja/privacy-policy.html`
 - User Privacy Choices URL: 初回 release では空欄にする。
 
 この GitHub Pages URL は公開 product-facing page なので、repository document URL より優先する。

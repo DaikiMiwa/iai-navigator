@@ -175,9 +175,9 @@ Pull request を開く前に:
 
 ## サポート
 
-- バグ報告・機能リクエスト: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+- バグ報告・機能リクエスト: [GitHub Issues](https://github.com/DaikiMiwa/iai-navigator/issues)
 - 個別のお問い合わせ・セキュリティ報告: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
-- 法的表記および利用規約: [サポートページ](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html)
+- 法的表記および利用規約: [サポートページ](https://daikimiwa.github.io/iai-navigator/support.html)
 
 ## ライセンス
 

@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Update privacy links to Japanese version
       document.querySelectorAll("#header-privacy-link, #footer-privacy-link").forEach(el => {
-        el.href = "https://daikimiwa.github.io/safari-keyboard-navigation-extension/ja/privacy-policy.html";
+        el.href = "https://daikimiwa.github.io/iai-navigator/ja/privacy-policy.html";
       });
     } else {
       document.body.classList.remove("lang-ja");
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Update privacy links to English version
       document.querySelectorAll("#header-privacy-link, #footer-privacy-link").forEach(el => {
-        el.href = "https://daikimiwa.github.io/safari-keyboard-navigation-extension/privacy-policy.html";
+        el.href = "https://daikimiwa.github.io/iai-navigator/privacy-policy.html";
       });
     }
     localStorage.setItem("iai-lang", lang);
