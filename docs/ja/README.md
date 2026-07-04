@@ -1,8 +1,8 @@
-# Safari Keyboard Navigation Extension
+# IAI
 
 この日本語版は `README.md` の翻訳です。内容が異なる場合は英語版を優先します。
 
-Safari Keyboard Navigation Extension は、キーボード中心で Safari を操作するための小さな Safari Web Extension です。
+IAI は、キーボード中心で Safari を操作するための小さな Safari Web Extension です。
 
 Vimium のようなリンク Hint、ページ移動、タブ切り替え、URL コピー、軽量な navigation palette を Safari に追加します。フル機能のブラウザ自動化ツールを目指すのではなく、小さく監査しやすく、プライバシーに配慮した拡張として保つことを重視しています。
 

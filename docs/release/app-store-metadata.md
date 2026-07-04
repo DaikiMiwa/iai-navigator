@@ -4,14 +4,9 @@ This draft is intentionally written without Vim, Vimium, or Vomnibar branding. T
 
 ## Naming Direction
 
-Recommended direction: a short original name plus a descriptive subtitle.
+Chosen app name: IAI.
 
-Working examples that still need availability and trademark checks:
-
-- KeyNav for Safari
-- Homerow Navigator
-- SurfKeys for Safari
-- Keyboard Navigator for Safari
+Use a descriptive subtitle to explain the Safari-specific value.
 
 Avoid:
 
@@ -54,6 +49,10 @@ The extension runs locally in Safari. Website access is used to find visible pag
 keyboard, safari extension, shortcuts, command palette, tab search, link hints, productivity, browser navigation, local search
 
 Do not include third-party app names or trademarked terms as keywords unless legal review approves them.
+
+## Compatibility
+
+Requires macOS 14.0 or later for the first release.
 
 ## Review Notes Draft
 

@@ -4,7 +4,7 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 
 ## Positioning
 
-- Choose a distinct product name that does not rely on Vim, Vimium, or Vomnibar naming.
+- Use the distinct product name `IAI`, without relying on Vim, Vimium, or Vomnibar naming.
 - Describe the app as a keyboard-first Safari navigation tool, not as a clone or compatibility layer.
 - Use App Store metadata that focuses on Safari-specific value, local-first privacy, Japanese IME safety, site controls, and a built-in command palette.
 - Avoid third-party product names in the app name, subtitle, keywords, screenshots, and preview captions unless legal review confirms the usage is safe.
@@ -12,6 +12,7 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 ## Privacy And Permissions
 
 - Publish a privacy policy URL before App Store submission.
+- Fill App Store Connect privacy answers from [App Store Privacy Answers](app-store-privacy-answers.md).
 - Reuse the wording from [Permissions and Privacy](../permissions-and-privacy.md) as the source of truth.
 - State clearly that browsing data, page content, URLs, keystrokes, form values, and command palette queries are not sent to a developer-controlled server.
 - Explain that Safari website access is needed to read visible page structure and place keyboard hints.
@@ -31,6 +32,7 @@ This checklist tracks the remaining work before submitting the Safari Web Extens
 
 - Create or update the macOS app record.
 - Confirm bundle identifier, SKU, primary language, category, pricing, and availability.
+- Set the macOS minimum requirement to macOS 14.0 or later for the first release.
 - Add app name, subtitle, description, keywords, support URL, marketing URL if available, and privacy policy URL.
 - Add review notes that explain the Safari extension permissions and the no-server data model.
 - Add copyright and age rating answers.

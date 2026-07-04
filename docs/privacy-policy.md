@@ -2,7 +2,7 @@
 
 **Last Updated:** June 13, 2026
 
-This Privacy Policy explains how IAI for Safari ("the Extension") handles your information. The Extension is designed with a local-first, privacy-respecting architecture. We do not collect, store, or transmit your personal data, browsing history, or keystrokes to any external servers.
+This Privacy Policy explains how IAI ("the Extension") handles your information. The Extension is designed with a local-first, privacy-respecting architecture. We do not collect, store, or transmit your personal data, browsing history, or keystrokes to any external servers.
 
 ---
 

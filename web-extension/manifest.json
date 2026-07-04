@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "IAI for Safari",
+  "name": "IAI",
   "version": "0.1.0",
   "description": "A small Safari extension for link hints and keyboard page movement.",
   "icons": {

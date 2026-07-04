@@ -757,7 +757,7 @@
         return { ...engine, searchUrl: null };
     }
     function customSearchUrlFromTemplate(template, encodedQuery) {
-        if (!template || !template.includes("{query}")) {
+        if (!template?.includes("{query}")) {
             return null;
         }
         try {

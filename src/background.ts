@@ -1097,7 +1097,7 @@
     template: string,
     encodedQuery: string,
   ): string | null {
-    if (!template || !template.includes("{query}")) {
+    if (!template?.includes("{query}")) {
       return null;
     }
 

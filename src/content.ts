@@ -3086,7 +3086,7 @@
     index: number,
     dispositionOverride?: PaletteDisposition,
   ): void {
-    if (!commandPaletteState || !commandPaletteState.results[index]) {
+    if (!commandPaletteState?.results[index]) {
       return;
     }
 

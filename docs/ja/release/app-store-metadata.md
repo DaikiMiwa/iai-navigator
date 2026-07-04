@@ -4,14 +4,9 @@
 
 ## Naming direction
 
-おすすめは、短い独自名 + 説明的な subtitle です。
+決定した app name: IAI.
 
-availability と trademark check がまだ必要な working examples:
-
-- KeyNav for Safari
-- Homerow Navigator
-- SurfKeys for Safari
-- Keyboard Navigator for Safari
+Safari 固有の価値は、説明的な subtitle で伝える。
 
 避けるもの:
 
@@ -54,6 +49,10 @@ The extension runs locally in Safari. Website access is used to find visible pag
 keyboard, safari extension, shortcuts, command palette, tab search, link hints, productivity, browser navigation, local search
 
 法務確認が取れるまでは、third-party app names や trademarked terms を keywords に含めない。
+
+## Compatibility
+
+初回 release は macOS 14.0 or later を必須にする。
 
 ## Review notes draft
 

@@ -493,8 +493,8 @@ html.skne-media-controls-revealed #movie_player .ytp-gradient-bottom {
 }
 
 .skne-active-highlight {
-  animation: skne-highlight-pulse 400ms ease-out forwards !important;
-  border-radius: 2px !important;
+  animation: skne-highlight-pulse 400ms ease-out forwards;
+  border-radius: 2px;
 }
 
 @media (max-width: 520px) {
