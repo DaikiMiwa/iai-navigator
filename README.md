@@ -173,9 +173,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
 
 ## Support
 
-- Bug reports and feature requests: [GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+- Bug reports and feature requests: [GitHub Issues](https://github.com/DaikiMiwa/iai-navigator/issues)
 - Private inquiries and security reports: [support@mowa-mowa.com](mailto:support@mowa-mowa.com)
-- Legal disclosures and terms: [Support page](https://daikimiwa.github.io/safari-keyboard-navigation-extension/support.html)
+- Legal disclosures and terms: [Support page](https://daikimiwa.github.io/iai-navigator/support.html)
 
 ## License
 

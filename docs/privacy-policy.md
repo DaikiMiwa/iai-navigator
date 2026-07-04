@@ -53,4 +53,4 @@ If you perform a web search via the Command Palette, the search query is only tr
 ## 5. Contact and Support
 
 If you have any questions or feedback regarding this Privacy Policy, please open an issue in our official GitHub repository:
-[GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+[GitHub Issues](https://github.com/DaikiMiwa/iai-navigator/issues)

@@ -6,8 +6,8 @@ Use these answers for the first App Store Connect privacy submission for IAI, ba
 
 ### Privacy Policy
 
-- Privacy Policy URL: `https://daikimiwa.github.io/safari-keyboard-navigation-extension/privacy-policy.html`
-- Japanese Privacy Policy URL: `https://daikimiwa.github.io/safari-keyboard-navigation-extension/ja/privacy-policy.html`
+- Privacy Policy URL: `https://daikimiwa.github.io/iai-navigator/privacy-policy.html`
+- Japanese Privacy Policy URL: `https://daikimiwa.github.io/iai-navigator/ja/privacy-policy.html`
 - User Privacy Choices URL: leave blank for the first release.
 
 This GitHub Pages URL is preferred over the repository document URL because it is a public product-facing page.
