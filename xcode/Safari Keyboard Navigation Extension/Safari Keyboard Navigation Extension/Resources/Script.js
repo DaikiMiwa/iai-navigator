@@ -75,7 +75,7 @@ function localize(lang) {
   if (lang === "ja") {
     const privacyLink = document.getElementById("privacy-link");
     if (privacyLink) {
-      privacyLink.href = "https://daikimiwa.github.io/safari-keyboard-navigation-extension/ja/privacy-policy.html";
+      privacyLink.href = "https://daikimiwa.github.io/iai-navigator/ja/privacy-policy.html";
     }
   }
 }

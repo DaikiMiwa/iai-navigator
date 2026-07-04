@@ -55,4 +55,4 @@
 ## 5. お問い合わせとサポート
 
 本プライバシーポリシーに関するご質問やご意見がございましたら、公式GitHubリポジトリのIssueよりご連絡ください：
-[GitHub Issues](https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/issues)
+[GitHub Issues](https://github.com/DaikiMiwa/iai-navigator/issues)
