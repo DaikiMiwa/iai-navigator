@@ -2268,7 +2268,7 @@
         renderCommandPaletteResults();
     }
     function activateCommandPaletteIndex(index, dispositionOverride) {
-        if (!commandPaletteState || !commandPaletteState.results[index]) {
+        if (!commandPaletteState?.results[index]) {
             return;
         }
         commandPaletteState.activeIndex = index;

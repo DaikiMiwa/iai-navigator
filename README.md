@@ -1,8 +1,8 @@
-# Safari Keyboard Navigation Extension
+# IAI
 
 A small Safari Web Extension for keyboard-first browsing.
 
-Safari Keyboard Navigation Extension adds Vimium-like link hints, page movement, tab switching, URL copying, and a lightweight navigation palette to Safari without trying to become a full browser automation suite. The project is intentionally small, auditable, and privacy-conscious.
+IAI adds keyboard-first link hints, page movement, tab switching, URL copying, and a lightweight navigation palette to Safari without trying to become a full browser automation suite. The project is intentionally small, auditable, and privacy-conscious.
 
 Inspired by projects such as [Vimium](https://github.com/philc/vimium) and [Vimari](https://github.com/televator-apps/vimari), this extension focuses on the Safari-specific parts of keyboard navigation: link hints that behave like normal clicks, smooth page movement, practical tab commands, and a palette that works within Safari's Web Extension limits.
 

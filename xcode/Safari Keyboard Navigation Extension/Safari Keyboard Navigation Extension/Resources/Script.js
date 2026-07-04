@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    "app-title": "IAI for Safari",
+    "app-title": "IAI",
     "state-unknown": "Enable the extension in Safari to start using keyboard navigation.",
     "state-on": "The Safari extension is currently enabled.",
     "state-off": "The Safari extension is currently disabled.",
@@ -31,7 +31,7 @@ const translations = {
     "version-label": "Version"
   },
   ja: {
-    "app-title": "IAI for Safari",
+    "app-title": "IAI",
     "state-unknown": "Safariの設定で拡張機能を有効にして、キーボードナビゲーションを開始してください。",
     "state-on": "Safari拡張機能は現在有効です。",
     "state-off": "Safari拡張機能は現在無効です。",
@@ -75,7 +75,7 @@ function localize(lang) {
   if (lang === "ja") {
     const privacyLink = document.getElementById("privacy-link");
     if (privacyLink) {
-      privacyLink.href = "https://github.com/DaikiMiwa/safari-keyboard-navigation-extension/blob/main/docs/ja/privacy-policy.md";
+      privacyLink.href = "https://daikimiwa.github.io/safari-keyboard-navigation-extension/ja/privacy-policy.html";
     }
   }
 }

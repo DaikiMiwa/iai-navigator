@@ -4,7 +4,7 @@
 
 ## ポジショニング
 
-- Vim、Vimium、Vomnibar の名前に依存しない、独自の product name を決める。
+- Vim、Vimium、Vomnibar の名前に依存しない、独自の product name `IAI` を使う。
 - clone や compatibility layer ではなく、keyboard-first な Safari navigation tool として説明する。
 - App Store metadata では、Safari 固有の価値、local-first privacy、日本語 IME への配慮、site control、built-in command palette を前面に出す。
 - 法務確認が取れるまでは、app name、subtitle、keywords、screenshot、preview caption に third-party product name を入れない。
@@ -12,6 +12,7 @@
 ## Privacy と権限
 
 - App Store 提出前に privacy policy URL を公開する。
+- App Store Connect privacy answer は [App Store Privacy Answers](app-store-privacy-answers.md) をもとに入力する。
 - [権限とプライバシー](../permissions-and-privacy.md) を source of truth として再利用する。
 - browsing data、page content、URL、keystroke、form value、command palette query を開発者管理の server に送らないことを明記する。
 - keyboard hints を置くために、Safari の website access で visible page structure を読む必要があることを説明する。
@@ -31,6 +32,7 @@
 
 - macOS app record を作成または更新する。
 - bundle identifier、SKU、primary language、category、pricing、availability を確認する。
+- 初回 release の macOS minimum requirement は macOS 14.0 or later にする。
 - app name、subtitle、description、keywords、support URL、必要なら marketing URL、privacy policy URL を追加する。
 - Safari extension permission と no-server data model を説明する review notes を追加する。
 - copyright と age rating answer を入力する。

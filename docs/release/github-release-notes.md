@@ -1,4 +1,4 @@
-# IAI for Safari v1.0.0
+# IAI v1.0.0
 
 [English below]
 
